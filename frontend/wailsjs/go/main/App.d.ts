@@ -96,6 +96,18 @@ export function RevealGroupingNames():Promise<main.GroupSessionInfo>;
 
 export function ResetGroupingStudent(arg1:string):Promise<main.GroupSessionInfo>;
 
+export function OpenGroupingVote(arg1:number):Promise<main.GroupSessionInfo>;
+
+export function CloseGroupingVote():Promise<main.GroupSessionInfo>;
+
+export function ConfirmGroupingLeaders(arg1:Array<string>):Promise<main.GroupSessionInfo>;
+
+export function SetGroupingPots(arg1:Array<Array<string>>):Promise<main.GroupSessionInfo>;
+
+export function StartGroupingDraft():Promise<main.GroupSessionInfo>;
+
+export function GroupingDraftPick(arg1:number):Promise<main.GroupSessionInfo>;
+
 export function StopGroupingSession():Promise<void>;
 
 export function GetGroupingBook():Promise<main.GroupingBook>;

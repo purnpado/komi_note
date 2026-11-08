@@ -43,6 +43,12 @@ type StartRequest struct {
 	PreferenceLimit int      `json:"preferenceLimit"`
 	SubmitSeconds   int      `json:"submitSeconds"`
 	ExcludedKeys    []string `json:"excludedKeys"`
+	// Mode: preference(지망 배정) · draft(모둠장 투표 + 블라인드 지명) · leaderPreference(모둠장 투표 + 지망)
+	Mode        string `json:"mode"`
+	VoteSeconds int    `json:"voteSeconds"`
+	TurnSeconds int    `json:"turnSeconds"`
+	// LeaderPublic이면 확정한 모둠장 실명을 바로 공개합니다(기본은 비공개: 배정 완료 뒤 이름 공개 때 함께).
+	LeaderPublic bool `json:"leaderPublic"`
 }
 
 // Config는 app.go가 보관함 자료를 붙여 회차 서버에 넘기는 값입니다.
@@ -99,6 +105,21 @@ type Info struct {
 	Revealed         int               `json:"revealed"`
 	NamesRevealed    bool              `json:"namesRevealed"`
 	Result           []ResultGroup     `json:"result"`
+	// 모둠장이 있는 방식. VoteCounts·Suggested·Pots는 교사 화면 전용(전자칠판·학생에게 보내지 않음).
+	Mode          string      `json:"mode"`
+	VoteSeconds   int         `json:"voteSeconds"`
+	TurnSeconds   int         `json:"turnSeconds"`
+	Voted         int         `json:"voted"`
+	VoteCounts    []VoteCount `json:"voteCounts"`
+	Suggested     []string    `json:"suggested"`
+	Leaders       []string    `json:"leaders"`
+	Pots          [][]string  `json:"pots"`
+	DraftRound    int         `json:"draftRound"`
+	TurnGroup     int         `json:"turnGroup"`
+	CardsLeft     int         `json:"cardsLeft"`
+	TurnRemaining int         `json:"turnRemaining"`
+	Picks         []Pick      `json:"picks"`
+	LeaderPublic  bool        `json:"leaderPublic"`
 }
 
 type participant struct {
@@ -133,6 +154,18 @@ type session struct {
 	assigned      map[string]int
 	revealed      int
 	loginAttempts map[string]loginAttempt
+	// 모둠장이 있는 방식
+	votes         map[string][]string
+	suggested     []string
+	leaders       []string
+	pots          [][]string
+	remainingPots [][]string
+	draftBase     []int
+	draftRound    int
+	draftTurn     int
+	turnDeadline  time.Time
+	draftMembers  [][]string
+	picks         []Pick
 }
 
 // Server는 한 번에 하나의 모둠 참여 회차를 운영합니다.
@@ -239,6 +272,15 @@ func (s *Server) Start(cfg Config) (Info, error) {
 	if req.SubmitSeconds < 30 || req.SubmitSeconds > 900 {
 		req.SubmitSeconds = 180
 	}
+	if req.Mode != ModeDraft && req.Mode != ModeLeaderPreference {
+		req.Mode = ModePreference
+	}
+	if req.VoteSeconds < 30 || req.VoteSeconds > 900 {
+		req.VoteSeconds = 120
+	}
+	if req.TurnSeconds < 10 || req.TurnSeconds > 120 {
+		req.TurnSeconds = 30
+	}
 	req.GroupNames = names
 	listener, err := net.Listen("tcp", "0.0.0.0:0")
 	if err != nil {
@@ -258,7 +300,7 @@ func (s *Server) Start(cfg Config) (Info, error) {
 		listener: listener, code: fmt.Sprintf("%X", codeBytes), token: token, request: req,
 		byKey: map[string]*participant{}, byToken: map[string]*participant{},
 		capacities: Capacities(len(cfg.Participants), len(names)),
-		separate:   cfg.Separate, together: cfg.Together, phase: PhaseEntry, loginAttempts: map[string]loginAttempt{},
+		separate:   cfg.Separate, together: cfg.Together, phase: PhaseEntry, loginAttempts: map[string]loginAttempt{}, votes: map[string][]string{},
 	}
 	for _, p := range cfg.Participants {
 		if p.Key == "" || x.byKey[p.Key] != nil {
@@ -273,6 +315,8 @@ func (s *Server) Start(cfg Config) (Info, error) {
 	mux.HandleFunc("/api/"+x.token+"/login", s.loginAPI(x))
 	mux.HandleFunc("/api/"+x.token+"/state", s.stateAPI(x))
 	mux.HandleFunc("/api/"+x.token+"/preferences", s.preferenceAPI(x))
+	mux.HandleFunc("/api/"+x.token+"/vote", s.voteAPI(x))
+	mux.HandleFunc("/api/"+x.token+"/pick", s.pickAPI(x))
 	x.server = &http.Server{Handler: system.SecurityHeaders(mux), ReadHeaderTimeout: 5 * time.Second}
 	s.current = x
 	go func() { _ = x.server.Serve(listener) }()
@@ -285,21 +329,42 @@ func (x *session) studentURL() string {
 
 // tickLocked는 지망 제출 마감 시각이 지났으면 자동으로 마감·배정합니다.
 func (s *Server) tickLocked(x *session) {
-	if x.phase == PhaseSubmit && !x.paused && !x.deadline.IsZero() && !s.now().Before(x.deadline) {
+	if x.paused {
+		return
+	}
+	now := s.now()
+	if x.phase == PhaseSubmit && !x.deadline.IsZero() && !now.Before(x.deadline) {
 		s.allocateLocked(x)
+	}
+	if x.phase == PhaseVote && !x.deadline.IsZero() && !now.Before(x.deadline) {
+		s.closeVoteLocked(x)
+	}
+	// 지명 차례 시간이 지나면 무작위 카드를 대신 뒤집는다(밀린 차례가 여럿이면 차례대로).
+	for guard := 0; x.phase == PhaseDraft && !x.turnDeadline.IsZero() && !now.Before(x.turnDeadline) && guard < 100; guard++ {
+		deadline := x.turnDeadline
+		if _, err := s.pickLocked(x, 0, true); err != nil {
+			break
+		}
+		if x.phase == PhaseDraft {
+			x.turnDeadline = deadline.Add(time.Duration(x.request.TurnSeconds) * time.Second)
+		}
 	}
 }
 
 func (s *Server) allocateLocked(x *session) {
 	keys := make([]string, 0, len(x.participants))
 	prefs := map[string][]int{}
+	fixed := map[string]int{}
+	for group, leader := range x.leaders {
+		fixed[leader] = group
+	}
 	for _, p := range x.participants {
 		keys = append(keys, p.Key)
-		if len(p.prefs) > 0 {
+		if _, isLeader := fixed[p.Key]; !isLeader && len(p.prefs) > 0 {
 			prefs[p.Key] = p.prefs
 		}
 	}
-	x.assigned, x.rounds = Allocate(AllocateInput{Students: keys, Capacities: x.capacities, PrefIndex: prefs, Separate: x.separate, Together: x.together, Rounds: x.request.PreferenceLimit})
+	x.assigned, x.rounds = Allocate(AllocateInput{Students: keys, Capacities: x.capacities, PrefIndex: prefs, Separate: x.separate, Together: x.together, Rounds: x.request.PreferenceLimit, Fixed: fixed})
 	x.phase = PhaseReveal
 	x.revealed = 0
 	x.deadline = time.Time{}
@@ -336,8 +401,25 @@ func (s *Server) infoLocked(x *session) (Info, error) {
 		PreferenceLimit: x.request.PreferenceLimit, SubmitSeconds: x.request.SubmitSeconds, Paused: x.paused,
 		Total: len(x.participants), Participants: []ParticipantInfo{}, Rounds: []Round{}, Revealed: x.revealed,
 		NamesRevealed: x.phase == PhaseNamesShown, Result: []ResultGroup{},
+		Mode: x.request.Mode, VoteSeconds: x.request.VoteSeconds, TurnSeconds: x.request.TurnSeconds,
+		Voted: len(x.votes), VoteCounts: x.voteCountsLocked(), Suggested: append([]string{}, x.suggested...),
+		Leaders: append([]string{}, x.leaders...), Pots: [][]string{}, DraftRound: x.draftRound, TurnGroup: x.currentTurnGroupLocked(),
+		Picks: append([]Pick{}, x.picks...), LeaderPublic: x.request.LeaderPublic,
 	}
-	if x.phase == PhaseSubmit && !x.deadline.IsZero() {
+	for _, pot := range x.pots {
+		info.Pots = append(info.Pots, append([]string{}, pot...))
+	}
+	if x.phase == PhaseDraft && x.draftRound < len(x.remainingPots) {
+		info.CardsLeft = len(x.remainingPots[x.draftRound])
+		reference := s.now()
+		if x.paused {
+			reference = x.pausedAt
+		}
+		if remaining := int(x.turnDeadline.Sub(reference).Seconds() + 0.999); remaining > 0 {
+			info.TurnRemaining = remaining
+		}
+	}
+	if (x.phase == PhaseSubmit || x.phase == PhaseVote) && !x.deadline.IsZero() {
 		reference := s.now()
 		if x.paused {
 			reference = x.pausedAt
@@ -356,7 +438,18 @@ func (s *Server) infoLocked(x *session) (Info, error) {
 		}
 		info.Participants = append(info.Participants, ParticipantInfo{Key: p.Key, Number: p.Number, Name: p.Name, Nickname: p.nickname, Joined: joined, Submitted: len(p.prefs) > 0})
 	}
-	if x.rounds != nil {
+	if x.draftMembers != nil {
+		// 블라인드 지명: 지금까지 뽑힌 순서대로(모둠장이 맨 앞)
+		for index, name := range x.request.GroupNames {
+			group := ResultGroup{Name: name, Members: []ResultMember{}}
+			for _, key := range x.draftMembers[index] {
+				if p := x.byKey[key]; p != nil {
+					group.Members = append(group.Members, ResultMember{Key: p.Key, Number: p.Number, Name: p.Name, Nickname: p.nickname})
+				}
+			}
+			info.Result = append(info.Result, group)
+		}
+	} else if x.rounds != nil {
 		info.Rounds = x.rounds
 		for index, name := range x.request.GroupNames {
 			group := ResultGroup{Name: name, Members: []ResultMember{}}
@@ -379,6 +472,9 @@ func (s *Server) OpenPreferences(seconds int) (Info, error) {
 	if err != nil {
 		return Info{}, err
 	}
+	if x.request.Mode != ModePreference {
+		return Info{}, errors.New("모둠장이 있는 방식은 모둠장 투표부터 시작합니다")
+	}
 	if x.phase != PhaseEntry {
 		return Info{}, errors.New("입장 단계에서만 지망 제출을 시작할 수 있습니다")
 	}
@@ -399,8 +495,8 @@ func (s *Server) Extend(seconds int) (Info, error) {
 		return Info{}, err
 	}
 	s.tickLocked(x)
-	if x.phase != PhaseSubmit {
-		return Info{}, errors.New("지망 제출 중에만 시간을 늘릴 수 있습니다")
+	if x.phase != PhaseSubmit && x.phase != PhaseVote {
+		return Info{}, errors.New("지망 제출이나 모둠장 투표 중에만 시간을 늘릴 수 있습니다")
 	}
 	if seconds < 10 || seconds > 600 {
 		seconds = 60
@@ -522,6 +618,9 @@ func (s *Server) ResumeAll() {
 		if !x.deadline.IsZero() {
 			x.deadline = x.deadline.Add(s.now().Sub(x.pausedAt))
 		}
+		if !x.turnDeadline.IsZero() {
+			x.turnDeadline = x.turnDeadline.Add(s.now().Sub(x.pausedAt))
+		}
 		x.paused = false
 		x.pausedAt = time.Time{}
 	}
@@ -581,7 +680,7 @@ func (s *Server) loginAPI(x *session) http.HandlerFunc {
 			http.Error(w, "선생님이 회차를 잠시 멈췄습니다", http.StatusLocked)
 			return
 		}
-		if x.phase != PhaseEntry && x.phase != PhaseSubmit {
+		if x.phase != PhaseEntry && x.phase != PhaseSubmit && x.phase != PhaseVote {
 			http.Error(w, "입장이 마감되었습니다", http.StatusForbidden)
 			return
 		}
@@ -642,6 +741,7 @@ func writeJSON(w http.ResponseWriter, value any) { system.WriteJSON(w, value) }
 type studentGroup struct {
 	Name     string `json:"name"`
 	Capacity int    `json:"capacity"`
+	Leader   string `json:"leader,omitempty"` // 모둠장 공개를 고른 경우에만
 }
 
 type studentResult struct {
@@ -659,7 +759,7 @@ func (s *Server) stateAPI(x *session) http.HandlerFunc {
 		}
 		s.tickLocked(x)
 		p := s.participantFor(x, r)
-		state := map[string]any{"phase": x.phase, "kind": x.request.SourceKind, "paused": x.paused, "loginOpen": x.phase == PhaseEntry || x.phase == PhaseSubmit}
+		state := map[string]any{"phase": x.phase, "kind": x.request.SourceKind, "mode": x.request.Mode, "paused": x.paused, "loginOpen": x.phase == PhaseEntry || x.phase == PhaseSubmit || x.phase == PhaseVote}
 		if p == nil {
 			writeJSON(w, state)
 			return
@@ -667,12 +767,64 @@ func (s *Server) stateAPI(x *session) http.HandlerFunc {
 		groups := make([]studentGroup, len(x.request.GroupNames))
 		for i, name := range x.request.GroupNames {
 			groups[i] = studentGroup{Name: name, Capacity: x.capacities[i]}
+			if x.request.LeaderPublic && i < len(x.leaders) {
+				if leader := x.byKey[x.leaders[i]]; leader != nil {
+					groups[i].Leader = strings.TrimSpace(leader.Number) + "번 " + strings.TrimSpace(leader.Name)
+				}
+			}
 		}
 		state["nickname"] = p.nickname
 		state["groups"] = groups
 		state["preferenceLimit"] = x.request.PreferenceLimit
 		state["preferences"] = append([]int{}, p.prefs...)
-		if x.phase == PhaseSubmit && !x.deadline.IsZero() {
+		// 모둠장 정보는 본인에게만 알려 준다(다른 학생·전자칠판에는 배정 완료 뒤 실명 공개 때까지 숨김).
+		if group := x.leaderGroup(p.Key); group >= 0 {
+			state["isLeader"] = true
+			state["leaderGroup"] = x.request.GroupNames[group]
+		}
+		if x.phase == PhaseVote {
+			candidates := make([]map[string]any, len(x.participants))
+			for i, other := range x.participants {
+				candidates[i] = map[string]any{"id": i, "label": strings.TrimSpace(other.Number) + "번 " + strings.TrimSpace(other.Name)}
+			}
+			mine := []int{}
+			for _, key := range x.votes[p.Key] {
+				for i, other := range x.participants {
+					if other.Key == key {
+						mine = append(mine, i)
+					}
+				}
+			}
+			state["candidates"] = candidates
+			state["myVotes"] = mine
+			state["voteLimit"] = voteLimit
+		}
+		if x.phase == PhaseDraft {
+			group := x.currentTurnGroupLocked()
+			state["myTurn"] = group >= 0 && x.leaders[group] == p.Key
+			state["round"] = x.draftRound + 1
+			state["rounds"] = len(x.remainingPots)
+			if x.draftRound < len(x.remainingPots) {
+				state["cardsLeft"] = len(x.remainingPots[x.draftRound])
+			}
+			reference := s.now()
+			if x.paused {
+				reference = x.pausedAt
+			}
+			state["turnRemaining"] = int(x.turnDeadline.Sub(reference).Seconds() + 0.999)
+			if leaderGroup := x.leaderGroup(p.Key); leaderGroup >= 0 {
+				mine := []string{}
+				for _, key := range x.draftMembers[leaderGroup][1:] {
+					label := x.byKey[key].nickname
+					if label == "" {
+						label = "아직 입장하지 않은 친구"
+					}
+					mine = append(mine, label)
+				}
+				state["myPicks"] = mine
+			}
+		}
+		if (x.phase == PhaseSubmit || x.phase == PhaseVote) && !x.deadline.IsZero() {
 			reference := s.now()
 			if x.paused {
 				reference = x.pausedAt
@@ -686,12 +838,18 @@ func (s *Server) stateAPI(x *session) http.HandlerFunc {
 				for _, other := range x.participants {
 					if x.assigned[other.Key] == g {
 						label := other.nickname
-						if x.phase == PhaseNamesShown || label == "" {
+						publicLeader := x.request.LeaderPublic && x.leaderGroup(other.Key) >= 0
+						if publicLeader && x.phase != PhaseNamesShown {
+							label = strings.TrimSpace(other.Name) + " (모둠장)"
+						} else if x.phase == PhaseNamesShown || label == "" {
 							if x.phase == PhaseNamesShown {
 								label = strings.TrimSpace(other.Name)
 							} else {
 								label = "아직 입장하지 않은 친구"
 							}
+						}
+						if x.phase == PhaseNamesShown && x.leaderGroup(other.Key) >= 0 {
+							label += " (모둠장)"
 						}
 						if other == p {
 							label += " (나)"
@@ -737,6 +895,10 @@ func (s *Server) preferenceAPI(x *session) http.HandlerFunc {
 		}
 		if x.phase != PhaseSubmit {
 			http.Error(w, "지금은 지망을 낼 수 없습니다", http.StatusForbidden)
+			return
+		}
+		if x.leaderGroup(p.Key) >= 0 {
+			http.Error(w, "모둠장은 지망을 내지 않아요. 친구들이 고르는 동안 기다려 주세요", http.StatusForbidden)
 			return
 		}
 		if len(q.Groups) < 1 || len(q.Groups) > x.request.PreferenceLimit {

@@ -4,9 +4,11 @@
 export type {
     Info,
     ParticipantInfo,
+    Pick,
     ResultGroup,
     ResultMember,
     Round,
     RoundGroup,
-    StartRequest
+    StartRequest,
+    VoteCount
 } from "./models.js";

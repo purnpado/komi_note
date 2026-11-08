@@ -676,6 +676,36 @@ func (a *App) ResetGroupingStudent(key string) (GroupSessionInfo, error) {
 	return a.groupSession.ResetStudent(key)
 }
 
+// OpenGroupingVote는 모둠장 투표를 시작합니다(모둠장이 있는 방식).
+func (a *App) OpenGroupingVote(seconds int) (GroupSessionInfo, error) {
+	return a.groupSession.OpenVote(seconds)
+}
+
+// CloseGroupingVote는 모둠장 투표를 마감합니다.
+func (a *App) CloseGroupingVote() (GroupSessionInfo, error) {
+	return a.groupSession.CloseVote()
+}
+
+// ConfirmGroupingLeaders는 모둠마다 모둠장을 확정합니다(keys는 모둠 순서).
+func (a *App) ConfirmGroupingLeaders(keys []string) (GroupSessionInfo, error) {
+	return a.groupSession.ConfirmLeaders(keys)
+}
+
+// SetGroupingPots는 교사가 나눈 포트를 저장합니다(교사만 보는 기준).
+func (a *App) SetGroupingPots(pots [][]string) (GroupSessionInfo, error) {
+	return a.groupSession.SetPots(pots)
+}
+
+// StartGroupingDraft는 뱀 순서 블라인드 지명을 시작합니다.
+func (a *App) StartGroupingDraft() (GroupSessionInfo, error) {
+	return a.groupSession.StartDraft()
+}
+
+// GroupingDraftPick은 전자칠판에서 지금 차례 모둠장이 카드를 고릅니다(card 0이면 무작위).
+func (a *App) GroupingDraftPick(card int) (GroupSessionInfo, error) {
+	return a.groupSession.DraftPick(card)
+}
+
 // StopGroupingSession은 모둠 참여 회차를 닫고 메모리의 지망·닉네임을 지웁니다.
 func (a *App) StopGroupingSession() {
 	a.groupSession.Stop()

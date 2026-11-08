@@ -1711,6 +1711,10 @@ export namespace main {
 	    preferenceLimit: number;
 	    submitSeconds: number;
 	    excludedKeys: string[];
+	    mode: string;
+	    voteSeconds: number;
+	    turnSeconds: number;
+	    leaderPublic: boolean;
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
@@ -1721,6 +1725,10 @@ export namespace main {
 	        this.preferenceLimit = source["preferenceLimit"] || 0;
 	        this.submitSeconds = source["submitSeconds"] || 0;
 	        this.excludedKeys = [...(source["excludedKeys"] || [])];
+	        this.mode = source["mode"] || "";
+	        this.voteSeconds = source["voteSeconds"] || 0;
+	        this.turnSeconds = source["turnSeconds"] || 0;
+	        this.leaderPublic = Boolean(source["leaderPublic"]);
 	    }
 	}
 	export class GroupSessionParticipant {
@@ -1785,6 +1793,32 @@ export namespace main {
 	        this.members = (source["members"] || []).map((item: any) => new GroupSessionResultMember(item));
 	    }
 	}
+	export class GroupSessionVoteCount {
+	    key: string;
+	    count: number;
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.key = source["key"] || "";
+	        this.count = source["count"] || 0;
+	    }
+	}
+	export class GroupSessionPick {
+	    round: number;
+	    group: number;
+	    key: string;
+	    card: number;
+	    auto: boolean;
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.round = source["round"] || 0;
+	        this.group = source["group"] || 0;
+	        this.key = source["key"] || "";
+	        this.card = source["card"] || 0;
+	        this.auto = Boolean(source["auto"]);
+	    }
+	}
 	export class GroupSessionInfo {
 	    running: boolean;
 	    phase: string;
@@ -1807,6 +1841,20 @@ export namespace main {
 	    revealed: number;
 	    namesRevealed: boolean;
 	    result: GroupSessionResultGroup[];
+	    mode: string;
+	    voteSeconds: number;
+	    turnSeconds: number;
+	    voted: number;
+	    voteCounts: GroupSessionVoteCount[];
+	    suggested: string[];
+	    leaders: string[];
+	    pots: string[][];
+	    draftRound: number;
+	    turnGroup: number;
+	    cardsLeft: number;
+	    turnRemaining: number;
+	    picks: GroupSessionPick[];
+	    leaderPublic: boolean;
 
 	    static createFrom(source: any = {}) {
 	        return new GroupSessionInfo(source);
@@ -1835,6 +1883,20 @@ export namespace main {
 	        this.revealed = source["revealed"] || 0;
 	        this.namesRevealed = Boolean(source["namesRevealed"]);
 	        this.result = (source["result"] || []).map((item: any) => new GroupSessionResultGroup(item));
+	        this.mode = source["mode"] || "preference";
+	        this.voteSeconds = source["voteSeconds"] || 0;
+	        this.turnSeconds = source["turnSeconds"] || 0;
+	        this.voted = source["voted"] || 0;
+	        this.voteCounts = (source["voteCounts"] || []).map((item: any) => new GroupSessionVoteCount(item));
+	        this.suggested = [...(source["suggested"] || [])];
+	        this.leaders = [...(source["leaders"] || [])];
+	        this.pots = (source["pots"] || []).map((pot: any) => [...(pot || [])]);
+	        this.draftRound = source["draftRound"] || 0;
+	        this.turnGroup = typeof source["turnGroup"] === "number" ? source["turnGroup"] : -1;
+	        this.cardsLeft = source["cardsLeft"] || 0;
+	        this.turnRemaining = source["turnRemaining"] || 0;
+	        this.picks = (source["picks"] || []).map((item: any) => new GroupSessionPick(item));
+	        this.leaderPublic = Boolean(source["leaderPublic"]);
 	    }
 	}
 

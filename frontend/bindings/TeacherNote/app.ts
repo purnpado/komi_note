@@ -58,6 +58,13 @@ export function CloseGroupingPreferences(): $CancellablePromise<$models.GroupSes
 }
 
 /**
+ * CloseGroupingVote는 모둠장 투표를 마감합니다.
+ */
+export function CloseGroupingVote(): $CancellablePromise<$models.GroupSessionInfo> {
+    return $Call.ByID(2586299666);
+}
+
+/**
  * CloseSeatingEntry는 QR 학생 입장을 마감합니다. 재적 인원보다 적게 입장했으면
  * allowPartial(결석·미참여 예외 마감)을 교사가 확인해야 마감됩니다.
  */
@@ -77,6 +84,13 @@ export function CloseSeatingPreferenceSubmission(planID: string): $CancellablePr
  */
 export function CloseWindow(): $CancellablePromise<void> {
     return $Call.ByID(3642446947);
+}
+
+/**
+ * ConfirmGroupingLeaders는 모둠마다 모둠장을 확정합니다(keys는 모둠 순서).
+ */
+export function ConfirmGroupingLeaders(keys: string[] | null): $CancellablePromise<$models.GroupSessionInfo> {
+    return $Call.ByID(2535531964, keys);
 }
 
 /**
@@ -280,6 +294,13 @@ export function GetTimetableBook(): $CancellablePromise<$models.TimetableBook> {
 }
 
 /**
+ * GroupingDraftPick은 전자칠판에서 지금 차례 모둠장이 카드를 고릅니다(card 0이면 무작위).
+ */
+export function GroupingDraftPick(card: number): $CancellablePromise<$models.GroupSessionInfo> {
+    return $Call.ByID(379800698, card);
+}
+
+/**
  * HasPin은 간편 PIN 번호 설정 여부를 반환합니다.
  */
 export function HasPin(): $CancellablePromise<boolean> {
@@ -415,6 +436,13 @@ export function OpenAssessmentBoard(assessmentID: string, domainID: string): $Ca
  */
 export function OpenGroupingPreferences(seconds: number): $CancellablePromise<$models.GroupSessionInfo> {
     return $Call.ByID(165845754, seconds);
+}
+
+/**
+ * OpenGroupingVote는 모둠장 투표를 시작합니다(모둠장이 있는 방식).
+ */
+export function OpenGroupingVote(seconds: number): $CancellablePromise<$models.GroupSessionInfo> {
+    return $Call.ByID(3680309620, seconds);
 }
 
 /**
@@ -714,6 +742,13 @@ export function SelectStudentPhoto(): $CancellablePromise<string> {
 }
 
 /**
+ * SetGroupingPots는 교사가 나눈 포트를 저장합니다(교사만 보는 기준).
+ */
+export function SetGroupingPots(pots: (string[] | null)[] | null): $CancellablePromise<$models.GroupSessionInfo> {
+    return $Call.ByID(3990369366, pots);
+}
+
+/**
  * SetPin은 간편 숫자 PIN 번호를 등록하거나 변경합니다.
  */
 export function SetPin(pin: string): $CancellablePromise<void> {
@@ -739,6 +774,13 @@ export function StartAssessmentAnswerReview(assessmentID: string, domainID: stri
  */
 export function StartAssessmentReview(assessmentID: string, domainID: string): $CancellablePromise<$models.AssessmentSessionInfo> {
     return $Call.ByID(3494071289, assessmentID, domainID);
+}
+
+/**
+ * StartGroupingDraft는 뱀 순서 블라인드 지명을 시작합니다.
+ */
+export function StartGroupingDraft(): $CancellablePromise<$models.GroupSessionInfo> {
+    return $Call.ByID(3989092721);
 }
 
 /**

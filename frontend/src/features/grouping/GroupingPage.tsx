@@ -197,12 +197,20 @@ export function GroupingPage({ students, isHomeroomTeacher, config }: { students
   function importSession(info: models.GroupSessionInfo) {
     const target = sources.find((item) => item.kind === info.sourceKind && item.id === info.sourceId);
     if (target && target.value !== sourceValue) setSourceValue(target.value);
-    const roles = parseRoles(rolesText);
-    const groups = assignRoles(info.result.map((group) => group.members.map((member) => ({ key: member.key, number: member.number, name: member.name }))), roles);
+    // 모둠장이 있는 방식이면 모둠장에게 "모둠장" 역할을 주고, 나머지 역할은 다른 학생에게 무작위로 나눈다.
+    const leaders = new Set(info.leaders || []);
+    const roles = leaders.size ? ["모둠장", ...parseRoles(rolesText).filter((role) => role !== "모둠장")] : parseRoles(rolesText);
+    const otherRoles = leaders.size ? roles.slice(1) : roles;
+    const groups = info.result.map((group) => {
+      const members = group.members.map((member) => ({ key: member.key, number: member.number, name: member.name }));
+      const leader = members.filter((member) => leaders.has(member.key)).map((member) => ({ ...member, role: "모둠장" }));
+      const others = assignRoles([members.filter((member) => !leaders.has(member.key))], otherRoles)[0];
+      return [...leader, ...others];
+    });
     const placed = new Set(info.result.flatMap((group) => group.members.map((member) => member.key)));
     setDraft({
       id: "", updatedAt: "", createdAt: "",
-      title: `${todayLocal()} ${info.sourceLabel} 모둠(학생 지망)`,
+      title: `${todayLocal()} ${info.sourceLabel} 모둠(${info.mode === "draft" ? "블라인드 지명" : "학생 지망"})`,
       roles,
       groups: groups.map((members, index) => ({ name: info.result[index]?.name || `${index + 1}모둠`, members })),
       excluded: (target?.pupils || []).filter((pupil) => !placed.has(pupil.key)),
@@ -210,7 +218,7 @@ export function GroupingPage({ students, isHomeroomTeacher, config }: { students
     setDirty(true);
     setSelectedKey("");
     setNotice("");
-    setFeedback("학생 지망 배정 결과를 가져왔습니다. 확인·조정한 뒤 [저장]을 누르세요.");
+    setFeedback("학생 참여 편성 결과를 가져왔습니다. 확인·조정한 뒤 [저장]을 누르세요.");
   }
 
   function clickMember(key: string) {
@@ -418,7 +426,7 @@ export function GroupingPage({ students, isHomeroomTeacher, config }: { students
                   편성 조건(교사만 보기){ruleCount ? ` ${ruleCount}개` : ""}
                 </button>
                 <button type="button" className="quiet-button" disabled={busy || Boolean(sessionInfo) || present.length < 2} onClick={() => setStartOpen(true)} title={sessionInfo ? "진행 중인 학생 참여 회차가 있습니다" : undefined}>
-                  학생 참여로 편성(지망)
+                  학생 참여로 편성
                 </button>
                 <button type="button" className="primary-button" disabled={busy || !count} onClick={() => void createGroups()}>
                   모둠 만들기{count ? ` (${present.length}명 → ${count}모둠)` : ""}

@@ -26,6 +26,24 @@ export interface Info {
     "revealed": number;
     "namesRevealed": boolean;
     "result": ResultGroup[] | null;
+
+    /**
+     * 모둠장이 있는 방식. VoteCounts·Suggested·Pots는 교사 화면 전용(전자칠판·학생에게 보내지 않음).
+     */
+    "mode": string;
+    "voteSeconds": number;
+    "turnSeconds": number;
+    "voted": number;
+    "voteCounts": VoteCount[] | null;
+    "suggested": string[] | null;
+    "leaders": string[] | null;
+    "pots": (string[] | null)[] | null;
+    "draftRound": number;
+    "turnGroup": number;
+    "cardsLeft": number;
+    "turnRemaining": number;
+    "picks": Pick[] | null;
+    "leaderPublic": boolean;
 }
 
 /**
@@ -38,6 +56,17 @@ export interface ParticipantInfo {
     "nickname": string;
     "joined": boolean;
     "submitted": boolean;
+}
+
+/**
+ * Pick은 블라인드 지명 한 번의 기록입니다.
+ */
+export interface Pick {
+    "round": number;
+    "group": number;
+    "key": string;
+    "card": number;
+    "auto": boolean;
 }
 
 export interface ResultGroup {
@@ -82,4 +111,24 @@ export interface StartRequest {
     "preferenceLimit": number;
     "submitSeconds": number;
     "excludedKeys": string[] | null;
+
+    /**
+     * Mode: preference(지망 배정) · draft(모둠장 투표 + 블라인드 지명) · leaderPreference(모둠장 투표 + 지망)
+     */
+    "mode": string;
+    "voteSeconds": number;
+    "turnSeconds": number;
+
+    /**
+     * LeaderPublic이면 확정한 모둠장 실명을 바로 공개합니다(기본은 비공개: 배정 완료 뒤 이름 공개 때 함께).
+     */
+    "leaderPublic": boolean;
+}
+
+/**
+ * VoteCount는 모둠장 투표 결과(교사 화면 전용)입니다.
+ */
+export interface VoteCount {
+    "key": string;
+    "count": number;
 }

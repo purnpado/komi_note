@@ -158,3 +158,48 @@
 .grouping-live-controls { display: flex; justify-content: center; }
 .grouping-live-controls .grouping-session-controls button { min-height: 52px; padding: 10px 22px; font-size: 18px; }
 @media (max-width: 900px) { .grouping-session-body, .grouping-live-entry { grid-template-columns: 1fr; } .grouping-session-form { grid-template-columns: 1fr; } }
+
+/* 학생 참여: 방식 고르기·모둠장 확정·포트 나누기 */
+.grouping-mode-choice { display: grid; gap: 8px; margin-bottom: 14px; }
+.grouping-mode-choice button { display: grid; gap: 3px; padding: 11px 13px; border: 1px solid #e3d2bf; border-radius: 12px; color: #4a3326; background: #fffdfa; font: inherit; text-align: left; cursor: pointer; }
+.grouping-mode-choice button b { font-size: 14px; }
+.grouping-mode-choice button span { color: #7d6b5e; font-size: 12px; line-height: 1.5; }
+.grouping-mode-choice button.selected { border: 2px solid #d9803a; background: #fff3e2; }
+.grouping-leader-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.grouping-pots-dialog { width: min(820px, calc(100vw - 32px)); }
+.grouping-pots-actions { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.grouping-pots { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.grouping-pots section { padding: 10px; border: 1px solid #ecd9c6; border-radius: 12px; background: #fffaf3; }
+.grouping-pots section.over { border-color: #d9534f; background: #fdebe8; }
+.grouping-pots h3 { margin: 0 0 6px; color: #5a3d2b; font-size: 14px; }
+.grouping-pots h3 small { color: #a08876; font-weight: 600; }
+.grouping-pots ul { margin: 0; padding-left: 16px; color: #5a3d2b; font-size: 13px; line-height: 1.6; }
+.grouping-pots-edit { margin-top: 12px; }
+.grouping-pots-edit summary { color: #5f4535; font-size: 13px; font-weight: 800; cursor: pointer; }
+.grouping-pots-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px; max-height: 260px; overflow: auto; margin-top: 8px; }
+.grouping-pots-list label { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 5px 8px; border-radius: 9px; background: #fff; font-size: 13px; }
+.grouping-pots-list select { min-height: 30px; border: 1px solid #e0cdbb; border-radius: 8px; font: inherit; font-size: 12px; }
+
+/* 전자칠판: 대기·블라인드 지명 */
+.grouping-live header .grouping-live-turn-timer { margin-left: auto; margin-right: 16px; padding: 4px 16px; border-radius: 999px; color: #ffd45c; background: #2a1a05; font-size: clamp(20px, 3vh, 36px); font-weight: 900; font-variant-numeric: tabular-nums; }
+.grouping-live-wait { display: grid; flex: 1; place-items: center; }
+.grouping-live-wait p { max-width: 900px; margin: 0; color: #3b4a45; font-size: clamp(20px, 3.2vh, 38px); font-weight: 800; line-height: 1.6; text-align: center; }
+.grouping-live-deck { display: grid; gap: 1.4vh; }
+.grouping-live-cards { display: flex; flex-wrap: wrap; justify-content: center; gap: 1vw; }
+.grouping-live-card { width: clamp(64px, 7vw, 120px); aspect-ratio: 3 / 4; border: 0; border-radius: 16px; color: #fff; background: linear-gradient(145deg, #c2410c, #ff7b54); font: inherit; font-size: clamp(22px, 3.4vh, 44px); font-weight: 900; box-shadow: 0 6px 0 #8a2e08; cursor: pointer; }
+.grouping-live-card:hover:not(:disabled) { transform: translateY(-3px); }
+.grouping-live-card:disabled { opacity: .6; cursor: default; }
+.grouping-live-flip { justify-self: center; margin: 0; padding: .6vh 1.6vw; border-radius: 14px; color: #3b4a45; background: #fff1d9; font-size: clamp(18px, 2.8vh, 32px); font-weight: 800; text-align: center; animation: grouping-flip .45s ease-out; }
+.grouping-live-flip b { color: #b5561d; }
+@keyframes grouping-flip { from { transform: translateY(10px) scale(.96); } to { transform: none; } }
+.grouping-live .grouping-present-grid.compact { flex: 1; min-height: 0; }
+.grouping-live .grouping-present-grid.compact li { font-size: clamp(15px, 2.2vh, 28px); }
+.grouping-live .grouping-live-current { border-color: #2f6fa8; box-shadow: 0 0 0 4px #9cc3e8; }
+.grouping-live .grouping-present-grid li span { padding: 1px 8px; border-radius: 8px; color: #24604c; background: #e2f3eb; font-size: .6em; font-weight: 800; }
+.grouping-live .grouping-live-leader-hidden b { color: #9a8a7c; font-size: .8em; }
+@media (prefers-reduced-motion: reduce) { .grouping-live-flip { animation: none; } .grouping-live-card:hover:not(:disabled) { transform: none; } }
+
+.grouping-leader-public { display: flex; align-items: flex-start; gap: 8px; margin-top: 12px; padding: 10px 12px; border: 1px solid #ecd9c6; border-radius: 12px; background: #fffaf3; color: #6b513c; font-size: 12px; line-height: 1.55; }
+.grouping-leader-public input { margin-top: 3px; }
+.grouping-leader-public b { color: #4a3326; font-size: 13px; }
+.grouping-live-groups .grouping-live-leader-name { color: #24604c; font-weight: 800; }

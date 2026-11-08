@@ -31,6 +31,8 @@ type AllocateInput struct {
 	Separate   []Pair
 	Together   []Pair
 	Rounds     int // 지망 개수(1~3)
+	// Fixed는 미리 모둠이 정해진 학생(모둠장) → 모둠 index입니다. 지망 배정에서 빠지고 옮겨지지 않습니다.
+	Fixed map[string]int
 }
 
 // randomIntn은 암호 난수로 0~n-1을 고릅니다(추첨 공정성).
@@ -96,6 +98,35 @@ func Allocate(input AllocateInput) (map[string]int, []Round) {
 	for _, unit := range togetherUnits(input.Students, input.Together) {
 		for _, student := range unit {
 			unitOf[student] = unit
+		}
+	}
+	// 모둠장(고정 학생)을 먼저 넣고, 그 짝(함께 넣기)도 자리가 있으면 같은 모둠으로 데려온다.
+	immovable := map[string]bool{}
+	for student, unit := range unitOf {
+		if len(unit) > 1 {
+			immovable[student] = true
+		}
+	}
+	pulled := make([][]string, groupCount)
+	for _, student := range input.Students {
+		group, ok := input.Fixed[student]
+		if !ok || group < 0 || group >= groupCount {
+			continue
+		}
+		place(student, group)
+		immovable[student] = true
+	}
+	for _, student := range input.Students {
+		group, ok := input.Fixed[student]
+		if !ok || group < 0 || group >= groupCount {
+			continue
+		}
+		for _, partner := range unitOf[student] {
+			if _, done := assigned[partner]; done || remaining(group) <= 0 || conflicts(partner, group) > 0 {
+				continue
+			}
+			place(partner, group)
+			pulled[group] = append(pulled[group], partner)
 		}
 	}
 	rounds := []Round{}
@@ -169,7 +200,7 @@ func Allocate(input AllocateInput) (map[string]int, []Round) {
 	// 여러 번 무작위로 넣어 본 뒤 조건 위반이 가장 적은 배치를 고른다(지망으로 들어간 학생은 움직이지 않음).
 	final := Round{Label: "남은 자리", Groups: make([]RoundGroup, groupCount)}
 	for group := range final.Groups {
-		final.Groups[group].Accepted = []string{}
+		final.Groups[group].Accepted = append([]string{}, pulled[group]...)
 	}
 	left := []string{}
 	for _, student := range input.Students {
@@ -271,8 +302,8 @@ func Allocate(input AllocateInput) (map[string]int, []Round) {
 		final.Groups[group].Accepted = append(final.Groups[group].Accepted, student)
 	}
 	rounds = append(rounds, final)
-	repairTogether(assigned, members, rounds, separate, input.Together, unitOf)
-	repairSeparate(assigned, members, rounds, separate, unitOf)
+	repairTogether(assigned, members, rounds, separate, input.Together, immovable, input.Fixed)
+	repairSeparate(assigned, members, rounds, separate, immovable)
 	for group := range rounds[len(rounds)-1].Groups {
 		sort.Strings(rounds[len(rounds)-1].Groups[group].Accepted)
 	}
@@ -281,7 +312,7 @@ func Allocate(input AllocateInput) (map[string]int, []Round) {
 
 // repairTogether는 앞 라운드가 자리를 채워 '함께 넣을 학생'이 갈라졌을 때, 한 명을 짝의 모둠 학생(묶음이 아닌 학생)과
 // 맞바꿔 다시 모읍니다. '넣지 않기' 조건을 새로 어기는 맞바꿈은 하지 않습니다. 옮긴 학생은 라운드 기록에서 "남은 자리"로 옮깁니다.
-func repairTogether(assigned map[string]int, members [][]string, rounds []Round, separate map[[2]string]bool, together []Pair, unitOf map[string][]string) {
+func repairTogether(assigned map[string]int, members [][]string, rounds []Round, separate map[[2]string]bool, together []Pair, immovable map[string]bool, fixed map[string]int) {
 	if len(together) == 0 {
 		return
 	}
@@ -320,7 +351,7 @@ func repairTogether(assigned map[string]int, members [][]string, rounds []Round,
 		roundOf[student] = last
 	}
 	for pass := 0; pass < 100; pass++ {
-		fixed := false
+		changed := false
 		for _, pair := range together {
 			ga, okA := assigned[pair.A]
 			gb, okB := assigned[pair.B]
@@ -338,12 +369,12 @@ func repairTogether(assigned map[string]int, members [][]string, rounds []Round,
 			}
 			for _, try := range tries {
 				mover, from, to := try.student, try.from, try.to
-				if conflictsIn(mover, to, "") {
+				if _, isFixed := fixed[mover]; isFixed || conflictsIn(mover, to, "") {
 					continue
 				}
 				best, bestRank := "", -1
 				for _, candidate := range members[to] {
-					if len(unitOf[candidate]) > 1 || conflictsIn(mover, to, candidate) || conflictsIn(candidate, from, mover) {
+					if immovable[candidate] || conflictsIn(mover, to, candidate) || conflictsIn(candidate, from, mover) {
 						continue
 					}
 					if roundOf[candidate] > bestRank {
@@ -360,11 +391,11 @@ func repairTogether(assigned map[string]int, members [][]string, rounds []Round,
 				assigned[mover], assigned[best] = to, from
 				moveRecord(mover, to)
 				moveRecord(best, from)
-				fixed = true
+				changed = true
 				break
 			}
 		}
-		if !fixed {
+		if !changed {
 			return
 		}
 	}
@@ -374,8 +405,8 @@ func repairTogether(assigned map[string]int, members [][]string, rounds []Round,
 // 그 학생을 다른 모둠 학생과 맞바꿔 조건을 지킵니다. 맞바꿀 학생은 남은 자리로 들어온 학생,
 // 그다음 늦은 지망으로 들어온 학생을 먼저 고릅니다. 옮긴 두 학생은 라운드 기록에서 "남은 자리"로 옮겨
 // 전자칠판 공개가 실제 결과와 어긋나지 않게 합니다.
-func repairSeparate(assigned map[string]int, members [][]string, rounds []Round, separate map[[2]string]bool, unitOf map[string][]string) {
-	inUnit := func(student string) bool { return len(unitOf[student]) > 1 }
+func repairSeparate(assigned map[string]int, members [][]string, rounds []Round, separate map[[2]string]bool, immovable map[string]bool) {
+	inUnit := func(student string) bool { return immovable[student] }
 	if len(separate) == 0 {
 		return
 	}
@@ -547,4 +578,133 @@ func Capacities(total, groups int) []int {
 		}
 	}
 	return result
+}
+
+// PickInput은 블라인드 지명에서 카드 한 장을 뒤집을 때 필요한 값입니다.
+type PickInput struct {
+	Pot      []string   // 이 포트에 남은 학생
+	Group    int        // 고르는 모둠
+	Members  [][]string // 지금까지 모둠별 학생(모둠장 포함)
+	Separate []Pair
+	Together []Pair
+	// Later는 이번 라운드에서 이 모둠 다음에 고를 모둠들(차례 순서)입니다. 남은 카드로 이 모둠들도
+	// '넣지 않기'를 어기지 않고 받을 수 있는 학생을 우선하기 위해 씁니다.
+	Later []int
+}
+
+// PickFromPot은 카드를 뒤집는 순간 그 포트에 남은 학생 중 한 명을 고릅니다. 카드 번호와 학생은 미리
+// 연결되지 않으므로(잘 섞은 카드 더미와 같은 공정성), 교사 조건을 지키면서도 누가 남았는지·왜 그 카드를
+// 못 고르는지 드러나지 않습니다. 넣지 않을 학생이 있는 모둠은 피하고, 함께 넣을 짝이 이 모둠에 있으면
+// 그 학생을, 다른 모둠에 있으면 다른 학생을 우선합니다. 같은 점수끼리는 무작위입니다.
+func PickFromPot(input PickInput) string {
+	if len(input.Pot) == 0 {
+		return ""
+	}
+	separate := map[[2]string]bool{}
+	for _, pair := range input.Separate {
+		separate[pairKey(pair.A, pair.B)] = true
+	}
+	groupOf := map[string]int{}
+	for g, list := range input.Members {
+		for _, student := range list {
+			groupOf[student] = g
+		}
+	}
+	partners := map[string][]string{}
+	for _, pair := range input.Together {
+		partners[pair.A] = append(partners[pair.A], pair.B)
+		partners[pair.B] = append(partners[pair.B], pair.A)
+	}
+	best := []string{}
+	bestScore := 1 << 30
+	for _, student := range input.Pot {
+		score := 0
+		if input.Group >= 0 && input.Group < len(input.Members) {
+			for _, other := range input.Members[input.Group] {
+				if separate[pairKey(student, other)] {
+					score += 1000
+				}
+			}
+		}
+		for _, partner := range partners[student] {
+			if g, ok := groupOf[partner]; ok {
+				if g == input.Group {
+					score -= 100
+				} else {
+					score += 100
+				}
+			}
+		}
+		// 이 학생을 이 모둠에 넣으면 이번 라운드의 다음 모둠들이 막다른 카드만 받게 되는지 미리 본다.
+		if !laterGroupsCanPick(input, student, separate) {
+			score += 500
+		}
+		if score < bestScore {
+			best, bestScore = []string{student}, score
+		} else if score == bestScore {
+			best = append(best, student)
+		}
+	}
+	return best[randomIntn(len(best))]
+}
+
+// laterGroupsCanPick은 student를 뺀 남은 포트로, 이번 라운드에서 고를 다음 모둠들이 각각 '넣지 않기'에 걸리지 않는
+// 서로 다른 학생을 받을 수 있는지(이분 매칭) 확인합니다.
+func laterGroupsCanPick(input PickInput, student string, separate map[[2]string]bool) bool {
+	rest := []string{}
+	for _, other := range input.Pot {
+		if other != student {
+			rest = append(rest, other)
+		}
+	}
+	picking := input.Later
+	if len(picking) > len(rest) {
+		picking = picking[:len(rest)]
+	}
+	if len(picking) == 0 || len(separate) == 0 {
+		return true
+	}
+	allowed := func(group int, candidate string) bool {
+		if group < 0 || group >= len(input.Members) {
+			return true
+		}
+		for _, member := range input.Members[group] {
+			if separate[pairKey(candidate, member)] {
+				return false
+			}
+		}
+		return true
+	}
+	owner := make([]int, len(rest)) // 학생 index → 맡은 picking index(+1), 0이면 없음
+	var try func(g int, seen []bool) bool
+	try = func(g int, seen []bool) bool {
+		for c, candidate := range rest {
+			if seen[c] || !allowed(picking[g], candidate) {
+				continue
+			}
+			seen[c] = true
+			if owner[c] == 0 || try(owner[c]-1, seen) {
+				owner[c] = g + 1
+				return true
+			}
+		}
+		return false
+	}
+	for g := range picking {
+		if !try(g, make([]bool, len(rest))) {
+			return false
+		}
+	}
+	return true
+}
+
+// SnakeOrder는 라운드(포트) 번호에 따른 지명 순서입니다. 짝수 라운드는 기본 순서, 홀수 라운드는 거꾸로.
+func SnakeOrder(base []int, round int) []int {
+	order := append([]int(nil), base...)
+	if round%2 == 1 {
+		for i, j := 0, len(order)-1; i < j; i, j = i+1, j-1 {
+			order[i], order[j] = order[j], order[i]
+		}
+	}
+	return order
 }
