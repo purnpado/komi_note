@@ -1,3 +1,4 @@
+import { printSheet } from "../shared/desktopActions";
 import { useEffect, useMemo, useState } from "react";
 import { ListCleaningPlans, SaveCleaningPlan } from "../../../wailsjs/go/main/App";
 import { main as models } from "../../../wailsjs/go/models";
@@ -150,13 +151,12 @@ export function CleaningPage({ students }: { students: models.Student[] }) {
   function printPlan() {
     const names = new Map(studentsByNumber.map((student) => [student.id, student.name]));
     const cards = zones.map((zone) => `<article><h2>${escapePrintHtml(zone.name)}</h2><small>${escapePrintHtml(zone.day || "요일 미정")} · ${zone.requiredCount}명 담당</small><p>${assignments.filter((assignment) => assignment.zoneId === zone.id).map((assignment) => escapePrintHtml(names.get(assignment.studentId) || "알 수 없음")).join(" · ") || "담당 학생 미배정"}</p>${zone.note ? `<em>${escapePrintHtml(zone.note)}</em>` : ""}</article>`).join("");
-    const child = window.open("", "_blank", "width=960,height=700");
-    if (!child) {
-      setNotice("인쇄 창을 열지 못했습니다. 팝업 차단 설정을 확인해 주세요.");
-      return;
-    }
-    child.document.write(`<!doctype html><html lang="ko"><meta charset="utf-8"><title>${escapePrintHtml(title)}</title><style>@page{size:A4 landscape;margin:12mm}body{font-family:Arial,sans-serif;color:#1e2a44}h1{text-align:center;margin:0 0 5mm}header{text-align:center;color:#76512e;margin-bottom:10mm}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8mm}article{min-height:42mm;border:1px solid #777;border-radius:6px;padding:6mm}h2{margin:0 0 3mm;font-size:18pt}small{color:#855a31}p{font-size:14pt;font-weight:bold;line-height:1.7}em{font-size:10pt;color:#666}</style><body><h1>${escapePrintHtml(title)}</h1><header>${escapePrintHtml(periodType)} · ${escapePrintHtml(startDate || "기간 미정")}${endDate ? ` ~ ${escapePrintHtml(endDate)}` : ""}</header><main class="grid">${cards}</main><script>window.onload=()=>window.print()<\/script></body></html>`);
-    child.document.close();
+    const p = ".print-sheet";
+    const css = `@page{size:A4 landscape;margin:12mm}${p}{font-family:Arial,sans-serif;color:#1e2a44}${p} h1{text-align:center;margin:0 0 5mm}${p} header{text-align:center;color:#76512e;margin-bottom:10mm}${p} .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8mm;background:#fff;padding:0}${p} article{background:#fff;min-height:42mm;border:1px solid #777;border-radius:6px;padding:6mm;break-inside:avoid}${p} h2{margin:0 0 3mm;font-size:18pt}${p} small{color:#855a31}${p} p{font-size:14pt;font-weight:bold;line-height:1.7}${p} em{font-size:10pt;color:#666}`;
+    void printSheet(
+      `<h1>${escapePrintHtml(title)}</h1><header>${escapePrintHtml(periodType)} · ${escapePrintHtml(startDate || "기간 미정")}${endDate ? ` ~ ${escapePrintHtml(endDate)}` : ""}</header><main class="grid">${cards}</main>`,
+      css,
+    ).catch(() => setNotice("인쇄 창을 열지 못했습니다. 다시 시도해 주세요."));
   }
 
   return <section className="cleaning-page">

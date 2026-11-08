@@ -1,23 +1,15 @@
 import { useState } from "react";
-import { Browser } from "@wailsio/runtime";
+import { openExternalURL } from "../shared/desktopActions";
 
 const issuesURL = "https://github.com/purnpado/komi_note/issues";
 const licenseURL = "https://github.com/purnpado/komi_note/blob/main/LICENSE";
-
-async function openExternal(url: string) {
-  try {
-    await Browser.OpenURL(url);
-  } catch {
-    window.open(url, "_blank", "noopener,noreferrer");
-  }
-}
 
 export function FeedbackPanel() {
   const [notice, setNotice] = useState("");
   async function open(url: string) {
     setNotice("");
     try {
-      await openExternal(url);
+      await openExternalURL(url);
     } catch {
       setNotice(`브라우저를 열지 못했습니다. 주소를 직접 입력해 주세요: ${url}`);
     }

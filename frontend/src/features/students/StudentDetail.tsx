@@ -1,3 +1,4 @@
+import { copyText } from "../shared/desktopActions";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import {
   AddStudent,
@@ -279,19 +280,7 @@ export function StudentCard({
   async function copyValue(label: string, text: string) {
     if (!text) return;
     try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(text);
-      } else {
-        const area = document.createElement("textarea");
-        area.value = text;
-        area.style.position = "fixed";
-        area.style.opacity = "0";
-        document.body.appendChild(area);
-        area.focus();
-        area.select();
-        if (!document.execCommand("copy")) throw new Error("복사 실패");
-        document.body.removeChild(area);
-      }
+      await copyText(text);
       setCopyToast({ text: `${label}을(를) 복사했습니다.`, failed: false });
     } catch {
       setCopyToast({ text: `${label} 복사에 실패했습니다.`, failed: true });

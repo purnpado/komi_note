@@ -79,10 +79,12 @@ export function Sidebar({
           </div>
         </div>
         <div className="class-badge">
-          <span>{config?.schoolYear}학년도</span>
+          <span>{config?.schoolYear ? `${config.schoolYear}학년도` : "학년도"}</span>
           <strong>
             {isHomeroomTeacher
-              ? `${config?.grade}학년 ${config?.classNumber}반`
+              ? config?.grade && config?.classNumber
+                ? `${config.grade}학년 ${config.classNumber}반`
+                : "담임 학급 설정 필요"
               : config?.teachingSubject || "담당 교과 설정 필요"}
           </strong>
           <small>{config?.teacherLabel || "교사"}</small>

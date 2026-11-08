@@ -1,3 +1,4 @@
+import { copyText } from "../shared/desktopActions";
 import { useState } from "react";
 
 const hwpxTokens = [
@@ -12,7 +13,7 @@ function HWPXPlaceholderGuide() {
 
   async function copyToken(text: string, label: string) {
     try {
-      await navigator.clipboard.writeText(text);
+      await copyText(text);
       setNotice(`${label} 치환자를 복사했습니다.`);
     } catch {
       setNotice("복사하지 못했습니다. 치환자를 직접 선택해 복사해 주세요.");

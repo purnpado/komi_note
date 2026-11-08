@@ -8,6 +8,7 @@ import { main as models } from "../../../wailsjs/go/models";
 import { HelpGuide } from "../shared/HelpGuide";
 import { HelpTip } from "../shared/HelpTip";
 import { ClassroomNetworkNotice } from "../shared/ClassroomNetworkNotice";
+import { copyText, openExternalURL } from "../shared/desktopActions";
 import "./survey.css";
 
 type SurveyHubPageProps = {
@@ -856,10 +857,12 @@ function SurveyPanelV2({
                       <button
                         className="outline-button copy-button"
                         onClick={() =>
-                          navigator.clipboard
-                            ?.writeText(session.studentUrl)
+                          copyText(session.studentUrl)
                             .then(() =>
                               setNotice("학생 접속 주소를 복사했습니다."),
+                            )
+                            .catch(() =>
+                              setNotice("주소 복사에 실패했습니다. 주소를 직접 선택해 복사해 주세요."),
                             )
                         }
                       >
@@ -868,10 +871,8 @@ function SurveyPanelV2({
                       <button
                         className="primary-button board-button"
                         onClick={() =>
-                          window.open(
-                            session.boardUrl,
-                            "_blank",
-                            "noopener,noreferrer",
+                          void openExternalURL(session.boardUrl).catch(() =>
+                            setNotice(`전자칠판 화면을 열지 못했습니다. 브라우저에 직접 입력해 주세요: ${session.boardUrl}`),
                           )
                         }
                       >

@@ -17,6 +17,7 @@ import {
   StartSeatingSession,
   StopSeatingSession,
 } from "../../../wailsjs/go/main/App";
+import { copyText } from "../shared/desktopActions";
 import { makeSeats, seatsForRoster } from "./seatLayout";
 
 export function useSeatingSession({
@@ -319,7 +320,7 @@ export function useSeatingSession({
   async function copyStudentAddress() {
     if (!seatingSession?.studentUrl) return;
     try {
-      await navigator.clipboard.writeText(seatingSession.studentUrl);
+      await copyText(seatingSession.studentUrl);
       setNotice("학생 입장 주소를 복사했습니다.");
     } catch {
       setNotice("주소 복사에 실패했습니다. 주소를 길게 눌러 복사해 주세요.");

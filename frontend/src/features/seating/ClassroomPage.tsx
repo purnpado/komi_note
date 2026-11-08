@@ -10,6 +10,7 @@ import { SeatingSetupPanel } from "./SeatingSetupPanel";
 import { SeatingExecutionPanel } from "./SeatingExecutionPanel";
 import { SeatingResultPanel } from "./SeatingResultPanel";
 import { SeatingDeleteDialog, SeatingRecoveryEndDialog } from "./SeatingDialogs";
+import { escapePrintText, openExternalURL, printSheet } from "../shared/desktopActions";
 import "./seating.css";
 
 export function ClassroomPage({
@@ -401,11 +402,6 @@ export function ClassroomPage({
     ? groupSeatsForPlacement(displaySeats, placementMode)
     : [];
   function printSeatingResult() {
-    const popup = window.open("", "_blank");
-    if (!popup) {
-      setNotice("인쇄 창을 열지 못했습니다. 팝업 차단을 확인해 주세요.");
-      return;
-    }
     const cells = visualSeats
       .map((seat) => {
         const student = orderedStudents.find(
@@ -413,14 +409,16 @@ export function ClassroomPage({
         );
         const number = seatNumberByID.get(seat.id) || 0;
         const position = layoutMode === "사용자 지정" ? ` style="left:${(seat.x || 500) / 10}%;top:${(seat.y || 500) / 10}%"` : "";
-        return `<article${position}><b>${number}번</b><strong>${student ? `${student.number}번 ${student.name}` : "빈 자리"}</strong></article>`;
+        return `<article${position}><b>${number}번</b><strong>${student ? `${escapePrintText(student.number)}번 ${escapePrintText(student.name)}` : "빈 자리"}</strong></article>`;
       })
       .join("");
     const boardClass = layoutMode === "사용자 지정" ? "custom-print" : "grid";
-    popup.document.write(
-      `<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>${title}</title><style>@page{size:A4 landscape;margin:12mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#1e2a44}h1{text-align:center;margin:0 0 12mm}.desk{margin:0 auto 10mm;width:32%;padding:8px;text-align:center;border-radius:8px;background:#f1d5ad;font-weight:bold}.grid{display:grid;grid-template-columns:repeat(${columns},minmax(0,1fr));gap:7px}.grid article,.custom-print article{min-height:52px;padding:8px;border:1px solid #777;border-radius:6px;background:#fff}.custom-print{position:relative;height:160mm;border:1px dashed #d3b18a;background:#fffaf2}.custom-print article{position:absolute;min-width:80px;transform:translate(-50%,-50%)}.grid b,.grid strong,.custom-print b,.custom-print strong{display:block}.grid b,.custom-print b{font-size:12px;color:#92501d}.grid strong,.custom-print strong{margin-top:6px;font-size:14px}@media print{body{print-color-adjust:exact;-webkit-print-color-adjust:exact}}</style></head><body><h1>${title}</h1><div class="desk">교탁 · ${deskPosition}</div><main class="${boardClass}">${cells}</main><script>window.onload=()=>window.print()<\/script></body></html>`,
-    );
-    popup.document.close();
+    const p = ".print-sheet";
+    const css = `@page{size:A4 landscape;margin:12mm}${p} *{box-sizing:border-box}${p}{font-family:Arial,sans-serif;color:#1e2a44}${p} h1{text-align:center;margin:0 0 12mm}${p} .desk{margin:0 auto 10mm;width:32%;padding:8px;text-align:center;border-radius:8px;background:#f1d5ad;font-weight:bold}${p} .grid{display:grid;grid-template-columns:repeat(${columns},minmax(0,1fr));gap:7px;background:#fff;padding:0}${p} .grid article,${p} .custom-print article{min-height:52px;padding:8px;border:1px solid #777;border-radius:6px;background:#fff}${p} .custom-print{position:relative;height:160mm;border:1px dashed #d3b18a;background:#fffaf2}${p} .custom-print article{position:absolute;min-width:80px;transform:translate(-50%,-50%)}${p} b,${p} article strong{display:block}${p} article b{font-size:12px;color:#92501d}${p} article strong{margin-top:6px;font-size:14px}`;
+    void printSheet(
+      `<h1>${escapePrintText(title)}</h1><div class="desk">교탁 · ${escapePrintText(deskPosition)}</div><main class="${boardClass}">${cells}</main>`,
+      css,
+    ).catch(() => setNotice("인쇄 창을 열지 못했습니다. 다시 시도해 주세요."));
   }
   return (
     <>
@@ -581,7 +579,7 @@ export function ClassroomPage({
           onCopyAddress={() => void copyStudentAddress()}
           onOpenBoard={() => {
             if (seatingSession?.boardUrl) {
-              window.open(seatingSession.boardUrl, "_blank", "noopener,noreferrer");
+              void openExternalURL(seatingSession.boardUrl).catch(() => setNotice(`전자칠판 화면을 열지 못했습니다. 브라우저에 직접 입력해 주세요: ${seatingSession.boardUrl}`));
             }
           }}
           onCloseSession={() => void stopArrowSession()}
