@@ -1018,6 +1018,18 @@ export namespace main {
 	        this.studentId = source["studentId"];
 	    }
 	}
+	export class RestoreResult {
+	    config: ClassConfig;
+	    recoveryMismatch: boolean;
+	    studentCount: number;
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.config = new ClassConfig(source["config"] || {});
+	        this.recoveryMismatch = source["recoveryMismatch"];
+	        this.studentCount = source["studentCount"];
+	    }
+	}
 	export class SeatingChange {
 	    at: string;
 	    summary: string;

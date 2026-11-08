@@ -14,6 +14,7 @@ export type {
     CourseRosterChange,
     CourseRosterPreview,
     CourseRosterStudent,
+    RestoreResult,
     RosterImportResult,
     RosterPreview,
     SessionResult,

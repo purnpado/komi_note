@@ -19,6 +19,7 @@ import {
 import { escapePrintText, openExternalURL, printSheet } from "../shared/desktopActions";
 import "./seating.css";
 
+import { errorMessage } from "../shared/format";
 export function ClassroomPage({
   students,
   formatRecordedAt,
@@ -124,7 +125,7 @@ export function ClassroomPage({
       setPlans(next);
       if (next.length > 0 && !selectedID) loadPlan(next[0]);
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
 
@@ -376,7 +377,7 @@ export function ClassroomPage({
       setSeats(savedSeats);
       setNotice("자리 배치와 적용 규칙을 암호화해 저장했습니다.");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
 
@@ -389,7 +390,7 @@ export function ClassroomPage({
       newPlan();
       setNotice("자리 배치 이력을 삭제했습니다.");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
 

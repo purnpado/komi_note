@@ -53,6 +53,9 @@ type ClassConfig = vault.ClassConfig
 type SetupRequest = vault.SetupRequest
 type AppState = vault.AppState
 type SessionResult = vault.SessionResult
+
+// RestoreResult는 백업 되살리기 뒤 안내할 내용입니다.
+type RestoreResult = vault.RestoreResult
 type RosterPreview = vault.RosterPreview
 type RosterImportResult = vault.RosterImportResult
 
@@ -308,6 +311,11 @@ func (a *App) GetAppState() (AppState, error) {
 	return a.vault.State()
 }
 
+// GetSessionConfig는 이미 열린 보관함의 설정을 돌려줍니다(화면을 다시 불러온 경우).
+func (a *App) GetSessionConfig() (SessionResult, error) {
+	return a.vault.CurrentSession()
+}
+
 // GetParticipationSafetyState는 설문 또는 자리배정 QR 회차가 열려 있는지 반환합니다.
 // 진행 중에는 교사 화면의 자동 잠금을 보류해 수업 흐름을 지킵니다.
 func (a *App) GetParticipationSafetyState() ParticipationSafetyState {
@@ -342,6 +350,52 @@ func (a *App) InstallAvailableUpdate() error {
 // SelectRecoveryFile은 사용자가 복구 파일을 저장할 위치를 고르게 합니다.
 func (a *App) SelectRecoveryFile() (string, error) {
 	return a.saveFileDialog("복구 파일 저장 위치 선택", "꼬미노트-복구키.teacher-recovery", "꼬미노트 복구 파일", "*.teacher-recovery")
+}
+
+// ExportEncryptedBackup은 열린 보관함을 암호화된 백업 파일로 저장합니다. 취소하면 빈 경로를 돌려줍니다.
+func (a *App) ExportEncryptedBackup() (string, error) {
+	name := "꼬미노트-백업-" + time.Now().Format("20060102") + ".kkomi-backup"
+	path, err := a.saveFileDialog("암호화 백업 저장 위치 선택", name, "꼬미노트 백업 파일", "*.kkomi-backup")
+	if err != nil || path == "" {
+		return "", err
+	}
+	if !strings.EqualFold(filepath.Ext(path), ".kkomi-backup") {
+		path += ".kkomi-backup"
+	}
+	if err := a.vault.ExportBackup(path); err != nil {
+		return "", err
+	}
+	return path, nil
+}
+
+// SelectBackupFile은 되살릴 암호화 백업 파일을 고릅니다.
+func (a *App) SelectBackupFile() (string, error) {
+	return a.openFileDialog("되살릴 백업 파일 선택", "꼬미노트 백업 파일", "*.kkomi-backup")
+}
+
+// RestoreEncryptedBackup은 백업 당시 마스터 비밀번호로 백업 파일을 열어 보관함을 되살립니다.
+func (a *App) RestoreEncryptedBackup(path, password string) (RestoreResult, error) {
+	return a.vault.RestoreBackup(path, password)
+}
+
+// ChangeMasterPassword는 지금 비밀번호를 확인한 뒤 마스터 비밀번호를 바꿉니다.
+func (a *App) ChangeMasterPassword(currentPassword, newPassword string) error {
+	return a.vault.ChangeMasterPassword(currentPassword, newPassword)
+}
+
+// CreateRecoveryFile은 새 복구 파일을 저장합니다. 취소하면 빈 경로를 돌려줍니다.
+func (a *App) CreateRecoveryFile(recoveryPassword string) (string, error) {
+	path, err := a.saveFileDialog("새 복구 파일 저장 위치 선택", "꼬미노트-복구키-"+time.Now().Format("20060102")+".teacher-recovery", "꼬미노트 복구 파일", "*.teacher-recovery")
+	if err != nil || path == "" {
+		return "", err
+	}
+	if !strings.EqualFold(filepath.Ext(path), ".teacher-recovery") {
+		path += ".teacher-recovery"
+	}
+	if err := a.vault.CreateRecoveryFile(path, recoveryPassword); err != nil {
+		return "", err
+	}
+	return path, nil
 }
 
 // InitializeVault은 최초 설정과 암호화 보관함 생성을 처리합니다.

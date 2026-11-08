@@ -4,6 +4,7 @@ import { ListCleaningPlans, SaveCleaningPlan } from "../../../wailsjs/go/main/Ap
 import { main as models } from "../../../wailsjs/go/models";
 import "./cleaning.css";
 
+import { errorMessage, todayLocal } from "../shared/format";
 type CleaningZoneForm = {
   id: string;
   name: string;
@@ -38,7 +39,7 @@ function escapePrintHtml(value: string) {
 }
 
 export function CleaningPage({ students }: { students: models.Student[] }) {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayLocal();
   const [plans, setPlans] = useState<models.CleaningPlan[]>([]);
   const [selectedID, setSelectedID] = useState("");
   const [title, setTitle] = useState("이번 주 청소구역 편성표");
@@ -59,7 +60,7 @@ export function CleaningPage({ students }: { students: models.Student[] }) {
       const savedPlans = (await ListCleaningPlans()) || [];
       setPlans(savedPlans.map((plan) => new models.CleaningPlan(plan)));
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   };
 
@@ -144,7 +145,7 @@ export function CleaningPage({ students }: { students: models.Student[] }) {
       await loadPlans();
       setNotice("청소구역 편성표를 암호화 보관함에 저장했습니다.");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
 

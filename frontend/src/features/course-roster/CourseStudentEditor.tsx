@@ -5,6 +5,7 @@ import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { UpdateCourseRosterStudent } from "../../../wailsjs/go/main/App";
 import { main as models } from "../../../wailsjs/go/models";
 
+import { errorMessage } from "../shared/format";
 type Props = { roster: models.CourseRoster; student?: models.CourseRosterStudent; onSaved: (message: string) => void };
 const snapshot = (roster: models.CourseRoster) => JSON.parse(JSON.stringify(roster)) as models.CourseRoster;
 
@@ -35,7 +36,7 @@ export function CourseStudentEditor({ roster, student, onSaved }: Props) {
       setOpen(false);
       onSaved(student ? "수업 명렬을 수정했습니다. 기존 평가 기록은 변경되지 않았습니다." : "학생을 수업 명렬에 추가했습니다.");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -75,7 +76,7 @@ export function CourseStudentDelete({ roster, student, onSaved }: Props & { stud
       setOpen(false);
       onSaved("수업 명렬에서 학생을 삭제했습니다. 기존 평가 기록은 유지됩니다.");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     } finally { setBusy(false); }
   }
 

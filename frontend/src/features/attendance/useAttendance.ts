@@ -4,13 +4,27 @@ import { main as models } from "../../../wailsjs/go/models";
 import type { DocumentPointLayout } from "./attendanceTypes";
 import { koreanDate, parseHWPXCustomValues } from "./attendanceUtils";
 
+import { errorMessage, toLocalDateString, todayLocal } from "../shared/format";
 export type UseAttendanceParams = {
   students: models.Student[];
   config: models.ClassConfig | null;
   initialDate?: string;
 };
 
-export function useAttendance({ students, config, initialDate = "" }: UseAttendanceParams) {  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+// 주말 날짜는 출결을 입력하지 않으므로, 주말이면 방향(-1: 이전, 1: 다음)으로 가장 가까운 평일을 고릅니다.
+export function nearestWeekday(value: string, direction: -1 | 1 = -1): string {
+  const next = new Date(`${value}T12:00:00`);
+  while (next.getDay() === 0 || next.getDay() === 6) next.setDate(next.getDate() + direction);
+  return toLocalDateString(next);
+}
+
+function isWeekend(value: string) {
+  const day = new Date(`${value}T12:00:00`).getDay();
+  return day === 0 || day === 6;
+}
+
+export function useAttendance({ students, config, initialDate = "" }: UseAttendanceParams) {
+  const [date, setDate] = useState(() => nearestWeekday(todayLocal()));
   const [day, setDay] = useState<models.AttendanceDay | null>(null);
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
@@ -65,15 +79,24 @@ export function useAttendance({ students, config, initialDate = "" }: UseAttenda
     return () => window.cancelAnimationFrame(frame);
   }, [day]);
   async function loadAttendance() {
+    if (isWeekend(date)) {
+      setDay(null);
+      setNotice("주말에는 출결을 입력하지 않습니다. 평일 날짜를 골라 주세요.");
+      return;
+    }
     try {
       setBusy(true);
       const next = new models.AttendanceDay(await GetAttendance(date));
       next.entries = next.entries || [];
       setDay(next);
-      setNotice("");
+      setNotice(
+        date !== todayLocal() && isWeekend(todayLocal()) && date === nearestWeekday(todayLocal())
+          ? "오늘은 주말이라 가장 가까운 평일의 출결을 보여 줍니다."
+          : "",
+      );
     } catch (error) {
       setDay(null);
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -89,10 +112,11 @@ export function useAttendance({ students, config, initialDate = "" }: UseAttenda
       .then((items) => setTemplates(items || []))
       .catch(() => undefined);
   }, []);
+  // 이전·다음 버튼은 주말을 건너뛰어 평일끼리 이동합니다.
   function moveDate(offset: number) {
     const next = new Date(`${date}T12:00:00`);
     next.setDate(next.getDate() + offset);
-    setDate(next.toISOString().slice(0, 10));
+    setDate(nearestWeekday(toLocalDateString(next), offset < 0 ? -1 : 1));
   }
   function updateEntry(
     studentID: string,
@@ -137,7 +161,7 @@ export function useAttendance({ students, config, initialDate = "" }: UseAttenda
       setDay(saved);
       setNotice(`${date} 출결을 암호화 보관함에 저장했습니다.`);
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -301,7 +325,7 @@ export function useAttendance({ students, config, initialDate = "" }: UseAttenda
         );
       }
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
   async function saveTemplate() {
@@ -320,7 +344,7 @@ export function useAttendance({ students, config, initialDate = "" }: UseAttenda
       setTemplateStatuses(["결석"]);
       setNotice("학교별 출결 서식과 적용 출결 상태를 저장했습니다.");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
   async function deleteTemplate(id: string) {
@@ -330,7 +354,7 @@ export function useAttendance({ students, config, initialDate = "" }: UseAttenda
       if (template?.id === id) setTemplate(null);
       setNotice("등록한 출결 서식과 좌표 설정을 삭제했습니다.");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
   async function placeField(event: MouseEvent<HTMLDivElement>) {
@@ -368,7 +392,7 @@ export function useAttendance({ students, config, initialDate = "" }: UseAttenda
         `${field} 항목 위치를 추가했습니다. 같은 항목도 필요한 곳마다 다시 배치할 수 있습니다.`,
       );
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
   async function persistTemplateMappings(
@@ -386,7 +410,7 @@ export function useAttendance({ students, config, initialDate = "" }: UseAttenda
       );
       setNotice(message);
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
   function beginMoveMapping(
@@ -644,7 +668,7 @@ export function useAttendance({ students, config, initialDate = "" }: UseAttenda
         items.map((item) => (item.id === saved.id ? saved : item)),
       );
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
   async function buildAttendancePDFData() {
@@ -723,7 +747,7 @@ export function useAttendance({ students, config, initialDate = "" }: UseAttenda
       if (savedPath)
         setNotice("머릿말·꼬릿말 없는 단일 PDF를 저장하고 열었습니다.");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
   async function exportAttendanceHWPX() {
@@ -737,7 +761,7 @@ export function useAttendance({ students, config, initialDate = "" }: UseAttenda
           : "HWPX 서류를 저장했습니다. 한글 프로그램에서 열어 내용을 확인해 주세요.",
       );
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
   async function saveHWPXCustomValues() {
@@ -753,7 +777,7 @@ export function useAttendance({ students, config, initialDate = "" }: UseAttenda
       setTemplates((items) => items.map((item) => (item.id === saved.id ? saved : item)));
       setNotice("이 HWPX 양식에만 적용할 기타 치환값을 저장했습니다.");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
   return {

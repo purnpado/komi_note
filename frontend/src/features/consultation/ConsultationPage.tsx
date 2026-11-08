@@ -5,6 +5,7 @@ import { main as models } from "../../../wailsjs/go/models";
 import { HelpGuide } from "../shared/HelpGuide";
 import "./consultation.css";
 
+import { errorMessage, todayLocal } from "../shared/format";
 type ConsultationConfirm = (request: { title: string; description: string }) => Promise<boolean>;
 
 export type ConsultationPageProps = {
@@ -30,7 +31,7 @@ export function ConsultationPage({
   );
   const [dialogOpen, setDialogOpen] = useState(Boolean(initialStudentID));
   const [draft, setDraft] = useState({
-    date: new Date().toISOString().slice(0, 10),
+    date: todayLocal(),
     type: "학생 상담",
     content: "",
     followUpDate: "",
@@ -60,7 +61,7 @@ export function ConsultationPage({
     try {
       setItems((await ListAllConsultations()) || []);
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
   useEffect(() => {
@@ -126,7 +127,7 @@ export function ConsultationPage({
         : { ...draft, studentId: selected.id };
       await SaveConsultation(new models.Consultation(base));
       setDraft({
-        date: new Date().toISOString().slice(0, 10),
+        date: todayLocal(),
         type: "학생 상담",
         content: "",
         followUpDate: "",
@@ -138,7 +139,7 @@ export function ConsultationPage({
       );
       setMode("view");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -152,7 +153,7 @@ export function ConsultationPage({
         new models.Consultation({
           studentId: followTarget.studentId,
           parentId: followTarget.id,
-          date: new Date().toISOString().slice(0, 10),
+          date: todayLocal(),
           type: "후속 조치",
           content: followContent,
         }),
@@ -162,7 +163,7 @@ export function ConsultationPage({
       await reload();
       setNotice("후속 기록을 저장했습니다.");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -180,7 +181,7 @@ export function ConsultationPage({
       await reload();
       setNotice(`상담 기록 ${count}건을 삭제했습니다.`);
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }

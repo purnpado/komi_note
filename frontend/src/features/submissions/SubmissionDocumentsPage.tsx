@@ -6,6 +6,7 @@ import { HelpGuide } from "../shared/HelpGuide";
 import { Stat } from "../shared/Stat";
 import "./submission.css";
 
+import { errorMessage } from "../shared/format";
 export function SubmissionDocumentsPage({ students }: { students: models.Student[] }) {
   const [documents, setDocuments] = useState<models.SubmissionDocument[]>([]);
   const [selectedID, setSelectedID] = useState("");
@@ -38,7 +39,7 @@ export function SubmissionDocumentsPage({ students }: { students: models.Student
     }
   };
   useEffect(() => {
-    void refresh().catch((error) => setNotice(String(error)));
+    void refresh().catch((error) => setNotice(errorMessage(error)));
   }, []);
   useEffect(() => {
     if (selected) {
@@ -76,7 +77,7 @@ export function SubmissionDocumentsPage({ students }: { students: models.Student
       await refresh();
       setSelectedID(saved.id);
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
   function removeDocument() {
@@ -89,7 +90,7 @@ export function SubmissionDocumentsPage({ students }: { students: models.Student
       setNotice("제출서류 항목을 삭제했습니다.");
       await refresh();
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     } finally {
       setDeleteOpen(false);
     }
@@ -113,7 +114,7 @@ export function SubmissionDocumentsPage({ students }: { students: models.Student
         ),
       );
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
   function startNewDocument() {

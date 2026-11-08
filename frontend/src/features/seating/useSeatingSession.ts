@@ -22,6 +22,7 @@ import {
 import { copyText } from "../shared/desktopActions";
 import { makeSeats, seatsForRoster } from "./seatLayout";
 
+import { errorMessage } from "../shared/format";
 export function useSeatingSession({
   selectedID,
   setSelectedID,
@@ -170,7 +171,7 @@ export function useSeatingSession({
           : "QR 참여 회차를 열었습니다. 학생 입장 뒤 순서 섞기를 시작하세요.",
       );
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
 
@@ -191,7 +192,7 @@ export function useSeatingSession({
           : "5초 동안 학생 순서를 섞습니다. 순서가 확정되면 룰렛 시작 버튼을 눌러 주세요.",
       );
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
 
@@ -202,7 +203,7 @@ export function useSeatingSession({
       setSeatingSession(new models.SeatingSessionInfo(session));
       setNotice("5초 뒤 첫 학생의 룰렛 차례가 열립니다. 이후에도 학생 사이에 5초 간격을 둡니다.");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
 
@@ -213,7 +214,7 @@ export function useSeatingSession({
       setSeatingSession(new models.SeatingSessionInfo(session));
       setNotice("출발점 선택을 마감하고 사다리를 공개했습니다. 교사가 한 명씩 진행해 주세요.");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
 
@@ -224,7 +225,7 @@ export function useSeatingSession({
       setSeatingSession(new models.SeatingSessionInfo(session));
       setNotice("학생 한 명의 사다리 경로를 공개했습니다. 결과를 확인한 뒤 다음 학생을 진행해 주세요.");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
 
@@ -241,7 +242,7 @@ export function useSeatingSession({
           : `학생 ${session.participantCnt}명의 입장을 마감했습니다${session.partialClosed ? `(재적 ${session.rosterCnt}명 중 결석·미참여 ${session.rosterCnt - session.participantCnt}명 예외 마감)` : ""}. 순서를 섞은 뒤 ${drawMethod === "랜덤 사다리 배정" ? "사다리 출발점 선택" : "룰렛배정"}을 시작하세요.`,
       );
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
 
@@ -252,7 +253,7 @@ export function useSeatingSession({
       setSeatingSession(new models.SeatingSessionInfo(session));
       setNotice(`학생 기기에서 ${session.preferenceLimit}지망까지 희망 자리를 제출할 수 있습니다.`);
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
 
@@ -263,7 +264,7 @@ export function useSeatingSession({
       setSeatingSession(new models.SeatingSessionInfo(session));
       setNotice(`지망 접수를 마감했습니다. ${session.contestCnt}개 좌석의 1지망 경쟁률을 공개합니다.`);
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
 
@@ -278,7 +279,7 @@ export function useSeatingSession({
           : "무작위 토너먼트 대진표를 만들었습니다. 후보 학생이 10초 안에 가위·바위·보를 선택합니다.",
       );
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
 
@@ -295,7 +296,7 @@ export function useSeatingSession({
             : `${session.currentPreferencePriority}지망 처리를 시작했습니다.`,
       );
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
 
@@ -311,7 +312,7 @@ export function useSeatingSession({
           : "전자칠판의 실명을 다시 가렸습니다. 지금은 좌석 번호와 닉네임만 보입니다.",
       );
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
 
@@ -331,7 +332,7 @@ export function useSeatingSession({
       setNotice(last ? `${last.summary} · 보관함에 저장했습니다.` : "자리를 바꿨습니다.");
       return true;
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
       return false;
     }
   }
@@ -345,7 +346,7 @@ export function useSeatingSession({
       setSessionState("교사 최종 발표 준비");
       setNotice("QR 참여 회차를 닫고 임시 접속 정보를 폐기했습니다.");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
 
@@ -358,7 +359,7 @@ export function useSeatingSession({
       if (action === "건너뛰기") setNotice("현재 학생을 배정하지 않고 다음 단계로 넘겼습니다.");
       if (action === "회차 종료") setNotice("오류 회차를 종료했습니다. 필요하면 회차 닫기로 QR 정보를 폐기해 주세요.");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
 

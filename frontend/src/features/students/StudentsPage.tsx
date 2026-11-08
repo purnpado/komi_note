@@ -7,6 +7,7 @@ import { HelpTip } from "../shared/HelpTip";
 import { StudentEditor } from "./StudentDetail";
 import "./students.css";
 
+import { errorMessage, todayLocal } from "../shared/format";
 function StudentRosterIcon() {
   return (
     <svg className="students-title-icon" viewBox="0 0 48 48" aria-hidden="true">
@@ -46,7 +47,7 @@ export function StudentsPage({
   );
   const [academicStatus, setAcademicStatus] = useState("전출");
   const [academicDate, setAcademicDate] = useState(
-    new Date().toISOString().slice(0, 10),
+    todayLocal(),
   );
   const [academicConfirmation, setAcademicConfirmation] = useState("");
   const [academicNotice, setAcademicNotice] = useState("");
@@ -90,7 +91,7 @@ export function StudentsPage({
     try {
       setAcademicChanges((await ListAcademicChanges()) || []);
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
   const age = (birthDate: string) => {
@@ -126,7 +127,7 @@ export function StudentsPage({
       setPreview(nextPreview);
       setNotice("");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -141,7 +142,7 @@ export function StudentsPage({
         `${result.added}명 추가, ${result.updated}명 갱신 · 총 ${result.total}명 암호화 저장 완료`,
       );
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -156,7 +157,7 @@ export function StudentsPage({
       setResetOpen(false);
       setConfirmation("");
     } catch (error) {
-      setResetNotice(String(error));
+      setResetNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -182,7 +183,7 @@ export function StudentsPage({
       setDeleteTarget(null);
       setDeleteConfirmation("");
     } catch (error) {
-      setDeleteNotice(String(error));
+      setDeleteNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -212,7 +213,7 @@ export function StudentsPage({
       setAcademicTarget(null);
       setAcademicConfirmation("");
     } catch (error) {
-      setAcademicNotice(String(error));
+      setAcademicNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -224,7 +225,7 @@ export function StudentsPage({
       setAcademicConfirmation("");
       setAcademicNotice("");
       setAcademicStatus("전출");
-      setAcademicDate(new Date().toISOString().slice(0, 10));
+      setAcademicDate(todayLocal());
     }
   }
   const newStudent = new models.Student({

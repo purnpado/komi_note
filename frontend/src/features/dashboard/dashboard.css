@@ -101,3 +101,13 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* 실제 자료 대시보드: 누를 수 있는 카드·행 */
+.stat-button, .attention-button, .quick-button { font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.stat-button { border: inherit; }
+.attention-button { width: 100%; border: 0; background: transparent; }
+.quick-button { border: inherit; }
+.stat-button:hover, .stat-button:focus-visible,
+.attention-button:hover, .attention-button:focus-visible,
+.quick-button:hover, .quick-button:focus-visible { box-shadow: 0 0 0 3px rgba(217, 130, 53, 0.22); outline: none; }
+.dashboard-empty { margin: 8px 0 0; color: #7a604b; font-weight: 700; }

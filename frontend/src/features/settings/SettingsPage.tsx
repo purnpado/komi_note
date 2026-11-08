@@ -3,8 +3,12 @@ import { main as models } from "../../../wailsjs/go/models";
 import { HasPin, SetPin, RemovePin } from "../../../wailsjs/go/main/App";
 import { HelpGuide } from "../shared/HelpGuide";
 import { FeedbackPanel } from "./FeedbackPanel";
+import { PasswordChangePanel } from "./PasswordChangePanel";
+import { BackupPanel } from "./BackupPanel";
+import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import "./settings.css";
 
+import { errorMessage } from "../shared/format";
 const teachingGradeOptions = ["1학년", "2학년", "3학년"];
 const teachingClassOptions = Array.from({ length: 10 }, (_, index) => `${index + 1}반`);
 function isClassicTheme(theme?: string) { return theme === "초록" || theme === "기존 초록"; }
@@ -25,6 +29,7 @@ export function SettingsFeaturePage({
     }),
   );
   const [notice, setNotice] = useState("");
+  const [pinRemoveOpen, setPinRemoveOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [teachingGrade, setTeachingGrade] = useState("");
   const [teachingClass, setTeachingClass] = useState("");
@@ -64,16 +69,14 @@ export function SettingsFeaturePage({
       setPinConfirmInput("");
       setNotice("간편 PIN 번호가 성공적으로 등록(변경)되었습니다.");
     } catch (error) {
-      setPinNotice(String(error));
+      setPinNotice(errorMessage(error));
     } finally {
       setPinBusy(false);
     }
   }
 
   async function handleRemovePin() {
-    if (!window.confirm("등록된 간편 PIN 번호를 삭제하시겠습니까? 삭제 후에는 마스터 비밀번호로만 로그인할 수 있습니다.")) {
-      return;
-    }
+    setPinRemoveOpen(false);
     setPinBusy(true);
     try {
       await RemovePin();
@@ -81,7 +84,7 @@ export function SettingsFeaturePage({
       setShowPinForm(false);
       setNotice("간편 PIN 번호가 삭제되었습니다.");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     } finally {
       setPinBusy(false);
     }
@@ -107,7 +110,7 @@ export function SettingsFeaturePage({
         "학사 일정과 교외체험학습 기준을 암호화 보관함에 저장했습니다.",
       );
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -402,7 +405,7 @@ export function SettingsFeaturePage({
                           type="button"
                           className="danger-button"
                           style={{ padding: "0.25rem 0.6rem", fontSize: "0.8rem" }}
-                          onClick={handleRemovePin}
+                          onClick={() => setPinRemoveOpen(true)}
                           disabled={pinBusy}
                         >
                           삭제
@@ -669,7 +672,30 @@ export function SettingsFeaturePage({
           </button>
         </form>
       </section>
+      <PasswordChangePanel />
+      <BackupPanel />
       <FeedbackPanel />
+      <AlertDialog.Root open={pinRemoveOpen} onOpenChange={setPinRemoveOpen}>
+        <AlertDialog.Portal>
+          <AlertDialog.Overlay className="dialog-overlay" />
+          <AlertDialog.Content className="dialog-content">
+            <AlertDialog.Title>간편 PIN을 삭제할까요?</AlertDialog.Title>
+            <AlertDialog.Description>
+              삭제하면 다음부터는 마스터 비밀번호로만 로그인할 수 있습니다. 필요하면 언제든 다시 등록할 수 있습니다.
+            </AlertDialog.Description>
+            <div className="dialog-actions">
+              <AlertDialog.Cancel asChild>
+                <button className="quiet-button">취소</button>
+              </AlertDialog.Cancel>
+              <AlertDialog.Action asChild>
+                <button className="danger-button" onClick={() => void handleRemovePin()}>
+                  PIN 삭제
+                </button>
+              </AlertDialog.Action>
+            </div>
+          </AlertDialog.Content>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>
     </>
   );
 }

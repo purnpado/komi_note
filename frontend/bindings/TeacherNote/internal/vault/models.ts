@@ -137,6 +137,19 @@ export interface CourseRosterStudent {
 }
 
 /**
+ * RestoreResult는 되살리기 뒤 교사에게 안내할 내용을 담는다.
+ */
+export interface RestoreResult {
+    "config": ClassConfig;
+
+    /**
+     * RecoveryMismatch가 참이면 지금 가진 복구 파일로는 되살린 보관함을 열 수 없으므로 새로 만들어야 한다.
+     */
+    "recoveryMismatch": boolean;
+    "studentCount": number;
+}
+
+/**
  * RosterImportResult는 명렬표 저장 결과입니다.
  */
 export type RosterImportResult = students$0.RosterImportResult;

@@ -18,6 +18,7 @@ import { DeleteStudentDialog } from "./StudentsPage";
 import "./students.css";
 import "./student-detail.css";
 
+import { errorMessage, todayLocal } from "../shared/format";
 function formatPhone(value: string) {
   const digits = value.replace(/\D/g, "").slice(0, 11);
   if (digits.length <= 3) return digits;
@@ -75,7 +76,7 @@ export function StudentCard({
       setConsultations((await ListConsultations(student.id)) || []);
       setAttendanceRecords((await ListStudentAttendance(student.id)) || []);
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
   useEffect(() => {
@@ -252,7 +253,7 @@ export function StudentCard({
       await reload();
       setNotice("학생 사진을 암호화해 저장했습니다.");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -264,7 +265,7 @@ export function StudentCard({
       await DeleteStudent(student.id, deleteConfirmation);
       await deleted();
     } catch (error) {
-      setDeleteNotice(String(error));
+      setDeleteNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -590,7 +591,7 @@ export function StudentCard({
               onClick={() =>
                 requestNavigation({
                   destination: "출결 관리",
-                  date: new Date().toISOString().slice(0, 10),
+                  date: todayLocal(),
                 })
               }
             >
@@ -812,7 +813,7 @@ export function StudentEditor({
       else await SaveStudent(draft);
       await saved();
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }

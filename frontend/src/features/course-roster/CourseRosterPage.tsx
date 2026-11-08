@@ -5,6 +5,7 @@ import { EventsOn } from "../../../wailsjs/runtime/runtime";
 import { CourseStudentDelete, CourseStudentEditor } from "./CourseStudentEditor";
 import "./course-roster.css";
 
+import { errorMessage } from "../shared/format";
 export function CourseRosterPage() {
   const [rosters, setRosters] = useState<models.CourseRoster[]>([]);
   const [selectedID, setSelectedID] = useState("");
@@ -16,7 +17,7 @@ export function CourseRosterPage() {
     let active = true;
     const load = () => void ListCourseRosters().then((items) => {
       if (active) { setRosters(items || []); setNotice(""); }
-    }).catch((error) => { if (active) setNotice(String(error)); });
+    }).catch((error) => { if (active) setNotice(errorMessage(error)); });
     load();
     const off = EventsOn("course-roster:변경", load);
     return () => { active = false; off(); };

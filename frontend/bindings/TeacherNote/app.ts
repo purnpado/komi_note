@@ -37,6 +37,13 @@ export function AnswerAssessmentObjection(assessmentID: string, objectionID: str
 }
 
 /**
+ * ChangeMasterPassword는 지금 비밀번호를 확인한 뒤 마스터 비밀번호를 바꿉니다.
+ */
+export function ChangeMasterPassword(currentPassword: string, newPassword: string): $CancellablePromise<void> {
+    return $Call.ByID(3088799714, currentPassword, newPassword);
+}
+
+/**
  * CheckForUpdate는 GitHub 공개 릴리즈 채널에서 새 버전을 확인합니다.
  */
 export function CheckForUpdate(): $CancellablePromise<$models.UpdateInfo> {
@@ -63,6 +70,13 @@ export function CloseSeatingPreferenceSubmission(planID: string): $CancellablePr
  */
 export function CloseWindow(): $CancellablePromise<void> {
     return $Call.ByID(3642446947);
+}
+
+/**
+ * CreateRecoveryFile은 새 복구 파일을 저장합니다. 취소하면 빈 경로를 돌려줍니다.
+ */
+export function CreateRecoveryFile(recoveryPassword: string): $CancellablePromise<string> {
+    return $Call.ByID(4015809504, recoveryPassword);
 }
 
 /**
@@ -134,6 +148,13 @@ export function ExportAttendanceHWPX(templateID: string, studentID: string, date
 }
 
 /**
+ * ExportEncryptedBackup은 열린 보관함을 암호화된 백업 파일로 저장합니다. 취소하면 빈 경로를 돌려줍니다.
+ */
+export function ExportEncryptedBackup(): $CancellablePromise<string> {
+    return $Call.ByID(2778597843);
+}
+
+/**
  * GetAppState는 개인정보를 노출하지 않는 시작 상태를 반환합니다.
  */
 export function GetAppState(): $CancellablePromise<$models.AppState> {
@@ -179,6 +200,13 @@ export function GetParticipationSafetyState(): $CancellablePromise<$models.Parti
  */
 export function GetSeatingSessionInfo(planID: string): $CancellablePromise<$models.SeatingSessionInfo> {
     return $Call.ByID(2550316318, planID);
+}
+
+/**
+ * GetSessionConfig는 이미 열린 보관함의 설정을 돌려줍니다(화면을 다시 불러온 경우).
+ */
+export function GetSessionConfig(): $CancellablePromise<$models.SessionResult> {
+    return $Call.ByID(2196084171);
 }
 
 /**
@@ -414,6 +442,13 @@ export function ResetStudents(confirmation: string): $CancellablePromise<number>
 }
 
 /**
+ * RestoreEncryptedBackup은 백업 당시 마스터 비밀번호로 백업 파일을 열어 보관함을 되살립니다.
+ */
+export function RestoreEncryptedBackup(path: string, password: string): $CancellablePromise<$models.RestoreResult> {
+    return $Call.ByID(4269635565, path, password);
+}
+
+/**
  * ResumeParticipationSessions는 잠금 해제 후 교사가 확인한 경우에만 QR 회차를 재개합니다.
  */
 export function ResumeParticipationSessions(): $CancellablePromise<void> {
@@ -536,6 +571,13 @@ export function SelectAssessmentImportFile(): $CancellablePromise<string> {
 
 export function SelectAttendanceTemplateFile(): $CancellablePromise<string> {
     return $Call.ByID(638783474);
+}
+
+/**
+ * SelectBackupFile은 되살릴 암호화 백업 파일을 고릅니다.
+ */
+export function SelectBackupFile(): $CancellablePromise<string> {
+    return $Call.ByID(2590391121);
 }
 
 /**

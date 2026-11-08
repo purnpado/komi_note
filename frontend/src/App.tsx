@@ -22,6 +22,7 @@ import type { StudentDetailNavigationRequest } from "./features/shared/featureNa
 import {
   CheckForUpdate,
   GetAppState,
+  GetSessionConfig,
   GetParticipationSafetyState,
   ResumeParticipationSessions,
   GetAppVersion,
@@ -37,6 +38,8 @@ import { main as models } from "../wailsjs/go/models";
 
 
 
+import { errorMessage } from "./features/shared/format";
+import { ProfileMenu, QuickSearch } from "./features/app-shell/HeaderTools";
 function displayGender(gender: string) {
   if (["남", "남자", "남성"].includes(gender)) return "남";
   if (["여", "여자", "여성"].includes(gender)) return "여";
@@ -78,9 +81,19 @@ function App() {
   const lockTimer = useRef<number | undefined>(undefined);
 	const [participationPaused, setParticipationPaused] = useState(false);
 
+  // 화면을 다시 불러왔거나(새로 고침·백업 되살리기) 다른 경로로 보관함이 열린 경우
+  // 잠금 해제 때와 같이 설정과 학생 명렬을 다시 읽습니다.
+  const loadOpenSession = async () => {
+    const session = await GetSessionConfig();
+    setConfig(session.config);
+    setStudents((await ListStudents()) || []);
+    setTermsRequired(!session.config.termsAcceptedAt);
+  };
+
   const refreshAppState = async () => {
     try {
       const state = await GetAppState();
+      if (!state.needsSetup && !state.locked) await loadOpenSession();
       setNeedsSetup(state.needsSetup);
       setLocked(state.locked);
       setHasPin(state.hasPin || false);
@@ -88,13 +101,21 @@ function App() {
       setPinAttempts(state.pinAttempts || 0);
       setPinNotice(state.pinNotice || "");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   };
 
   useEffect(() => {
     GetAppState()
-      .then((state) => {
+      .then(async (state) => {
+        if (!state.needsSetup && !state.locked) {
+          try {
+            await loadOpenSession();
+          } catch {
+            // 보관함이 그사이 잠겼으면 잠금 화면을 보여 줍니다.
+            state.locked = true;
+          }
+        }
         setNeedsSetup(state.needsSetup);
         setLocked(state.locked);
         setHasPin(state.hasPin || false);
@@ -104,7 +125,7 @@ function App() {
         setReady(true);
       })
       .catch((error) => {
-        setNotice(String(error));
+        setNotice(errorMessage(error));
         setReady(true);
       });
   }, []);
@@ -133,7 +154,7 @@ function App() {
       await InstallAvailableUpdate();
     } catch (error) {
       setUpdating(false);
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   }
 
@@ -242,7 +263,7 @@ function App() {
       setParticipationPaused(safety.paused);
       setNotice(safety.paused ? "QR 회차가 안전 일시정지되어 있습니다. 확인 후 회차 재개를 눌러 주세요." : "");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
       void refreshAppState();
     }
   }
@@ -260,7 +281,7 @@ function App() {
       setParticipationPaused(safety.paused);
       setNotice(safety.paused ? "QR 회차가 안전 일시정지되어 있습니다. 확인 후 회차 재개를 눌러 주세요." : "");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
       void refreshAppState();
       throw error;
     }
@@ -300,6 +321,10 @@ function App() {
             setNeedsSetup(false);
             setLocked(false);
             setNotice("");
+          }}
+          onRestored={() => {
+            setNotice("백업으로 보관함을 되살렸습니다. 간편 PIN은 환경 설정에서 다시 등록하고, 새 복구 파일을 만들어 두세요.");
+            void refreshAppState();
           }}
         />
         <UpdateDialog
@@ -354,7 +379,7 @@ function App() {
               setConfig(result.config);
               setTermsRequired(false);
             } catch (error) {
-              setNotice(String(error));
+              setNotice(errorMessage(error));
             }
           }}
         />
@@ -402,11 +427,27 @@ function App() {
             </div>
             <div className="top-actions">
               {participationPaused && <button className="quiet-button" onClick={() => { ResumeParticipationSessions(); setParticipationPaused(false); setNotice("QR 참여 회차를 재개했습니다."); }}>회차 재개</button>}
-              <button className="quiet-button">⌕ 빠른 검색</button>
+              <QuickSearch
+                students={students || []}
+                isHomeroomTeacher={isHomeroomTeacher}
+                onOpenStudent={(student) => setStudentCard(student)}
+                onNavigate={(page) => {
+                  setStudentCard(null);
+                  setActive(page);
+                }}
+              />
               <span className="local-status">
                 <i />이 기기에 안전하게 저장됨
               </span>
-              <button className="profile">담</button>
+              <ProfileMenu
+                config={config}
+                version={appVersion}
+                onNavigate={(page) => {
+                  setStudentCard(null);
+                  setActive(page);
+                }}
+                onLock={() => lockScreen()}
+              />
             </div>
           </header>
           <div className="page-content">
@@ -447,6 +488,12 @@ function App() {
                   setConfig(result.config);
                 },
                 isHomeroomTeacher,
+                (page) => {
+                  setStudentCard(null);
+                  setActive(page);
+                },
+                (studentID) =>
+                  handleStudentDetailNavigation({ destination: "상담 기록", studentID }),
               )
             )}
           </div>

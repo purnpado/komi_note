@@ -1,0 +1,14 @@
+/* 상단 빠른 검색·프로필 창 */
+.quick-search-dialog { width: min(560px, calc(100vw - 32px)); }
+.quick-search-help { margin: 4px 0 10px; color: #7a604b; }
+.quick-search-input { width: 100%; min-height: 46px; padding: 0 14px; border: 2px solid #e0c7a7; border-radius: 12px; font: inherit; font-size: 1.05rem; }
+.quick-search-input:focus { border-color: #d98235; outline: none; }
+.quick-search-results { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 4px; max-height: 50vh; overflow: auto; }
+.quick-search-results button { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border: 1px solid transparent; border-radius: 10px; background: transparent; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.quick-search-results button.active { border-color: #e0b57d; background: #fff3e2; }
+.quick-search-results small { color: #8a6a50; }
+.quick-search-empty { padding: 10px 12px; color: #8a6a50; }
+.profile-dialog { width: min(420px, calc(100vw - 32px)); }
+.profile-summary { margin: 6px 0 14px; color: #5a3a1f; line-height: 1.6; }
+.profile-actions { display: grid; gap: 8px; }
+.profile-actions button { justify-content: flex-start; text-align: left; }

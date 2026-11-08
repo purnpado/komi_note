@@ -6,6 +6,7 @@ import { Stat } from "../shared/Stat";
 import "./students.css";
 import "./student-stats.css";
 
+import { errorMessage, todayLocal } from "../shared/format";
 function formatRecordedAt(value: string) {
   if (!value) return "기록 시각 없음";
   const date = new Date(value);
@@ -49,7 +50,7 @@ export function StudentStatsPage({ displayGender }: { displayGender: (gender: st
 
 function StudentAgeStatsPanel({ displayGender }: { displayGender: (gender: string) => string }) {
   const [baseDate, setBaseDate] = useState(
-    new Date().toISOString().slice(0, 10),
+    todayLocal(),
   );
   const [stats, setStats] = useState<models.StudentStats | null>(null);
   const [notice, setNotice] = useState("");
@@ -58,7 +59,7 @@ function StudentAgeStatsPanel({ displayGender }: { displayGender: (gender: strin
     GetStudentStats(baseDate)
       .then((result) => setStats(new models.StudentStats(result)))
       .then(() => setNotice(""))
-      .catch((error) => setNotice(String(error)));
+      .catch((error) => setNotice(errorMessage(error)));
   }, [baseDate]);
   useEffect(() => {
     const students = (stats?.ageGroups || []).flatMap(
@@ -212,7 +213,7 @@ function StudentSurveyStatsPanel() {
             .filter((item) => item.audience !== "교직원"),
         ),
       )
-      .catch((error) => setNotice(String(error)));
+      .catch((error) => setNotice(errorMessage(error)));
   }, []);
   const responseTotal = surveys.reduce(
     (total, survey) => total + (survey.responses?.length || 0),

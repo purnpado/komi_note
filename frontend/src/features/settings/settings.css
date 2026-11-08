@@ -138,3 +138,22 @@
 .settings-feedback-panel h3 { margin:2px 0 6px; }
 .settings-feedback-panel p { margin:0; }
 .settings-feedback-actions { display:flex; flex-wrap:wrap; gap:8px; }
+
+/* 비밀번호 변경·암호화 백업 패널 */
+.settings-extra-panel { display:grid; gap:14px; margin-top:16px; }
+.settings-extra-heading { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:14px; }
+.settings-extra-heading > div { flex:1 1 360px; }
+.settings-extra-heading h3 { margin:2px 0 6px; }
+.settings-extra-heading p { margin:0; }
+.settings-extra-form { display:grid; gap:10px; padding:14px; border:1px solid #ead5bb; border-radius:12px; background:#fffdfa; }
+.settings-extra-form label { display:grid; gap:6px; font-weight:700; max-width:420px; }
+.settings-extra-form input { min-height:40px; padding:0 12px; border:1px solid #e0c7a7; border-radius:10px; font:inherit; }
+.settings-extra-form small { color:#7a604b; }
+.settings-extra-row { display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
+.settings-extra-row.between { justify-content:space-between; }
+.settings-extra-path { min-width:0; overflow-wrap:anywhere; color:#5a3a1f; }
+.settings-extra-actions { display:flex; flex-wrap:wrap; gap:8px; }
+.settings-extra-notice { margin:0; padding:10px 12px; border-radius:10px; background:#fff1ec; color:#9a3412; font-weight:700; white-space:pre-line; overflow-wrap:anywhere; }
+.settings-extra-notice.ok { background:#eaf8ef; color:#1f5b3c; }
+.settings-extra-path { font-family: inherit; }
+.settings-extra-panel button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }

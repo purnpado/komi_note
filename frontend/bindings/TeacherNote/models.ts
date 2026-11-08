@@ -79,6 +79,11 @@ export interface ParticipationSafetyState {
     "paused": boolean;
 }
 
+/**
+ * RestoreResult는 백업 되살리기 뒤 안내할 내용입니다.
+ */
+export type RestoreResult = vault$0.RestoreResult;
+
 export type RosterImportResult = vault$0.RosterImportResult;
 
 export type RosterPreview = vault$0.RosterPreview;

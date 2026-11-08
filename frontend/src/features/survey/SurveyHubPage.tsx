@@ -11,6 +11,7 @@ import { ClassroomNetworkNotice } from "../shared/ClassroomNetworkNotice";
 import { copyText, openExternalURL } from "../shared/desktopActions";
 import "./survey.css";
 
+import { errorMessage } from "../shared/format";
 type SurveyHubPageProps = {
   formatRecordedAt: (value: string) => string;
 };
@@ -123,7 +124,7 @@ function SurveyPanelV2({
         current ? next.find((item) => item.id === current.id) || null : null,
       );
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     }
   };
   useEffect(() => {
@@ -246,7 +247,7 @@ function SurveyPanelV2({
       await choose(saved as unknown as SurveyItem);
       setNotice(editing ? "설문을 수정했습니다." : "설문을 저장했습니다.");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -261,7 +262,7 @@ function SurveyPanelV2({
         "참여방을 열었습니다. 전자칠판 공개 화면에서 QR과 입장 인원을 보여 주세요.",
       );
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -278,7 +279,7 @@ function SurveyPanelV2({
         "설문을 시작했습니다. 인증을 마친 학생 화면에 문항이 열립니다.",
       );
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -294,7 +295,7 @@ function SurveyPanelV2({
       await reload();
       setNotice("설문을 마감했습니다. 아래에서 문항별 결과를 확인하세요.");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -315,7 +316,7 @@ function SurveyPanelV2({
           : "전자칠판 결과 공개를 중지했습니다.",
       );
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -335,7 +336,7 @@ function SurveyPanelV2({
       await reload();
       setNotice("설문과 저장된 응답을 삭제했습니다.");
     } catch (error) {
-      setNotice(String(error));
+      setNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }

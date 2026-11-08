@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from "react";
 import kkomiIcon from "../../assets/images/kkomi-note-icon.png";
 import { ResetMasterPassword, SelectRecoveryFile } from "../../../wailsjs/go/main/App";
 
+import { errorMessage } from "../shared/format";
 export function LockScreen({
   notice,
   unlock,
@@ -59,7 +60,7 @@ export function LockScreen({
     try {
       await unlockWithPin(pin);
     } catch (error) {
-      setLocalNotice(String(error));
+      setLocalNotice(errorMessage(error));
       setPin("");
       if (refreshAppState) void refreshAppState();
     } finally {
@@ -75,7 +76,7 @@ export function LockScreen({
     try {
       await unlock(password);
     } catch (error) {
-      setLocalNotice(String(error));
+      setLocalNotice(errorMessage(error));
       if (refreshAppState) void refreshAppState();
     } finally {
       setBusy(false);
@@ -87,7 +88,7 @@ export function LockScreen({
       const path = await SelectRecoveryFile();
       if (path) setRecoveryPath(path);
     } catch (error) {
-      setLocalNotice(String(error));
+      setLocalNotice(errorMessage(error));
     }
   }
 
@@ -107,7 +108,7 @@ export function LockScreen({
       );
       if (refreshAppState) void refreshAppState();
     } catch (error) {
-      setLocalNotice(String(error));
+      setLocalNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }

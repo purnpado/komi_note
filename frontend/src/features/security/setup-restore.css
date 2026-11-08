@@ -1,0 +1,11 @@
+/* 최초 설정 화면의 "백업으로 시작하기" */
+.setup-restore { margin: 4px 0 14px; padding: 12px 14px; border: 1px dashed #d9b17e; border-radius: 12px; background: #fff8ed; color: #5a3a1f; }
+.setup-restore summary { cursor: pointer; font-weight: 800; }
+.setup-restore p { margin: 8px 0; font-size: 0.92rem; }
+.setup-restore label { display: grid; gap: 6px; margin: 8px 0; font-weight: 700; }
+.setup-restore input { min-height: 40px; padding: 0 12px; border: 1px solid #e0c7a7; border-radius: 10px; font: inherit; }
+.setup-restore-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.setup-restore-row code { overflow-wrap: anywhere; }
+.setup-restore-notice { color: #b42318; font-weight: 800; }
+.setup-restore button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+.setup-restore-row code { font-family: inherit; color: #6b4a22; }

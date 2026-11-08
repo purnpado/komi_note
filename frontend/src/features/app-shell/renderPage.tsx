@@ -47,6 +47,8 @@ export function renderPage(
   consultationPageKey: number,
   saveConfig: (config: models.ClassConfig) => Promise<void>,
   isHomeroomTeacher: boolean,
+  navigate: (page: PageKey) => void,
+  openConsultation: (studentID: string) => void,
 ) {
   if (active === "환경 설정" && config)
     return <SettingsFeaturePage config={config} saveConfig={saveConfig} />;
@@ -126,5 +128,14 @@ export function renderPage(
   if (active === "평가 관리") return <AssessmentPage config={config} />;
   if (active === "학교생활기록") return <RecordPage />;
   if (active === "예산 관리") return <BudgetPage />;
-  return <DashboardPage />;
+  return (
+    <DashboardPage
+      config={config}
+      students={students}
+      isHomeroomTeacher={isHomeroomTeacher}
+      navigate={navigate}
+      openStudent={openStudent}
+      openConsultation={openConsultation}
+    />
+  );
 }

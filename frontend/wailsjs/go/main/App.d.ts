@@ -168,6 +168,18 @@ export function SelectAttendanceTemplateFile():Promise<string>;
 
 export function SelectRecoveryFile():Promise<string>;
 
+export function ExportEncryptedBackup():Promise<string>;
+
+export function GetSessionConfig():Promise<main.SessionResult>;
+
+export function SelectBackupFile():Promise<string>;
+
+export function RestoreEncryptedBackup(arg1:string,arg2:string):Promise<main.RestoreResult>;
+
+export function ChangeMasterPassword(arg1:string,arg2:string):Promise<void>;
+
+export function CreateRecoveryFile(arg1:string):Promise<string>;
+
 export function SelectRosterFile():Promise<string>;
 
 export function SelectStudentPhoto():Promise<string>;

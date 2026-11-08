@@ -325,6 +325,16 @@ func (s *VaultStore) Unlock(password string) (SessionResult, error) {
 	return SessionResult{Config: data.Config}, nil
 }
 
+// CurrentSession은 이미 열린 보관함의 설정을 돌려줍니다. 화면을 다시 불러왔을 때 자료를 다시 읽는 데 씁니다.
+func (s *VaultStore) CurrentSession() (SessionResult, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.session == nil || len(s.sessionKey) == 0 {
+		return SessionResult{}, errors.New("먼저 보관함을 열어 주세요")
+	}
+	return SessionResult{Config: s.session.Config}, nil
+}
+
 // Lock은 메모리에만 있던 암호 키를 즉시 지웁니다.
 func (s *VaultStore) Lock() {
 	s.mu.Lock()

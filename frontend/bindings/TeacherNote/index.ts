@@ -24,6 +24,7 @@ export type {
     CourseRosterPreview,
     CourseRosterStudent,
     ParticipationSafetyState,
+    RestoreResult,
     RosterImportResult,
     RosterPreview,
     SeatingPlan,

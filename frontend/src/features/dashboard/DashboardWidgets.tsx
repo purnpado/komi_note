@@ -5,14 +5,16 @@ export function Attention({
   num,
   text,
   tag,
+  onClick,
 }: {
   name: string;
   num: string;
   text: string;
   tag: string;
+  onClick?: () => void;
 }) {
-  return (
-    <div className="attention-row">
+  const body = (
+    <>
       <i className="avatar" aria-hidden="true">
         {name[0]}
       </i>
@@ -23,26 +25,34 @@ export function Attention({
         <small>{text}</small>
       </div>
       <span>{tag}</span>
-    </div>
+    </>
+  );
+  return onClick ? (
+    <button type="button" className="attention-row attention-button" onClick={onClick}>
+      {body}
+    </button>
+  ) : (
+    <div className="attention-row">{body}</div>
   );
 }
 
-/** 실제 이동 동작이 연결되기 전까지는 장식성 카드로 표시합니다. */
 export function Quick({
   icon,
   title,
   text,
+  onClick,
 }: {
   icon: string;
   title: string;
   text: string;
+  onClick: () => void;
 }) {
   return (
-    <article className="quick">
+    <button type="button" className="quick quick-button" onClick={onClick}>
       <i aria-hidden="true">{icon}</i>
       <b>{title}</b>
       <small>{text}</small>
       <span aria-hidden="true">→</span>
-    </article>
+    </button>
   );
 }
