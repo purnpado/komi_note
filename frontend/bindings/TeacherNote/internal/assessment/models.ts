@@ -68,6 +68,16 @@ export interface AssessmentObjection {
     "answeredAt": string;
 }
 
+/**
+ * AssessmentParticipant는 QR 회차에 들어온 학생의 상태다.
+ */
+export interface AssessmentParticipant {
+    "studentId": string;
+    "number": string;
+    "name": string;
+    "status": string;
+}
+
 export interface AssessmentScore {
     "studentId": string;
     "domains": AssessmentDomainScore[] | null;
@@ -98,6 +108,11 @@ export interface AssessmentSessionInfo {
     "notice": string;
     "mode": string;
     "answerOnly"?: boolean;
+
+    /**
+     * Participants는 교사 화면에만 보내는 접속 학생 목록이다(접속 초기화용, 점수 없음).
+     */
+    "participants": AssessmentParticipant[] | null;
 }
 
 /**

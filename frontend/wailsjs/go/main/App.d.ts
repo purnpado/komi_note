@@ -190,6 +190,8 @@ export function StartAssessmentAnswerReview(arg1:string,arg2:string):Promise<mai
 
 export function StartAssessmentReview(arg1:string,arg2:string):Promise<main.AssessmentSessionInfo>;
 
+export function ResetAssessmentStudentAccess(arg1:string,arg2:string,arg3:string,arg4:string):Promise<main.AssessmentSessionInfo>;
+
 export function StartRandomArrowAssignment(arg1:string):Promise<main.SeatingSessionInfo>;
 
 export function StartSeatingRPSCompetition(arg1:string):Promise<main.SeatingSessionInfo>;

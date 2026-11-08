@@ -130,6 +130,16 @@ type AssessmentSessionInfo struct {
 	Notice         string `json:"notice"`
 	Mode           string `json:"mode"`
 	AnswerOnly     bool   `json:"answerOnly,omitempty"`
+	// Participants는 교사 화면에만 보내는 접속 학생 목록이다(접속 초기화용, 점수 없음).
+	Participants []AssessmentParticipant `json:"participants"`
+}
+
+// AssessmentParticipant는 QR 회차에 들어온 학생의 상태다.
+type AssessmentParticipant struct {
+	StudentID string `json:"studentId"`
+	Number    string `json:"number"`
+	Name      string `json:"name"`
+	Status    string `json:"status"`
 }
 
 // isLegacyAssessmentImportedCriterion은 이전 버전에서 나이스 원본 총점을
@@ -155,4 +165,3 @@ func assessmentImportedScore(domain AssessmentDomain, score AssessmentDomainScor
 	}
 	return nil
 }
-

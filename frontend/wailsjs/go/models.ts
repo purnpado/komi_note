@@ -403,6 +403,7 @@ export namespace main {
 	    className: string;
 	    filenameSubject?: string;
 	    assessment: Assessment;
+	    warnings?: string[];
 
 	    static createFrom(source: any = {}) {
 	        return new AssessmentImportPreview(source);
@@ -415,6 +416,7 @@ export namespace main {
 	        this.className = source["className"];
 	        this.filenameSubject = source["filenameSubject"];
 	        this.assessment = this.convertValues(source["assessment"], Assessment);
+	        this.warnings = source["warnings"];
 	    }
 
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -452,6 +454,7 @@ export namespace main {
 	    objectionCount: number;
 	    notice: string;
 	    mode: string;
+	    participants?: { studentId: string; number: string; name: string; status: string }[];
 
 	    static createFrom(source: any = {}) {
 	        return new AssessmentSessionInfo(source);
@@ -473,6 +476,7 @@ export namespace main {
 	        this.objectionCount = source["objectionCount"];
 	        this.notice = source["notice"];
 	        this.mode = source["mode"];
+	        this.participants = source["participants"];
 	    }
 	}
 

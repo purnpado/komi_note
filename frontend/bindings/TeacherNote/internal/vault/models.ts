@@ -47,6 +47,11 @@ export interface AssessmentImportPreview {
     "className": string;
     "filenameSubject"?: string;
     "assessment": Assessment;
+
+    /**
+     * Warnings는 가져오기는 되지만 교사가 확인해야 할 내용(여러 반·과목 섞임 등)이다.
+     */
+    "warnings": string[] | null;
 }
 
 /**

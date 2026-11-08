@@ -744,6 +744,11 @@ func (a *App) GetAssessmentAnswerReviewInfo(assessmentID, domainID string) (Asse
 	return a.assessment.AnswerReviewInfo(assessmentID, domainID)
 }
 
+// ResetAssessmentStudentAccess는 QR 확인 회차에서 한 학생의 접속을 초기화합니다(다른 학생이 먼저 들어왔거나 기기를 바꾼 경우).
+func (a *App) ResetAssessmentStudentAccess(assessmentID, domainID, mode, studentID string) (AssessmentSessionInfo, error) {
+	return a.assessment.ResetStudentAccess(assessmentID, domainID, mode, studentID)
+}
+
 // OpenAssessmentBoard는 선택한 영역의 QR 전자칠판을 기본 브라우저의 별도 창으로 엽니다.
 func (a *App) OpenAssessmentBoard(assessmentID, domainID string) (AssessmentSessionInfo, error) {
 	info, err := a.assessment.Start(assessmentID, domainID)

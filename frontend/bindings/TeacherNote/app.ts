@@ -428,6 +428,13 @@ export function RemovePin(): $CancellablePromise<void> {
 }
 
 /**
+ * ResetAssessmentStudentAccess는 QR 확인 회차에서 한 학생의 접속을 초기화합니다(다른 학생이 먼저 들어왔거나 기기를 바꾼 경우).
+ */
+export function ResetAssessmentStudentAccess(assessmentID: string, domainID: string, mode: string, studentID: string): $CancellablePromise<$models.AssessmentSessionInfo> {
+    return $Call.ByID(3948733879, assessmentID, domainID, mode, studentID);
+}
+
+/**
  * ResetMasterPassword는 외부 복구 파일과 복구용 암호로 마스터 비밀번호를 재설정합니다.
  */
 export function ResetMasterPassword(recoveryPath: string, recoveryPassword: string, newPassword: string): $CancellablePromise<void> {

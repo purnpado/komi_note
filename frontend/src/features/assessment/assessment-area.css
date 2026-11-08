@@ -8,3 +8,14 @@
 .assessment-domain-focus p,.assessment-domain-focus h4{margin:0}.assessment-domain-focus h4{color:#4b2f20;font-size:18px}.assessment-domain-focus h4 span{margin-left:6px;color:#b05f2e;font-size:13px}.assessment-domain-focus ul{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 0;padding:0;list-style:none}.assessment-domain-focus li{display:flex;gap:6px;border-radius:999px;padding:6px 9px;color:#624131;background:#fff1dd;font-size:12px}.assessment-domain-focus li small{color:#9b765d}.assessment-qr-actions{display:flex;justify-content:center;gap:9px;margin:0 24px}.assessment-qr-actions button{min-height:42px}
 .assessment-imported-score{margin-top:8px!important;color:#8b654d;font-size:12px}.assessment-score-cell{display:grid;gap:6px;min-width:104px}.assessment-reason-button{border:1px solid #e5c09b;border-radius:8px;padding:5px 7px;color:#83512f;background:#fffaf5;font-size:11px;cursor:pointer;white-space:nowrap}.assessment-reason-button:hover,.assessment-reason-button:focus-visible{border-color:#c96a27;color:#6d3717;outline:2px solid #f2c897;outline-offset:1px}.assessment-reason-button.filled{border-color:#bf7130;color:#713a1d;background:#ffefd6}
 @media(max-width:640px){.assessment-domain-focus{align-items:stretch;flex-direction:column}.assessment-qr-actions{flex-direction:column;margin-right:19px;margin-left:19px}.assessment-domain-tabs button{min-width:150px}}
+/* 점수 입력 검사와 접속 초기화 */
+.assessment-score-cell input.assessment-score-invalid { border: 2px solid #d92d20; background: #fff1f0; color: #a3150d; }
+.assessment-total-over { color: #b42318; background: #fff1f0; }
+.assessment-imported { color: #6b4a22; font-weight: 700; text-align: center; }
+.assessment-unsaved { margin: 0 0 10px; padding: 10px 14px; border: 2px dashed #d98235; border-radius: 12px; background: #fff6ea; color: #7a3d12; font-weight: 700; }
+.assessment-participants { margin: 12px 0; padding: 12px 14px; border: 1px solid #ead5bb; border-radius: 12px; background: #fffdfa; text-align: left; }
+.assessment-participants p { margin: 4px 0 8px; color: #7a604b; font-size: 0.9rem; }
+.assessment-participants ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; max-height: 220px; overflow: auto; }
+.assessment-participants li { display: flex; align-items: center; gap: 10px; }
+.assessment-participants li span { flex: 1; font-weight: 700; }
+.assessment-participants li em { font-style: normal; color: #7a604b; font-size: 0.9rem; }

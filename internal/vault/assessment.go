@@ -3,6 +3,7 @@ package vault
 import (
 	"errors"
 	"fmt"
+	"math"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -35,6 +36,8 @@ type AssessmentImportPreview struct {
 	ClassName       string     `json:"className"`
 	FilenameSubject string     `json:"filenameSubject,omitempty"`
 	Assessment      Assessment `json:"assessment"`
+	// Warnings는 가져오기는 되지만 교사가 확인해야 할 내용(여러 반·과목 섞임 등)이다.
+	Warnings []string `json:"warnings"`
 }
 
 func newAssessmentID() (string, error) { return newSurveyID() }
@@ -47,7 +50,7 @@ func parseAssessmentScore(value string) (*float64, error) {
 		return nil, nil
 	}
 	number, err := strconv.ParseFloat(strings.ReplaceAll(value, ",", ""), 64)
-	if err != nil {
+	if err != nil || math.IsNaN(number) || math.IsInf(number, 0) {
 		return nil, fmt.Errorf("점수 '%s'를 숫자로 읽지 못했습니다", value)
 	}
 	return &number, nil
@@ -113,13 +116,26 @@ func PreviewAssessmentImport(path string) (AssessmentImportPreview, error) {
 	if len(item.Domains) == 0 {
 		return AssessmentImportPreview{}, errors.New("평가 영역을 한 개 이상 찾지 못했습니다")
 	}
+	seenNumbers := map[string]int{}
+	otherClasses, otherSubjects := map[string]bool{}, map[string]bool{}
 	for rowIndex := 3; rowIndex < len(rows); rowIndex++ {
 		number, name := cell(rowIndex, 2), cell(rowIndex, 3)
 		if number == "" && name == "" {
 			continue
 		}
 		if number == "" || name == "" {
-			return AssessmentImportPreview{}, fmt.Errorf("%d번째 학생 행의 번호 또는 성명이 비어 있습니다", rowIndex+1)
+			return AssessmentImportPreview{}, fmt.Errorf("엑셀 %d번째 줄의 번호 또는 성명이 비어 있습니다", rowIndex+1)
+		}
+		key := assessment.NormalizeStudentNumber(number)
+		if first, duplicated := seenNumbers[key]; duplicated {
+			return AssessmentImportPreview{}, fmt.Errorf("엑셀 %d번째 줄과 %d번째 줄의 번호(%s)가 같습니다. 한 반의 파일인지 확인해 주세요", first, rowIndex+1, number)
+		}
+		seenNumbers[key] = rowIndex + 1
+		if classValue := cell(rowIndex, 1); classValue != "" && classValue != item.ClassName {
+			otherClasses[classValue] = true
+		}
+		if subjectValue := cell(rowIndex, 0); subjectValue != "" && subjectValue != item.Subject {
+			otherSubjects[subjectValue] = true
 		}
 		studentID, _ := newAssessmentID()
 		item.Students = append(item.Students, AssessmentStudent{ID: studentID, Number: number, Name: name, Status: "재학"})
@@ -127,7 +143,10 @@ func PreviewAssessmentImport(path string) (AssessmentImportPreview, error) {
 		for domainIndex, domain := range item.Domains {
 			value, err := parseAssessmentScore(cell(rowIndex, domainIndex+4))
 			if err != nil {
-				return AssessmentImportPreview{}, fmt.Errorf("%d번째 학생 %s", rowIndex+1, err)
+				return AssessmentImportPreview{}, fmt.Errorf("엑셀 %d번째 줄(%s번 %s) %s 영역: %s", rowIndex+1, number, name, domain.Name, err)
+			}
+			if value != nil && (*value < 0 || *value > domain.MaxScore) {
+				return AssessmentImportPreview{}, fmt.Errorf("엑셀 %d번째 줄(%s번 %s) %s 영역 점수 %g점이 0점~만점(%g점) 범위를 벗어납니다", rowIndex+1, number, name, domain.Name, *value, domain.MaxScore)
 			}
 			score.Domains = append(score.Domains, AssessmentDomainScore{DomainID: domain.ID, ImportedScore: value, Criteria: []AssessmentCriterionScore{}})
 		}
@@ -136,7 +155,23 @@ func PreviewAssessmentImport(path string) (AssessmentImportPreview, error) {
 	if len(item.Students) == 0 {
 		return AssessmentImportPreview{}, errors.New("학생 점수 행을 찾지 못했습니다")
 	}
-	return AssessmentImportPreview{FileName: filepath.Base(path), Subject: item.Subject, ClassName: item.ClassName, FilenameSubject: meta.Subject, Assessment: item}, nil
+	warnings := []string{}
+	if len(otherClasses) > 0 {
+		warnings = append(warnings, fmt.Sprintf("파일에 %s반 말고 다른 반(%s)이 섞여 있습니다. 한 반씩 나눈 파일인지 확인해 주세요. 그대로 가져오면 모두 %s반으로 등록됩니다.", item.ClassName, joinSortedKeys(otherClasses), item.ClassName))
+	}
+	if len(otherSubjects) > 0 {
+		warnings = append(warnings, fmt.Sprintf("파일에 %s 말고 다른 과목(%s)이 섞여 있습니다.", item.Subject, joinSortedKeys(otherSubjects)))
+	}
+	return AssessmentImportPreview{FileName: filepath.Base(path), Subject: item.Subject, ClassName: item.ClassName, FilenameSubject: meta.Subject, Assessment: item, Warnings: warnings}, nil
+}
+
+func joinSortedKeys(values map[string]bool) string {
+	keys := make([]string, 0, len(values))
+	for key := range values {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return strings.Join(keys, ", ")
 }
 
 func (s *VaultStore) ListAssessments() ([]Assessment, error) {
@@ -215,8 +250,8 @@ func (s *VaultStore) SubmitAssessmentObjection(assessmentID, domainID, studentID
 			return errors.New("수업 명렬에서 학생을 찾지 못했습니다")
 		}
 		for _, objection := range item.Objections {
-			if objection.StudentID == studentID && objection.Status != "답변 완료" {
-				return errors.New("처리 중인 이의가 이미 있습니다")
+			if objection.StudentID == studentID && objection.Status != "답변 완료" && (objection.DomainID == "" || objection.DomainID == domainID) {
+				return errors.New("이 영역에 처리 중인 이의가 이미 있습니다")
 			}
 		}
 		now := assessmentNow()
@@ -516,7 +551,10 @@ func (s *VaultStore) SaveAssessment(item Assessment) (Assessment, error) {
 	for index := range s.session.Assessments {
 		if s.session.Assessments[index].ID == item.ID {
 			item.CreatedAt = s.session.Assessments[index].CreatedAt
-			item.History = append([]AssessmentHistory(nil), s.session.Assessments[index].History...)
+			item.History = append([]AssessmentHistory{}, s.session.Assessments[index].History...)
+			// 이의는 학생 제출·교사 답변·삭제 기능으로만 바꾼다. 화면의 예전 사본으로 점수를 저장해도
+			// 그사이 도착한 이의가 지워지지 않도록 보관함의 이의 목록을 그대로 유지한다.
+			item.Objections = append([]AssessmentObjection{}, s.session.Assessments[index].Objections...)
 			s.session.Assessments[index] = item
 			s.session.UpdatedAt = time.Now().UTC()
 			if err := s.writeCurrentVaultLocked(); err != nil {

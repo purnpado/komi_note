@@ -9,6 +9,7 @@ export type {
     AssessmentDomainScore,
     AssessmentHistory,
     AssessmentObjection,
+    AssessmentParticipant,
     AssessmentScore,
     AssessmentSessionInfo,
     AssessmentStudent
