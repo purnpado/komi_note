@@ -6,7 +6,7 @@
         <key>CFBundleName</key>
             <string>꼬미노트</string>
         <key>CFBundleExecutable</key>
-            <string>꼬미노트</string>
+            <string>kkomi-note</string>
         <key>CFBundleIdentifier</key>
             <string>io.github.purnpado.kkomi-note</string>
         <key>CFBundleVersion</key>
