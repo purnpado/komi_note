@@ -48,7 +48,7 @@ import {
   copyToClipboard,
   type BulkCandidate,
 } from "./PhraseParts";
-import { aiPrompt } from "./recordsState";
+import { aiPrompt, type AiMode } from "./recordsState";
 import "./records-page.css";
 
 type Pupil = { key: string; label: string; name: string; number: string; note?: string };
@@ -661,7 +661,8 @@ function EntryEditor({
   const [saveError, setSaveError] = useState("");
   const [copied, setCopied] = useState("");
   const [moveKey, setMoveKey] = useState("");
-  const [aiOpen, setAiOpen] = useState(false);
+  const [aiMode, setAiMode] = useState<AiMode | null>(null);
+  const [lastAiMode, setLastAiMode] = useState<AiMode>("typo");
   const [phraseDraft, setPhraseDraft] = useState<models.RecordPhrase | null>(null);
   const [insertOpen, setInsertOpen] = useState(false);
   const [undoText, setUndoText] = useState<string | null>(null);
@@ -801,11 +802,12 @@ function EntryEditor({
 
   const hasName = warnings.some((warning) => warning.kind === "name");
 
-  async function copyForAi() {
+  async function copyForAi(mode: AiMode) {
     const value = textRef.current.trim();
     if (!value || hasName) return;
-    const ok = await copyToClipboard(aiPrompt(value));
-    setCopied(ok ? "검토 요청 문구와 함께 복사했습니다. 쓰시는 AI에 붙여 넣고, 답을 복사해 'AI 답 붙여 넣기'를 누르세요. AI 서비스에 붙여 넣은 문장은 그 회사 서버로 전송됩니다." : "복사하지 못했습니다.");
+    const ok = await copyToClipboard(aiPrompt(value, mode, info.limitBytes));
+    setLastAiMode(mode);
+    setCopied(ok ? `${mode === "polish" ? "문장 다듬기" : "오탈자 검토"} 요청 문구와 함께 복사했습니다. 쓰시는 AI에 붙여 넣고, 답을 복사해 'AI 답 붙여 넣기'를 누르세요. AI 서비스에 붙여 넣은 문장은 그 회사 서버로 전송됩니다.` : "복사하지 못했습니다.");
     window.setTimeout(() => setCopied(""), 8000);
   }
 
@@ -932,9 +934,10 @@ function EntryEditor({
           <span className="records-status-label">{statusLabels[status]}</span>
         </div>
         <div className="records-text-actions records-text-tools">
-          <button className="quiet-button" onClick={() => void copyForAi()} disabled={!text.trim() || hasName} title={hasName ? "학생 이름을 먼저 지워 주세요" : "오탈자 검토 요청 문구와 함께 복사"}>AI 검토용 복사</button>
-          <button className="quiet-button" onClick={() => setAiOpen(true)} disabled={!text.trim()}>AI 답 붙여 넣기</button>
-          <HelpTip>프로그램은 외부로 아무것도 보내지 않습니다. 'AI 검토용 복사'로 쓰시는 AI(ChatGPT·Gemini·Claude 등)에 붙여 넣고, 답을 'AI 답 붙여 넣기'에 넣으면 바뀐 글자를 비교해 보여 줍니다. 학생 이름이 있으면 복사하지 않습니다.</HelpTip>
+          <button className="quiet-button" onClick={() => void copyForAi("typo")} disabled={!text.trim() || hasName} title={hasName ? "학생 이름을 먼저 지워 주세요" : "오탈자·띄어쓰기만 고쳐 달라는 요청 문구와 함께 복사"}>AI 오탈자 검토용 복사</button>
+          <button className="quiet-button" onClick={() => void copyForAi("polish")} disabled={!text.trim() || hasName} title={hasName ? "학생 이름을 먼저 지워 주세요" : "사실을 더하지 않고 문장을 다듬어 달라는 요청 문구와 함께 복사"}>AI 문장 다듬기용 복사</button>
+          <button className="quiet-button" onClick={() => setAiMode(lastAiMode)} disabled={!text.trim()}>AI 답 붙여 넣기</button>
+          <HelpTip>프로그램은 외부로 아무것도 보내지 않습니다. 복사 버튼으로 쓰시는 AI(ChatGPT·Gemini·Claude 등)에 붙여 넣고, 답을 'AI 답 붙여 넣기'에 넣으면 바뀐 글자를 비교해 보여 줍니다. 문장 다듬기는 원문에 없는 사실을 더하지 말라고 요청하지만, 적용 전에 새로 생긴 내용을 꼭 확인하세요. 학생 이름이 있으면 복사하지 않고, 관찰 메모는 복사하지 않습니다.</HelpTip>
           <span className="records-tool-gap" />
           <button className="quiet-button" onClick={() => setInsertOpen(true)}>보관함에서 찾기</button>
           <button className="quiet-button" onClick={() => setPhraseDraft(new models.RecordPhrase({ text: textRef.current, area: slot.area, subject: slot.subject }))} disabled={!text.trim()}>보관함에 저장</button>
@@ -952,14 +955,16 @@ function EntryEditor({
       </div>
 
       {reference}
-      {aiOpen && (
+      {aiMode && (
         <AiReviewDialog
           original={textRef.current}
-          onClose={() => setAiOpen(false)}
+          mode={aiMode}
+          limitBytes={info.limitBytes}
+          onClose={() => setAiMode(null)}
           onApply={(next) => {
             setUndoText(textRef.current);
             replaceText(next);
-            setAiOpen(false);
+            setAiMode(null);
           }}
         />
       )}

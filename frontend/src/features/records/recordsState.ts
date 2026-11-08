@@ -267,11 +267,27 @@ export function replaceName(text: string, name: string) {
   return name ? text.split(name).join("○○") : text;
 }
 
+export type AiMode = "typo" | "polish";
+
 export const aiPromptIntro =
   "다음은 학교생활기록부 특기사항 문장입니다. 오탈자, 띄어쓰기, 문장 부호만 고쳐 주세요. 내용·표현·길이는 바꾸지 말고, 설명 없이 고친 문장만 답해 주세요.";
 
-export function aiPrompt(text: string) {
-  return `${aiPromptIntro}\n\n${text.trim()}`;
+// polishPromptIntro는 문장 다듬기 요청입니다. AI가 관찰하지 않은 내용을 지어 넣지 않도록 조건을 분명히 적는다.
+export function polishPromptIntro(limitBytes: number) {
+  return [
+    "다음은 교사가 관찰해 쓴 학교생활기록부 특기사항 문장입니다. 뜻은 그대로 두고 문장을 자연스럽게 다듬어 주세요.",
+    "꼭 지켜 주세요.",
+    "1. 원문에 없는 사실·활동·평가·수치를 더하지 마세요.",
+    "2. 학생 이름을 쓰지 마세요.",
+    "3. 학생부 문체(~함, ~임처럼 명사형으로 끝맺음)로 쓰세요.",
+    `4. 나이스 기준 ${limitBytes.toLocaleString()}바이트(한글 약 ${Math.floor(limitBytes / 3).toLocaleString()}자) 이내로 쓰세요.`,
+    "5. 오탈자·띄어쓰기도 바로잡고, 설명 없이 다듬은 문장만 답해 주세요.",
+  ].join("\n");
+}
+
+export function aiPrompt(text: string, mode: AiMode = "typo", limitBytes = 1500) {
+  const intro = mode === "polish" ? polishPromptIntro(limitBytes) : aiPromptIntro;
+  return `${intro}\n\n${text.trim()}`;
 }
 
 // cleanAiAnswer는 AI 답에서 코드 블록 표시·앞뒤 따옴표·"수정:" 같은 머리말을 걷어 낸다.

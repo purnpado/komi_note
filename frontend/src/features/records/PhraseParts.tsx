@@ -6,16 +6,17 @@ import { confirmWithRadix } from "../app-shell/AppConfirmDialog";
 import { HelpTip } from "../shared/HelpTip";
 import { errorMessage } from "../shared/format";
 import {
-  aiPrompt,
   areaLabels,
   changeRatio,
   cleanAiAnswer,
   diffText,
   filterPhrases,
   findNames,
+  neisBytes,
   replaceName,
   suggestTags,
   tagCounts,
+  type AiMode,
   type Area,
 } from "./recordsState";
 
@@ -54,7 +55,7 @@ function DiffView({ before, after }: { before: string; after: string }) {
 }
 
 // AiReviewDialog: AI 답을 붙여 넣으면 원래 문장과 비교해 보여 주고, 적용을 눌러야 바꾼다.
-export function AiReviewDialog({ original, onClose, onApply }: { original: string; onClose: () => void; onApply: (text: string) => void }) {
+export function AiReviewDialog({ original, mode, limitBytes, onClose, onApply }: { original: string; mode: AiMode; limitBytes: number; onClose: () => void; onApply: (text: string) => void }) {
   const [answer, setAnswer] = useState("");
   const cleaned = cleanAiAnswer(answer);
   const ratio = cleaned ? changeRatio(diffText(original.trim(), cleaned)) : 0;
@@ -64,7 +65,7 @@ export function AiReviewDialog({ original, onClose, onApply }: { original: strin
       <Dialog.Portal>
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content className="dialog-content records-dialog records-dialog-wide">
-          <Dialog.Title>AI 답 붙여 넣기</Dialog.Title>
+          <Dialog.Title>AI 답 붙여 넣기 · {mode === "polish" ? "문장 다듬기" : "오탈자 검토"}</Dialog.Title>
           <Dialog.Description className="records-dialog-description">
             AI가 고친 문장을 아래에 붙여 넣으면 원래 문장과 바뀐 글자를 보여 줍니다. <ins className="records-legend">초록</ins>은 더한 글자, <del className="records-legend">빨강</del>은 지운 글자입니다. 확인한 뒤 적용을 누를 때만 기재 문장이 바뀝니다.
           </Dialog.Description>
@@ -76,7 +77,11 @@ export function AiReviewDialog({ original, onClose, onApply }: { original: strin
             <div className="records-diff-box">
               <strong>바뀐 부분</strong>
               {unchanged ? <p className="records-muted">원래 문장과 같습니다. 고칠 곳이 없었습니다.</p> : <DiffView before={original.trim()} after={cleaned} />}
-              {ratio > 0.3 && <p className="records-error" role="alert">글자의 {Math.round(ratio * 100)}%가 바뀌었습니다. AI가 오탈자 말고 내용까지 바꿨을 수 있으니 꼼꼼히 확인해 주세요.</p>}
+              {mode === "typo" && ratio > 0.3 && <p className="records-error" role="alert">글자의 {Math.round(ratio * 100)}%가 바뀌었습니다. AI가 오탈자 말고 내용까지 바꿨을 수 있으니 꼼꼼히 확인해 주세요.</p>}
+              {mode === "polish" && !unchanged && <p className="records-caution" role="note">초록색으로 새로 생긴 내용이 실제로 관찰한 사실인지 꼭 확인해 주세요. AI는 원문에 없는 활동이나 칭찬을 지어 넣을 때가 있습니다.</p>}
+              <p className={neisBytes(cleaned) > limitBytes ? "records-count over" : "records-count"}>
+                고친 문장 {neisBytes(cleaned).toLocaleString()} / {limitBytes.toLocaleString()}바이트{neisBytes(cleaned) > limitBytes ? " (한도 초과)" : ""}
+              </p>
             </div>
           )}
           <div className="dialog-actions">

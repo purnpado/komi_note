@@ -133,6 +133,7 @@
 .records-diff { margin: 0; color: #3d2a1f; font-size: 15px; line-height: 1.8; white-space: pre-wrap; word-break: break-all; }
 .records-diff ins, .records-legend:is(ins) { padding: 0 2px; border-radius: 4px; color: #155e40; background: #c9f0db; text-decoration: none; font-weight: 700; }
 .records-diff del, .records-legend:is(del) { padding: 0 2px; border-radius: 4px; color: #9a2a1c; background: #fbd3cc; text-decoration: line-through; }
+.records-caution { margin: 0; padding: 8px 11px; border: 1px solid #f0c98d; border-radius: 9px; color: #7a3f17; background: #fff5e4; font-size: 13px; line-height: 1.5; }
 .records-ok { margin: 0; color: #1f6e4c; font-size: 13px; font-weight: 700; }
 .records-name-hits { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
 .records-name-hits li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 11px; border: 1px solid #f0b9ad; border-radius: 10px; color: #9a3524; background: #fff1ee; font-size: 13px; }

@@ -99,6 +99,10 @@ test("이름 찾기와 ○○로 바꾸기", () => {
 
 test("AI 요청 문구와 답 정리", () => {
   assert.match(aiPrompt("  문장.  "), /내용·표현·길이는 바꾸지 말고[\s\S]*\n\n문장\.$/);
+  const polish = aiPrompt("문장.", "polish", 900);
+  assert.match(polish, /원문에 없는 사실·활동·평가·수치를 더하지 마세요/);
+  assert.match(polish, /900바이트\(한글 약 300자\)/);
+  assert.match(polish, /\n\n문장\.$/);
   assert.equal(cleanAiAnswer("```\n고친 문장: \"실험을 완성함.\"\n```"), "실험을 완성함.");
   assert.equal(cleanAiAnswer("“탐구함.”"), "탐구함.");
   assert.equal(cleanAiAnswer("그냥 문장."), "그냥 문장.");
