@@ -1,0 +1,177 @@
+꼬미노트 비영리 소스 공개 라이선스 1.0
+Kkomi Note Noncommercial Source-Available License 1.0
+
+Copyright (c) 2026 purnpado
+원본 저장소 / Original repository: https://github.com/purnpado/komi_note
+
+======================================================================
+한국어
+======================================================================
+
+제1조 (목적)
+이 라이선스는 꼬미노트(이하 "이 소프트웨어")를 누구나 비영리 목적으로
+자유롭게 사용·수정·배포할 수 있게 하면서, 수정본도 무료로 소스와 함께
+공개되도록 하는 것을 목적으로 합니다.
+
+제2조 (용어)
+1. "이 소프트웨어"란 원본 저장소에 공개된 소스 코드, 문서, 실행 파일과
+   이를 바탕으로 만든 모든 것을 말합니다.
+2. "수정본"이란 이 소프트웨어의 전부 또는 일부를 고치거나, 다른 것과
+   합치거나, 바탕으로 삼아 만든 소프트웨어를 말합니다.
+3. "배포"란 이 소프트웨어나 수정본의 복제본을 다른 사람에게 주거나,
+   내려받을 수 있게 하거나, 네트워크로 다른 사람이 쓸 수 있게
+   제공하는 것을 말합니다.
+4. "영리 목적"이란 이 소프트웨어나 수정본으로 금전적 대가나 상업적
+   이익을 얻는 것을 말합니다. 다음을 포함하며, 이에 한정하지 않습니다.
+   가. 이 소프트웨어나 수정본을 판매하거나 돈을 받고 배포하는 것
+   나. 이 소프트웨어나 수정본을 유료 상품·유료 서비스·유료 구독에
+       포함하거나 함께 제공하는 것
+   다. 이 소프트웨어나 수정본의 사용 자체에 요금, 광고 수익, 회원 가입
+       조건 등 대가를 붙이는 것
+5. 다음은 영리 목적으로 보지 않습니다.
+   가. 교사·강사·교직원 등이 학생 관리, 수업, 업무를 위해 사용하는 것
+       (근무하는 기관이 영리기관이어도 이 소프트웨어 자체로 대가를 받지
+       않으면 허용됩니다)
+   나. 학교, 교육청, 연구기관, 비영리 단체의 사용
+   다. 개인의 학습, 연구, 시험 사용
+   라. 연수·강의·수업에서 이 소프트웨어를 소개하거나 사용법을 안내하는
+       것 (강사료를 받는 연수·강의도 포함합니다. 다만 이 소프트웨어나
+       수정본 자체를 판매하거나 돈을 받고 나눠 주는 것은 허용되지
+       않습니다)
+
+제3조 (허락)
+이 라이선스의 조건을 지키는 한, 누구나 이 소프트웨어를 비영리 목적으로
+무료로 사용, 복제, 수정, 배포할 수 있습니다.
+
+제4조 (영리 목적 금지)
+이 소프트웨어와 수정본은 영리 목적으로 사용하거나 배포할 수 없습니다.
+
+제5조 (무료 배포)
+이 소프트웨어나 수정본을 배포할 때는 어떤 요금도 받을 수 없습니다.
+
+제6조 (수정본의 소스 공개)
+수정본을 배포하는 사람은 다음을 지켜야 합니다.
+1. 수정본의 전체 소스 코드를 누구나 무료로 받을 수 있는 곳에 공개합니다.
+2. 수정본 전체에 이 라이선스를 그대로 적용하고, 이 라이선스 전문을
+   함께 제공합니다. 다른 조건을 덧붙이거나 권리를 줄일 수 없습니다.
+3. 실행 파일만 배포하는 경우에도 같은 곳에 소스를 받을 수 있는 주소를
+   분명히 적습니다.
+
+제7조 (표시 의무)
+1. 원작자 표시(Copyright (c) 2026 purnpado)와 원본 저장소 주소를
+   지우지 않고 남겨야 합니다.
+2. 수정본에는 수정했다는 사실과 수정한 사람을 분명히 적어야 합니다.
+3. 수정본이 원작자의 공식 배포판인 것처럼 보이게 해서는 안 됩니다.
+
+제8조 (보증 없음과 책임 제한)
+이 소프트웨어는 "있는 그대로" 제공됩니다. 원작자는 이 소프트웨어가
+특정 목적에 맞는지, 오류가 없는지, 자료를 안전하게 지키는지 등에 대해
+어떤 보증도 하지 않습니다. 법이 허용하는 범위에서, 원작자는 이 소프트웨어
+사용으로 생긴 자료 손실, 개인정보 유출, 그 밖의 어떤 손해에도 책임지지
+않습니다. 학생 자료의 백업과 보호는 사용자가 책임집니다.
+
+제9조 (권리 종료)
+이 라이선스를 어기면 이 라이선스로 받은 권리는 자동으로 끝납니다.
+다만 원작자에게서 위반 사실을 처음 통지받은 날부터 30일 안에 위반을
+바로잡으면 권리가 다시 살아납니다.
+
+제10조 (별도 허락)
+원작자는 이 라이선스와 다른 조건으로 이 소프트웨어의 사용을 따로
+허락할 수 있습니다. 영리 목적 사용 문의, 의견, 오류 신고는 원본 저장소의
+Issues(https://github.com/purnpado/komi_note/issues)로 남겨 주십시오.
+
+제11조 (해석)
+이 라이선스는 대한민국 법에 따라 해석합니다. 한국어와 영어 내용이 서로
+다르면 한국어 내용을 따릅니다.
+
+======================================================================
+English
+======================================================================
+
+Section 1 (Purpose)
+This license lets anyone freely use, modify, and distribute Kkomi Note
+("the Software") for noncommercial purposes, while ensuring that modified
+versions are also distributed free of charge together with their source.
+
+Section 2 (Definitions)
+1. "The Software" means the source code, documentation, and executables
+   published in the original repository, and anything derived from them.
+2. "Modified Version" means any software made by changing, combining, or
+   building on all or part of the Software.
+3. "Distribute" means giving copies of the Software or a Modified Version
+   to others, making them available for download, or making them available
+   for others to use over a network.
+4. "Commercial Purpose" means obtaining monetary compensation or commercial
+   advantage from the Software or a Modified Version, including but not
+   limited to:
+   a. selling, or distributing for a fee, the Software or a Modified
+      Version;
+   b. including or bundling the Software or a Modified Version in a paid
+      product, paid service, or paid subscription;
+   c. charging fees, earning advertising revenue, or imposing membership
+      or other consideration for using the Software or a Modified Version.
+5. The following are not Commercial Purposes:
+   a. use by teachers, instructors, or school staff for student
+      management, teaching, or their work (allowed even if their employer
+      is a for-profit organization, as long as no compensation is received
+      for the Software itself);
+   b. use by schools, education offices, research institutions, or
+      nonprofit organizations;
+   c. personal study, research, or testing;
+   d. introducing the Software or explaining how to use it in training,
+      lectures, or classes, including paid training or lectures for which
+      the instructor receives a fee (selling or distributing the Software
+      or a Modified Version itself for a fee is still not allowed).
+
+Section 3 (Grant)
+Provided you comply with this license, anyone may use, copy, modify, and
+distribute the Software free of charge for noncommercial purposes.
+
+Section 4 (No Commercial Purpose)
+The Software and any Modified Version may not be used or distributed for a
+Commercial Purpose.
+
+Section 5 (Free Distribution)
+You may not charge any fee when distributing the Software or a Modified
+Version.
+
+Section 6 (Source Disclosure for Modified Versions)
+Anyone who distributes a Modified Version must:
+1. publish the complete source code of the Modified Version where anyone
+   can obtain it free of charge;
+2. apply this license unchanged to the whole Modified Version and include
+   the full text of this license, without adding further conditions or
+   reducing any rights;
+3. when distributing only executables, clearly state in the same place
+   where the source can be obtained.
+
+Section 7 (Notices)
+1. You must keep the copyright notice (Copyright (c) 2026 purnpado) and
+   the original repository address.
+2. A Modified Version must clearly state that it has been modified and by
+   whom.
+3. A Modified Version must not be presented as an official release by the
+   original author.
+
+Section 8 (No Warranty; Limitation of Liability)
+The Software is provided "as is". The original author makes no warranty of
+any kind, including fitness for a particular purpose, absence of errors, or
+the safety of data. To the extent permitted by law, the original author is
+not liable for any data loss, personal data breach, or any other damage
+arising from the use of the Software. Users are responsible for backing up
+and protecting student data.
+
+Section 9 (Termination)
+Your rights under this license end automatically if you violate it.
+However, they are reinstated if you cure the violation within 30 days after
+first receiving notice of it from the original author.
+
+Section 10 (Separate Permission)
+The original author may grant permission to use the Software under terms
+different from this license. For commercial use inquiries, feedback, or
+bug reports, please open an issue in the original repository
+(https://github.com/purnpado/komi_note/issues).
+
+Section 11 (Interpretation)
+This license is governed by the laws of the Republic of Korea. If the
+Korean and English texts differ, the Korean text prevails.
