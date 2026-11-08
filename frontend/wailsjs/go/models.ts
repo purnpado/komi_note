@@ -1900,4 +1900,100 @@ export namespace main {
 	    }
 	}
 
+	// 학교생활기록(교과세특·창체·행동특성·자유학기제). 모두 암호화 보관함에만 저장한다.
+	export class RecordMemo {
+	    id: string;
+	    text: string;
+	    createdAt: string;
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"] || "";
+	        this.text = source["text"] || "";
+	        this.createdAt = source["createdAt"] || "";
+	    }
+	}
+	export class RecordEntry {
+	    id: string;
+	    schoolYear: string;
+	    area: string;
+	    targetKind: string;
+	    targetId: string;
+	    subject: string;
+	    studentKey: string;
+	    memos: RecordMemo[];
+	    text: string;
+	    reviewed: boolean;
+	    createdAt: string;
+	    updatedAt: string;
+
+	    static createFrom(source: any = {}) {
+	        return new RecordEntry(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"] || "";
+	        this.schoolYear = source["schoolYear"] || "";
+	        this.area = source["area"] || "";
+	        this.targetKind = source["targetKind"] || "";
+	        this.targetId = source["targetId"] || "";
+	        this.subject = source["subject"] || "";
+	        this.studentKey = source["studentKey"] || "";
+	        this.memos = (source["memos"] || []).map((item: any) => new RecordMemo(item));
+	        this.text = source["text"] || "";
+	        this.reviewed = Boolean(source["reviewed"]);
+	        this.createdAt = source["createdAt"] || "";
+	        this.updatedAt = source["updatedAt"] || "";
+	    }
+	}
+	export class RecordMember {
+	    grade: string;
+	    className: string;
+	    number: string;
+	    name: string;
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.grade = source["grade"] || "";
+	        this.className = source["className"] || "";
+	        this.number = source["number"] || "";
+	        this.name = source["name"] || "";
+	    }
+	}
+	export class RecordActivityList {
+	    id: string;
+	    schoolYear: string;
+	    name: string;
+	    members: RecordMember[];
+	    createdAt: string;
+	    updatedAt: string;
+
+	    static createFrom(source: any = {}) {
+	        return new RecordActivityList(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"] || "";
+	        this.schoolYear = source["schoolYear"] || "";
+	        this.name = source["name"] || "";
+	        this.members = (source["members"] || []).map((item: any) => new RecordMember(item));
+	        this.createdAt = source["createdAt"] || "";
+	        this.updatedAt = source["updatedAt"] || "";
+	    }
+	}
+	export class RecordBook {
+	    entries: RecordEntry[];
+	    lists: RecordActivityList[];
+	    limits: Record<string, number>;
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.entries = (source["entries"] || []).map((item: any) => new RecordEntry(item));
+	        this.lists = (source["lists"] || []).map((item: any) => new RecordActivityList(item));
+	        this.limits = { ...(source["limits"] || {}) };
+	    }
+	}
+
 }

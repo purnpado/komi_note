@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { flushPendingSaves } from "./features/shared/pendingSaves";
 import "./App.css";
 import "./features/shared/navigation.css";
 import {
@@ -159,13 +160,16 @@ function App() {
   }
 
   function lockScreen(message = "") {
-    LockVault();
-    setConfig(null);
-    setStudents([]);
-    setStudentCard(null);
-    setLocked(true);
-    void refreshAppState();
-    if (message) setNotice(message);
+    // 자동 저장을 기다리던 입력(학교생활기록 등)을 먼저 저장한 뒤 보관함을 닫습니다.
+    void flushPendingSaves().finally(() => {
+      LockVault();
+      setConfig(null);
+      setStudents([]);
+      setStudentCard(null);
+      setLocked(true);
+      void refreshAppState();
+      if (message) setNotice(message);
+    });
   }
 
   useEffect(() => {

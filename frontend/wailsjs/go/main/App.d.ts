@@ -277,3 +277,17 @@ export function HasPin():Promise<boolean>;
 export function UpdateCourseRosterStudent(arg1:string,arg2:main.CourseRoster,arg3:string,arg4:string,arg5:main.CourseRosterStudent,arg6:string):Promise<main.CourseRoster>;
 
 export function UpdateSettings(arg1:main.ClassConfig):Promise<main.SessionResult>;
+
+export function GetRecordBook():Promise<main.RecordBook>;
+
+export function SaveRecordEntry(arg1:main.RecordEntry):Promise<main.RecordEntry>;
+
+export function DeleteRecordEntry(arg1:string):Promise<void>;
+
+export function SaveRecordList(arg1:main.RecordActivityList):Promise<main.RecordActivityList>;
+
+export function DeleteRecordList(arg1:string,arg2:string):Promise<void>;
+
+export function SaveRecordLimits(arg1:Record<string, number>):Promise<Record<string, number>>;
+
+export function DeleteRecordYear(arg1:string,arg2:string):Promise<number>;

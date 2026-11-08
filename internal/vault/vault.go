@@ -112,6 +112,7 @@ type vaultData struct {
 	CourseRosters       []CourseRoster       `json:"courseRosters,omitempty"`
 	Timetable           *TimetableBook       `json:"timetable,omitempty"`
 	Grouping            *GroupingBook        `json:"grouping,omitempty"`
+	Records             *RecordBook          `json:"records,omitempty"`
 	CreatedAt           time.Time            `json:"createdAt"`
 	UpdatedAt           time.Time            `json:"updatedAt"`
 	RecoveryCreated     bool                 `json:"recoveryCreated"`

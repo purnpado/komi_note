@@ -144,6 +144,27 @@ export function DeleteGroupPlan(id: string): $CancellablePromise<void> {
 }
 
 /**
+ * DeleteRecordEntry는 기록 하나를 지웁니다.
+ */
+export function DeleteRecordEntry(id: string): $CancellablePromise<void> {
+    return $Call.ByID(1367463649, id);
+}
+
+/**
+ * DeleteRecordList는 활동 명단과 그 명단으로 쓴 기록을 지웁니다.
+ */
+export function DeleteRecordList(id: string, confirmation: string): $CancellablePromise<void> {
+    return $Call.ByID(2958300591, id, confirmation);
+}
+
+/**
+ * DeleteRecordYear는 한 학년도의 학교생활기록과 활동 명단을 한꺼번에 지웁니다.
+ */
+export function DeleteRecordYear(schoolYear: string, confirmation: string): $CancellablePromise<number> {
+    return $Call.ByID(4281672322, schoolYear, confirmation);
+}
+
+/**
  * DeleteSeatingPlan은 자리 배치 이력을 삭제합니다.
  */
 export function DeleteSeatingPlan(id: string): $CancellablePromise<void> {
@@ -242,6 +263,13 @@ export function GetGroupingSessionInfo(): $CancellablePromise<$models.GroupSessi
  */
 export function GetParticipationSafetyState(): $CancellablePromise<$models.ParticipationSafetyState> {
     return $Call.ByID(3310426463);
+}
+
+/**
+ * GetRecordBook은 학교생활기록(관찰 메모·기재 문장·활동 명단·글자 수 한도)을 반환합니다.
+ */
+export function GetRecordBook(): $CancellablePromise<$models.RecordBook> {
+    return $Call.ByID(3168103019);
 }
 
 /**
@@ -651,6 +679,27 @@ export function SaveGroupPlan(plan: $models.GroupPlan): $CancellablePromise<$mod
  */
 export function SaveGroupRules(rules: $models.GroupRules): $CancellablePromise<$models.GroupRules> {
     return $Call.ByID(3098718522, rules);
+}
+
+/**
+ * SaveRecordEntry는 한 학생의 한 영역 기록을 암호화해 저장합니다.
+ */
+export function SaveRecordEntry(entry: $models.RecordEntry): $CancellablePromise<$models.RecordEntry> {
+    return $Call.ByID(362904227, entry);
+}
+
+/**
+ * SaveRecordLimits는 영역별 글자 수 한도를 저장합니다.
+ */
+export function SaveRecordLimits(limits: { [_ in string]?: number } | null): $CancellablePromise<{ [_ in string]?: number } | null> {
+    return $Call.ByID(2236005141, limits);
+}
+
+/**
+ * SaveRecordList는 동아리 등 활동 명단을 암호화해 저장합니다.
+ */
+export function SaveRecordList(list: $models.RecordActivityList): $CancellablePromise<$models.RecordActivityList> {
+    return $Call.ByID(168063185, list);
 }
 
 /**

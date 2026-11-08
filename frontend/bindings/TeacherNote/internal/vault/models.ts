@@ -12,6 +12,9 @@ import * as attendance$0 from "../attendance/models.js";
 import * as grouping$0 from "../grouping/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as records$0 from "../records/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as students$0 from "../students/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
@@ -161,6 +164,21 @@ export type GroupRules = grouping$0.Rules;
  * GroupingBook은 모둠 편성 이력과 반별 편성 조건 전체입니다.
  */
 export type GroupingBook = grouping$0.Book;
+
+/**
+ * RecordActivityList는 동아리 등 교사가 직접 만든 활동 명단입니다.
+ */
+export type RecordActivityList = records$0.ActivityList;
+
+/**
+ * RecordBook은 학교생활기록(관찰 메모·기재 문장·활동 명단·글자 수 한도) 전체입니다.
+ */
+export type RecordBook = records$0.Book;
+
+/**
+ * RecordEntry는 한 학생의 한 영역 기록입니다.
+ */
+export type RecordEntry = records$0.Entry;
 
 /**
  * RestoreResult는 되살리기 뒤 교사에게 안내할 내용을 담는다.

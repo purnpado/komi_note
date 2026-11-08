@@ -98,6 +98,12 @@ export interface ParticipationSafetyState {
     "paused": boolean;
 }
 
+export type RecordActivityList = vault$0.RecordActivityList;
+
+export type RecordBook = vault$0.RecordBook;
+
+export type RecordEntry = vault$0.RecordEntry;
+
 /**
  * RestoreResult는 백업 되살리기 뒤 안내할 내용입니다.
  */

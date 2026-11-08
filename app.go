@@ -91,6 +91,9 @@ type TimetableBook = vault.TimetableBook
 type GroupingBook = vault.GroupingBook
 type GroupPlan = vault.GroupPlan
 type GroupRules = vault.GroupRules
+type RecordBook = vault.RecordBook
+type RecordEntry = vault.RecordEntry
+type RecordActivityList = vault.RecordActivityList
 
 // GroupSessionInfo는 학생 참여형 모둠 편성(지망 배정) QR 회차 상태입니다.
 type GroupSessionInfo = groupsession.Info
@@ -560,6 +563,41 @@ func (a *App) GetTimetableBook() (TimetableBook, error) {
 // SaveTimetableBook은 시간표 전체를 암호화해 저장합니다.
 func (a *App) SaveTimetableBook(book TimetableBook) (TimetableBook, error) {
 	return a.vault.SaveTimetableBook(book)
+}
+
+// GetRecordBook은 학교생활기록(관찰 메모·기재 문장·활동 명단·글자 수 한도)을 반환합니다.
+func (a *App) GetRecordBook() (RecordBook, error) {
+	return a.vault.GetRecordBook()
+}
+
+// SaveRecordEntry는 한 학생의 한 영역 기록을 암호화해 저장합니다.
+func (a *App) SaveRecordEntry(entry RecordEntry) (RecordEntry, error) {
+	return a.vault.SaveRecordEntry(entry)
+}
+
+// DeleteRecordEntry는 기록 하나를 지웁니다.
+func (a *App) DeleteRecordEntry(id string) error {
+	return a.vault.DeleteRecordEntry(id)
+}
+
+// SaveRecordList는 동아리 등 활동 명단을 암호화해 저장합니다.
+func (a *App) SaveRecordList(list RecordActivityList) (RecordActivityList, error) {
+	return a.vault.SaveRecordList(list)
+}
+
+// DeleteRecordList는 활동 명단과 그 명단으로 쓴 기록을 지웁니다.
+func (a *App) DeleteRecordList(id, confirmation string) error {
+	return a.vault.DeleteRecordList(id, confirmation)
+}
+
+// SaveRecordLimits는 영역별 글자 수 한도를 저장합니다.
+func (a *App) SaveRecordLimits(limits map[string]int) (map[string]int, error) {
+	return a.vault.SaveRecordLimits(limits)
+}
+
+// DeleteRecordYear는 한 학년도의 학교생활기록과 활동 명단을 한꺼번에 지웁니다.
+func (a *App) DeleteRecordYear(schoolYear, confirmation string) (int, error) {
+	return a.vault.DeleteRecordYear(schoolYear, confirmation)
 }
 
 // GetGroupingBook은 모둠 편성 이력과 반별 편성 조건을 반환합니다.

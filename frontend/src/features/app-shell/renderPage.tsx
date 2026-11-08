@@ -12,7 +12,8 @@ import { AssessmentPage } from "../assessment/AssessmentPage";
 import { SurveyHubPage } from "../survey/SurveyHubPage";
 import { ConsultationPage } from "../consultation/ConsultationPage";
 import { ClassroomPage } from "../seating/ClassroomPage";
-import { BudgetPage, RecordPage } from "../records/RecordPages";
+import { BudgetPage } from "../records/RecordPages";
+import { RecordsPage } from "../records/RecordsPage";
 import { FeatureGuidePage } from "../shared/FeatureGuidePage";
 import { confirmWithRadix } from "./AppConfirmDialog";
 import type { PageKey } from "../navigation/menuTypes";
@@ -118,7 +119,8 @@ export function renderPage(
       />
     );
   if (active === "평가 관리") return <AssessmentPage config={config} />;
-  if (active === "학교생활기록") return <RecordPage />;
+  if (active === "학교생활기록")
+    return <RecordsPage students={students} config={config} isHomeroomTeacher={isHomeroomTeacher} />;
   if (active === "예산 관리") return <BudgetPage />;
   return (
     <DashboardPage

@@ -161,6 +161,7 @@ func removeStudentReferences(data *vaultData, studentID string) {
 	if data == nil || strings.TrimSpace(studentID) == "" {
 		return
 	}
+	removeStudentRecords(data, studentID)
 	for surveyIndex := range data.Surveys {
 		for responseIndex := range data.Surveys[surveyIndex].Responses {
 			response := &data.Surveys[surveyIndex].Responses[responseIndex]
