@@ -25,6 +25,8 @@ export type {
     CourseRosterStudent,
     GroupPlan,
     GroupRules,
+    GroupSessionInfo,
+    GroupSessionRequest,
     GroupingBook,
     ParticipationSafetyState,
     RestoreResult,

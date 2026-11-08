@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { DeleteGroupPlan, GetGroupingBook, ListCourseRosters, SaveGroupPlan, SaveGroupRules } from "../../../wailsjs/go/main/App";
+import { DeleteGroupPlan, GetGroupingBook, GetGroupingSessionInfo, ListCourseRosters, SaveGroupPlan, SaveGroupRules } from "../../../wailsjs/go/main/App";
+import { GroupSessionPanel, StartSessionDialog } from "./GroupSessionPanel";
 import { main as models } from "../../../wailsjs/go/models";
 import { confirmWithRadix } from "../app-shell/AppConfirmDialog";
 import { HelpGuide } from "../shared/HelpGuide";
@@ -60,6 +61,8 @@ export function GroupingPage({ students, isHomeroomTeacher, config }: { students
   const [feedback, setFeedback] = useState("");
   const [busy, setBusy] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [sessionInfo, setSessionInfo] = useState<models.GroupSessionInfo | null>(null);
+  const [startOpen, setStartOpen] = useState(false);
 
   async function reload() {
     const next = new models.GroupingBook(await GetGroupingBook());
@@ -73,6 +76,13 @@ export function GroupingPage({ students, isHomeroomTeacher, config }: { students
       .catch((error) => setNotice(errorMessage(error)));
     ListCourseRosters()
       .then((items) => setRosters((items || []).map((item) => new models.CourseRoster(item))))
+      .catch(() => undefined);
+    // 다른 메뉴에 다녀와도 진행 중인 학생 참여 회차를 이어서 보여 준다.
+    GetGroupingSessionInfo()
+      .then((info) => {
+        const value = new models.GroupSessionInfo(info);
+        if (value.running) setSessionInfo(value);
+      })
       .catch(() => undefined);
   }, []);
 
@@ -181,6 +191,26 @@ export function GroupingPage({ students, isHomeroomTeacher, config }: { students
   async function reshuffle() {
     const ok = await confirmWithRadix({ title: "모둠을 다시 섞을까요?", description: "지금 모둠과 직접 옮긴 내용이 새 무작위 편성으로 바뀝니다. 빠질 학생·조건·역할 설정은 그대로 씁니다.", actionLabel: "다시 섞기" });
     if (ok) build(true);
+  }
+
+  // 학생 참여 회차 결과를 편성 화면의 초안으로 옮긴다(역할은 지금 적힌 역할로 무작위 배정).
+  function importSession(info: models.GroupSessionInfo) {
+    const target = sources.find((item) => item.kind === info.sourceKind && item.id === info.sourceId);
+    if (target && target.value !== sourceValue) setSourceValue(target.value);
+    const roles = parseRoles(rolesText);
+    const groups = assignRoles(info.result.map((group) => group.members.map((member) => ({ key: member.key, number: member.number, name: member.name }))), roles);
+    const placed = new Set(info.result.flatMap((group) => group.members.map((member) => member.key)));
+    setDraft({
+      id: "", updatedAt: "", createdAt: "",
+      title: `${todayLocal()} ${info.sourceLabel} 모둠(학생 지망)`,
+      roles,
+      groups: groups.map((members, index) => ({ name: info.result[index]?.name || `${index + 1}모둠`, members })),
+      excluded: (target?.pupils || []).filter((pupil) => !placed.has(pupil.key)),
+    });
+    setDirty(true);
+    setSelectedKey("");
+    setNotice("");
+    setFeedback("학생 지망 배정 결과를 가져왔습니다. 확인·조정한 뒤 [저장]을 누르세요.");
   }
 
   function clickMember(key: string) {
@@ -343,6 +373,7 @@ export function GroupingPage({ students, isHomeroomTeacher, config }: { students
           </aside>
 
           <div className="grouping-main">
+            {sessionInfo && <GroupSessionPanel info={sessionInfo} setInfo={setSessionInfo} onImport={importSession} />}
             <section className="panel grouping-setup">
               <div className="grouping-setup-row">
                 <label className="grouping-field">
@@ -385,6 +416,9 @@ export function GroupingPage({ students, isHomeroomTeacher, config }: { students
                 </label>
                 <button type="button" className="quiet-button" onClick={() => { setPairDraft({ kind: "separate", a: "", b: "" }); setRulesOpen(true); }}>
                   편성 조건(교사만 보기){ruleCount ? ` ${ruleCount}개` : ""}
+                </button>
+                <button type="button" className="quiet-button" disabled={busy || Boolean(sessionInfo) || present.length < 2} onClick={() => setStartOpen(true)} title={sessionInfo ? "진행 중인 학생 참여 회차가 있습니다" : undefined}>
+                  학생 참여로 편성(지망)
                 </button>
                 <button type="button" className="primary-button" disabled={busy || !count} onClick={() => void createGroups()}>
                   모둠 만들기{count ? ` (${present.length}명 → ${count}모둠)` : ""}
@@ -452,6 +486,16 @@ export function GroupingPage({ students, isHomeroomTeacher, config }: { students
           </div>
         </div>
       )}
+
+      <StartSessionDialog
+        open={startOpen}
+        onOpenChange={setStartOpen}
+        source={source ? { kind: source.kind, id: source.id, label: source.label.replace(" (우리 반)", "") } : null}
+        presentCount={present.length}
+        defaultCount={count || 4}
+        excludedKeys={[...excluded]}
+        onStarted={(info) => { setSessionInfo(info); setFeedback("학생 참여 회차를 열었습니다. [전자칠판 보기]로 QR을 보여 주세요."); }}
+      />
 
       <Dialog.Root open={rulesOpen} onOpenChange={(open) => !busy && setRulesOpen(open)}>
         <Dialog.Portal>

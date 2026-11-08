@@ -51,6 +51,13 @@ export function CheckForUpdate(): $CancellablePromise<$models.UpdateInfo> {
 }
 
 /**
+ * CloseGroupingPreferences는 지망 제출을 마감하고 배정합니다.
+ */
+export function CloseGroupingPreferences(): $CancellablePromise<$models.GroupSessionInfo> {
+    return $Call.ByID(2994971316);
+}
+
+/**
  * CloseSeatingEntry는 QR 학생 입장을 마감합니다. 재적 인원보다 적게 입장했으면
  * allowPartial(결석·미참여 예외 마감)을 교사가 확인해야 마감됩니다.
  */
@@ -162,6 +169,13 @@ export function ExportEncryptedBackup(): $CancellablePromise<string> {
 }
 
 /**
+ * ExtendGroupingDeadline은 지망 제출 시간을 늘립니다.
+ */
+export function ExtendGroupingDeadline(seconds: number): $CancellablePromise<$models.GroupSessionInfo> {
+    return $Call.ByID(170060196, seconds);
+}
+
+/**
  * GetAppState는 개인정보를 노출하지 않는 시작 상태를 반환합니다.
  */
 export function GetAppState(): $CancellablePromise<$models.AppState> {
@@ -199,6 +213,13 @@ export function GetAttendanceDocumentPeriod(studentID: string, date: string): $C
  */
 export function GetGroupingBook(): $CancellablePromise<$models.GroupingBook> {
     return $Call.ByID(1495993871);
+}
+
+/**
+ * GetGroupingSessionInfo는 모둠 참여 회차의 진행 상태를 돌려줍니다(회차가 없으면 running=false).
+ */
+export function GetGroupingSessionInfo(): $CancellablePromise<$models.GroupSessionInfo> {
+    return $Call.ByID(647980126);
 }
 
 /**
@@ -383,6 +404,13 @@ export function OpenAssessmentBoard(assessmentID: string, domainID: string): $Ca
 }
 
 /**
+ * OpenGroupingPreferences는 학생 지망 제출을 시작합니다(seconds: 제출 시간).
+ */
+export function OpenGroupingPreferences(seconds: number): $CancellablePromise<$models.GroupSessionInfo> {
+    return $Call.ByID(165845754, seconds);
+}
+
+/**
  * OpenSeatingPreferenceSubmission은 희망 경쟁 회차의 학생 지망 입력을 엽니다.
  */
 export function OpenSeatingPreferenceSubmission(planID: string): $CancellablePromise<$models.SeatingSessionInfo> {
@@ -456,6 +484,13 @@ export function ResetAssessmentStudentAccess(assessmentID: string, domainID: str
 }
 
 /**
+ * ResetGroupingStudent는 학생 기기 연결을 풀어 다시 들어오게 합니다.
+ */
+export function ResetGroupingStudent(key: string): $CancellablePromise<$models.GroupSessionInfo> {
+    return $Call.ByID(1996845048, key);
+}
+
+/**
  * ResetMasterPassword는 외부 복구 파일과 복구용 암호로 마스터 비밀번호를 재설정합니다.
  */
 export function ResetMasterPassword(recoveryPath: string, recoveryPassword: string, newPassword: string): $CancellablePromise<void> {
@@ -481,6 +516,20 @@ export function RestoreEncryptedBackup(path: string, password: string): $Cancell
  */
 export function ResumeParticipationSessions(): $CancellablePromise<void> {
     return $Call.ByID(1043001486);
+}
+
+/**
+ * RevealGroupingNames는 배정이 모두 끝난 뒤 실명을 공개합니다.
+ */
+export function RevealGroupingNames(): $CancellablePromise<$models.GroupSessionInfo> {
+    return $Call.ByID(1519255175);
+}
+
+/**
+ * RevealGroupingNextRound는 다음 지망 라운드 결과를 공개합니다.
+ */
+export function RevealGroupingNextRound(): $CancellablePromise<$models.GroupSessionInfo> {
+    return $Call.ByID(141199336);
 }
 
 /**
@@ -679,6 +728,14 @@ export function StartAssessmentReview(assessmentID: string, domainID: string): $
 }
 
 /**
+ * StartGroupingSession은 학생 참여형 모둠 편성(지망 배정) QR 회차를 엽니다.
+ * 학생 명단과 교사 전용 조건은 보관함에서 직접 읽고, 빠질 학생은 제외합니다.
+ */
+export function StartGroupingSession(request: $models.GroupSessionRequest): $CancellablePromise<$models.GroupSessionInfo> {
+    return $Call.ByID(2562375318, request);
+}
+
+/**
  * StartRandomArrowAssignment은 QR로 입장한 학생의 무작위 화살배정을 시작합니다.
  */
 export function StartRandomArrowAssignment(planID: string): $CancellablePromise<$models.SeatingSessionInfo> {
@@ -726,6 +783,13 @@ export function StopAssessmentAnswerReview(assessmentID: string, domainID: strin
 
 export function StopAssessmentReview(assessmentID: string, domainID: string): $CancellablePromise<void> {
     return $Call.ByID(2675701215, assessmentID, domainID);
+}
+
+/**
+ * StopGroupingSession은 모둠 참여 회차를 닫고 메모리의 지망·닉네임을 지웁니다.
+ */
+export function StopGroupingSession(): $CancellablePromise<void> {
+    return $Call.ByID(1894209520);
 }
 
 /**

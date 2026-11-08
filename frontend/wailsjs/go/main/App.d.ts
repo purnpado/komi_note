@@ -80,6 +80,24 @@ export function ListAcademicChanges():Promise<Array<main.AcademicChange>>;
 
 export function ListAllConsultations():Promise<Array<main.Consultation>>;
 
+export function StartGroupingSession(arg1:main.GroupSessionRequest):Promise<main.GroupSessionInfo>;
+
+export function GetGroupingSessionInfo():Promise<main.GroupSessionInfo>;
+
+export function OpenGroupingPreferences(arg1:number):Promise<main.GroupSessionInfo>;
+
+export function ExtendGroupingDeadline(arg1:number):Promise<main.GroupSessionInfo>;
+
+export function CloseGroupingPreferences():Promise<main.GroupSessionInfo>;
+
+export function RevealGroupingNextRound():Promise<main.GroupSessionInfo>;
+
+export function RevealGroupingNames():Promise<main.GroupSessionInfo>;
+
+export function ResetGroupingStudent(arg1:string):Promise<main.GroupSessionInfo>;
+
+export function StopGroupingSession():Promise<void>;
+
 export function GetGroupingBook():Promise<main.GroupingBook>;
 
 export function GetTimetableBook():Promise<main.TimetableBook>;

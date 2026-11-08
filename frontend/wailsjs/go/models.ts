@@ -1702,4 +1702,140 @@ export namespace main {
 	    }
 	}
 
+	// 학생 참여형 모둠 편성(지망 배정) 회차. 교사 화면 전용이며 지망 내용은 담지 않는다.
+	export class GroupSessionRequest {
+	    sourceKind: string;
+	    sourceId: string;
+	    sourceLabel: string;
+	    groupNames: string[];
+	    preferenceLimit: number;
+	    submitSeconds: number;
+	    excludedKeys: string[];
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.sourceKind = source["sourceKind"] || "";
+	        this.sourceId = source["sourceId"] || "";
+	        this.sourceLabel = source["sourceLabel"] || "";
+	        this.groupNames = [...(source["groupNames"] || [])];
+	        this.preferenceLimit = source["preferenceLimit"] || 0;
+	        this.submitSeconds = source["submitSeconds"] || 0;
+	        this.excludedKeys = [...(source["excludedKeys"] || [])];
+	    }
+	}
+	export class GroupSessionParticipant {
+	    key: string;
+	    number: string;
+	    name: string;
+	    nickname: string;
+	    joined: boolean;
+	    submitted: boolean;
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.key = source["key"] || "";
+	        this.number = source["number"] || "";
+	        this.name = source["name"] || "";
+	        this.nickname = source["nickname"] || "";
+	        this.joined = Boolean(source["joined"]);
+	        this.submitted = Boolean(source["submitted"]);
+	    }
+	}
+	export class GroupSessionRoundGroup {
+	    applicants: number;
+	    accepted: string[];
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.applicants = source["applicants"] || 0;
+	        this.accepted = [...(source["accepted"] || [])];
+	    }
+	}
+	export class GroupSessionRound {
+	    label: string;
+	    groups: GroupSessionRoundGroup[];
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.label = source["label"] || "";
+	        this.groups = (source["groups"] || []).map((item: any) => new GroupSessionRoundGroup(item));
+	    }
+	}
+	export class GroupSessionResultMember {
+	    key: string;
+	    number: string;
+	    name: string;
+	    nickname: string;
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.key = source["key"] || "";
+	        this.number = source["number"] || "";
+	        this.name = source["name"] || "";
+	        this.nickname = source["nickname"] || "";
+	    }
+	}
+	export class GroupSessionResultGroup {
+	    name: string;
+	    members: GroupSessionResultMember[];
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"] || "";
+	        this.members = (source["members"] || []).map((item: any) => new GroupSessionResultMember(item));
+	    }
+	}
+	export class GroupSessionInfo {
+	    running: boolean;
+	    phase: string;
+	    sourceKind: string;
+	    sourceId: string;
+	    sourceLabel: string;
+	    studentUrl: string;
+	    qrCodeDataUrl: string;
+	    groupNames: string[];
+	    capacities: number[];
+	    preferenceLimit: number;
+	    submitSeconds: number;
+	    remainingSeconds: number;
+	    paused: boolean;
+	    total: number;
+	    joined: number;
+	    submitted: number;
+	    participants: GroupSessionParticipant[];
+	    rounds: GroupSessionRound[];
+	    revealed: number;
+	    namesRevealed: boolean;
+	    result: GroupSessionResultGroup[];
+
+	    static createFrom(source: any = {}) {
+	        return new GroupSessionInfo(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.running = Boolean(source["running"]);
+	        this.phase = source["phase"] || "";
+	        this.sourceKind = source["sourceKind"] || "";
+	        this.sourceId = source["sourceId"] || "";
+	        this.sourceLabel = source["sourceLabel"] || "";
+	        this.studentUrl = source["studentUrl"] || "";
+	        this.qrCodeDataUrl = source["qrCodeDataUrl"] || "";
+	        this.groupNames = [...(source["groupNames"] || [])];
+	        this.capacities = [...(source["capacities"] || [])];
+	        this.preferenceLimit = source["preferenceLimit"] || 0;
+	        this.submitSeconds = source["submitSeconds"] || 0;
+	        this.remainingSeconds = source["remainingSeconds"] || 0;
+	        this.paused = Boolean(source["paused"]);
+	        this.total = source["total"] || 0;
+	        this.joined = source["joined"] || 0;
+	        this.submitted = source["submitted"] || 0;
+	        this.participants = (source["participants"] || []).map((item: any) => new GroupSessionParticipant(item));
+	        this.rounds = (source["rounds"] || []).map((item: any) => new GroupSessionRound(item));
+	        this.revealed = source["revealed"] || 0;
+	        this.namesRevealed = Boolean(source["namesRevealed"]);
+	        this.result = (source["result"] || []).map((item: any) => new GroupSessionResultGroup(item));
+	    }
+	}
+
 }

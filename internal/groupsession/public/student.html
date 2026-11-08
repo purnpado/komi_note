@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>꼬미노트 모둠 정하기</title>
+<style>
+:root{--cream:#FFF8EC;--sand:#F3E3C8;--ink:#2A1A05;--brown:#6B4A2A;--coral:#FF7B54;--coralD:#C2410C;--sun:#FFD45C;--mint:#2F7D63;--line:#E0B57D;
+  font-family:system-ui,-apple-system,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{min-height:100vh;min-height:100dvh;background:var(--cream);color:var(--ink);word-break:keep-all;overflow-wrap:anywhere}
+main{max-width:520px;margin:0 auto;padding:max(20px,env(safe-area-inset-top)) clamp(16px,5vw,26px) max(24px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;font-weight:800}
+.top .kind{color:#9A5B16}.top .nick{padding:6px 12px;border-radius:999px;background:var(--sand)}
+h1{margin:0;font-size:clamp(28px,8vw,40px);font-weight:900;line-height:1.2;text-align:center;letter-spacing:-.02em}
+p.lead{margin:0;text-align:center;font-size:clamp(15px,4.4vw,18px);font-weight:600;color:var(--brown);line-height:1.5}
+label{display:flex;flex-direction:column;gap:6px;font-weight:800;font-size:15px}
+input{height:56px;border:2px solid var(--line);border-radius:16px;padding:0 16px;font:inherit;font-size:18px;background:#fff;color:var(--ink)}
+.btn{display:block;width:100%;min-height:62px;border:0;border-radius:20px;background:var(--coral);color:#fff;font:inherit;font-size:clamp(20px,6vw,26px);font-weight:900;box-shadow:0 6px 0 var(--coralD);cursor:pointer}
+.btn:active{transform:translateY(3px);box-shadow:0 3px 0 var(--coralD)}
+.btn:disabled{background:#E7C9B6;box-shadow:none;cursor:default}
+.err{min-height:22px;margin:0;text-align:center;color:#B42318;font-weight:800}
+.box{border-radius:22px;padding:16px;background:#fff;border:1px solid #E8D3B5}
+.timer{align-self:center;padding:8px 18px;border-radius:999px;background:var(--ink);color:var(--sun);font-size:22px;font-weight:900;font-variant-numeric:tabular-nums}
+.groups{display:grid;gap:10px}
+.group{position:relative;display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:60px;padding:12px 16px;border:2px solid var(--line);border-radius:16px;background:#fff;color:var(--ink);font:inherit;font-size:clamp(18px,5vw,21px);font-weight:900;text-align:left;box-shadow:0 3px 0 var(--line);cursor:pointer}
+.group small{color:#8A6A4A;font-size:13px;font-weight:700}
+.group.on{border-color:transparent;background:var(--sun);box-shadow:0 4px 0 #C99A1A}
+.group b{display:grid;place-items:center;min-width:52px;height:34px;padding:0 8px;border-radius:12px;background:var(--ink);color:var(--sun);font-size:15px}
+.ok{text-align:center;color:var(--mint);font-weight:900}
+.result{display:grid;gap:8px;text-align:center}
+.result strong{font-size:clamp(40px,13vw,64px);font-weight:900;color:var(--coralD)}
+.members{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.members li{padding:10px 14px;border-radius:12px;background:var(--sand);font-size:18px;font-weight:800}
+.note{margin:0;color:#8A6A4A;font-size:13px;text-align:center;line-height:1.5}
+</style>
+</head>
+<body>
+<main id="app"><h1>잠시만요…</h1></main>
+<script>
+const API='/api/__TOKEN__';
+let state=null,picks=[],dirty=false,err='',busy=false;
+const $=(t)=>String(t??'').replace(/[&<>"']/g,(c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function post(path,body){const r=await fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});const text=await r.text();if(!r.ok)throw new Error((text||'').trim()||'다시 시도해 주세요');try{return JSON.parse(text)}catch(e){return {}}}
+function header(){return `<div class="top"><span class="kind">모둠 정하기</span>${state&&state.nickname?`<span class="nick">${$(state.nickname)}</span>`:''}</div>`}
+function fmt(sec){sec=Math.max(0,sec|0);return `${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`}
+function draw(){
+  const app=document.getElementById('app');
+  if(!state){app.innerHTML='<h1>연결 중…</h1>';return}
+  if(state.ended){app.innerHTML=header()+'<h1>회차가 끝났습니다</h1><p class="lead">선생님 안내를 따라 주세요.</p>';return}
+  if(state.paused){app.innerHTML=header()+'<h1>잠시 멈춤</h1><p class="lead">선생님이 회차를 잠시 멈췄습니다. 그대로 기다려 주세요.</p>';return}
+  if(!state.nickname){
+    if(!state.loginOpen){app.innerHTML=header()+'<h1>입장이 마감되었습니다</h1><p class="lead">들어오지 못한 친구는 남은 자리에 배정됩니다.</p>';return}
+    const homeroom=state.kind==='homeroom';
+    if(!document.getElementById('login')){
+      app.innerHTML=header()+`<h1>모둠 정하기</h1><p class="lead">${homeroom?'이름과 생년월일':'번호와 이름'}을 입력하면 닉네임이 생겨요. 결과가 나오기 전까지 친구들은 닉네임만 봐요.</p>
+      <form id="login" class="box" style="display:grid;gap:12px">
+      ${homeroom?'':'<label>번호<input id="number" inputmode="numeric" autocomplete="off" required></label>'}
+      <label>이름<input id="name" autocomplete="off" required></label>
+      ${homeroom?'<label>생년월일<input id="birth" inputmode="numeric" placeholder="예: 20130415" autocomplete="off" required></label>':''}
+      <button class="btn" id="go">입장하기</button></form><p class="err" id="err"></p>`;
+      document.getElementById('login').onsubmit=async(e)=>{e.preventDefault();const b=document.getElementById('go');b.disabled=true;try{await post('/login',{number:(document.getElementById('number')||{}).value||'',name:document.getElementById('name').value,birthDate:(document.getElementById('birth')||{}).value||''});await tick()}catch(x){document.getElementById('err').textContent=x.message;b.disabled=false}};
+    }
+    return;
+  }
+  if(state.phase==='입장'){app.innerHTML=header()+`<h1>입장 완료!</h1><p class="lead">내 닉네임은 <b>${$(state.nickname)}</b>예요.<br>선생님이 지망 받기를 시작할 때까지 기다려 주세요.</p>`;return}
+  if(state.phase==='지망 제출'){
+    if(!dirty)picks=(state.preferences||[]).slice();
+    const limit=state.preferenceLimit||1;
+    const submitted=(state.preferences||[]).length>0;
+    app.innerHTML=header()+`<div class="timer" aria-live="polite">${fmt(state.remainingSeconds)}</div><h1>가고 싶은 모둠</h1>
+    <p class="lead">가고 싶은 순서대로 최대 ${limit}곳을 눌러 주세요. 다시 누르면 빠져요. 사람이 많으면 추첨으로 정하고, 떨어지면 다음 지망으로 넘어가요.</p>
+    <div class="groups">${(state.groups||[]).map((g,i)=>{const at=picks.indexOf(i);return `<button class="group ${at>=0?'on':''}" data-i="${i}"><span>${$(g.name)}<br><small>정원 ${g.capacity}명</small></span>${at>=0?`<b>${at+1}지망</b>`:''}</button>`}).join('')}</div>
+    <button class="btn" id="send" ${picks.length&&!busy?'':'disabled'}>${submitted&&!dirty?'제출 완료 (다시 고를 수 있어요)':'지망 제출하기'}</button>
+    ${submitted&&!dirty?'<p class="ok">제출했어요. 시간이 끝나기 전까지 바꿀 수 있어요.</p>':''}<p class="err">${$(err)}</p>`;
+    app.querySelectorAll('.group').forEach((b)=>b.onclick=()=>{const i=Number(b.dataset.i);const at=picks.indexOf(i);if(at>=0)picks.splice(at,1);else if(picks.length<limit)picks.push(i);dirty=true;err='';draw()});
+    document.getElementById('send').onclick=async()=>{busy=true;draw();try{await post('/preferences',{groups:picks});dirty=false;err=''}catch(x){err=x.message}busy=false;await tick()};
+    return;
+  }
+  if(state.result){
+    const r=state.result;
+    app.innerHTML=header()+`<div class="result box"><span>나의 모둠</span><strong>${$(r.group)}</strong></div>
+    <ul class="members">${r.members.map((m)=>`<li>${$(m)}</li>`).join('')}</ul>
+    <p class="note">${state.phase==='실명 공개'?'선생님이 이름을 공개했어요.':'선생님이 이름을 공개하면 친구 이름이 보여요.'}</p>`;
+    return;
+  }
+  app.innerHTML=header()+'<h1>배정 중!</h1><p class="lead">전자칠판에서 결과를 함께 확인해요.</p>';
+}
+let timer=0;
+async function tick(){clearTimeout(timer);try{const r=await fetch(API+'/state',{cache:'no-store'});if(r.ok){state=await r.json();draw()}}catch(e){}timer=setTimeout(tick,state&&state.nickname?1000:2000)}
+tick();
+</script>
+</body>
+</html>

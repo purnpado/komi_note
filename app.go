@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 	"unicode/utf16"
@@ -16,6 +17,7 @@ import (
 	"TeacherNote/internal/assessment"
 	"TeacherNote/internal/attendance"
 	"TeacherNote/internal/cleaning"
+	"TeacherNote/internal/groupsession"
 	"TeacherNote/internal/seating"
 	"TeacherNote/internal/students"
 	"TeacherNote/internal/submissions"
@@ -33,6 +35,7 @@ type App struct {
 	vault            *vault.VaultStore
 	survey           *survey.SurveyServer
 	seating          *seating.SeatingServer
+	groupSession     *groupsession.Server
 	assessment       *assessment.AssessmentServer
 	assessmentEvents *assessment.AssessmentEventBus
 }
@@ -88,6 +91,12 @@ type TimetableBook = vault.TimetableBook
 type GroupingBook = vault.GroupingBook
 type GroupPlan = vault.GroupPlan
 type GroupRules = vault.GroupRules
+
+// GroupSessionInfo는 학생 참여형 모둠 편성(지망 배정) QR 회차 상태입니다.
+type GroupSessionInfo = groupsession.Info
+
+// GroupSessionRequest는 학생 참여형 모둠 편성 회차 설정입니다.
+type GroupSessionRequest = groupsession.StartRequest
 type CourseRosterStudent = vault.CourseRosterStudent
 type CourseRosterPreview = vault.CourseRosterPreview
 type AssessmentImportPreview = vault.AssessmentImportPreview
@@ -123,7 +132,7 @@ type ParticipationSafetyState struct {
 func NewApp() *App {
 	vaultStore := vault.NewVaultStore()
 	events := assessment.NewAssessmentEventBus()
-	app := &App{vault: vaultStore, survey: survey.NewSurveyServer(vaultStore), seating: seating.NewSeatingServer(vaultStore), assessmentEvents: events}
+	app := &App{vault: vaultStore, survey: survey.NewSurveyServer(vaultStore), seating: seating.NewSeatingServer(vaultStore), groupSession: groupsession.NewServer(), assessmentEvents: events}
 	app.assessment = assessment.NewAssessmentServer(vaultStore, events)
 	events.Subscribe(func(event AssessmentEvent) {
 		if appInst := application.Get(); appInst != nil {
@@ -323,7 +332,10 @@ func (a *App) GetSessionConfig() (SessionResult, error) {
 // GetParticipationSafetyState는 설문 또는 자리배정 QR 회차가 열려 있는지 반환합니다.
 // 진행 중에는 교사 화면의 자동 잠금을 보류해 수업 흐름을 지킵니다.
 func (a *App) GetParticipationSafetyState() ParticipationSafetyState {
-	return ParticipationSafetyState{Active: a.survey.HasActiveSession() || a.seating.HasActiveSession() || a.assessment.HasActiveSession(), Paused: a.survey.IsPaused() || a.seating.IsPaused() || a.assessment.IsPaused()}
+	return ParticipationSafetyState{
+		Active: a.survey.HasActiveSession() || a.seating.HasActiveSession() || a.assessment.HasActiveSession() || a.groupSession.HasActiveSession(),
+		Paused: a.survey.IsPaused() || a.seating.IsPaused() || a.assessment.IsPaused() || a.groupSession.IsPaused(),
+	}
 }
 
 // ResumeParticipationSessions는 잠금 해제 후 교사가 확인한 경우에만 QR 회차를 재개합니다.
@@ -331,6 +343,7 @@ func (a *App) ResumeParticipationSessions() {
 	a.survey.ResumeAll()
 	a.seating.ResumeAll()
 	a.assessment.ResumeAll()
+	a.groupSession.ResumeAll()
 }
 
 // GetAppVersion은 현재 실행 중인 꼬미노트의 버전을 반환합니다.
@@ -448,6 +461,9 @@ func (a *App) LockVault() {
 	if a.assessment != nil {
 		a.assessment.PauseAll()
 	}
+	if a.groupSession != nil {
+		a.groupSession.PauseAll()
+	}
 	a.vault.Lock()
 }
 
@@ -554,6 +570,105 @@ func (a *App) DeleteGroupPlan(id string) error {
 // SaveGroupRules는 반별 교사 전용 편성 조건을 암호화해 저장합니다.
 func (a *App) SaveGroupRules(rules GroupRules) (GroupRules, error) {
 	return a.vault.SaveGroupRules(rules)
+}
+
+// StartGroupingSession은 학생 참여형 모둠 편성(지망 배정) QR 회차를 엽니다.
+// 학생 명단과 교사 전용 조건은 보관함에서 직접 읽고, 빠질 학생은 제외합니다.
+func (a *App) StartGroupingSession(request GroupSessionRequest) (GroupSessionInfo, error) {
+	excluded := map[string]bool{}
+	for _, key := range request.ExcludedKeys {
+		excluded[key] = true
+	}
+	participants := []groupsession.Participant{}
+	switch request.SourceKind {
+	case "homeroom":
+		list, err := a.vault.ListStudents()
+		if err != nil {
+			return GroupSessionInfo{}, err
+		}
+		for _, student := range list {
+			if !excluded[student.ID] {
+				participants = append(participants, groupsession.Participant{Key: student.ID, Number: strconv.Itoa(student.Number), Name: student.Name, BirthDate: student.BirthDate})
+			}
+		}
+	case "course":
+		rosters, err := a.vault.ListCourseRosters()
+		if err != nil {
+			return GroupSessionInfo{}, err
+		}
+		found := false
+		for _, roster := range rosters {
+			if roster.ID != request.SourceID {
+				continue
+			}
+			found = true
+			for _, student := range roster.Students {
+				key := strings.TrimSpace(student.Number) + "|" + strings.TrimSpace(student.Name)
+				if student.Status != "전출" && !excluded[key] {
+					participants = append(participants, groupsession.Participant{Key: key, Number: strings.TrimSpace(student.Number), Name: strings.TrimSpace(student.Name)})
+				}
+			}
+		}
+		if !found {
+			return GroupSessionInfo{}, errors.New("수업 명렬을 찾지 못했습니다")
+		}
+	default:
+		return GroupSessionInfo{}, errors.New("모둠을 만들 반을 골라 주세요")
+	}
+	config := groupsession.Config{Request: request, Participants: participants}
+	if book, err := a.vault.GetGroupingBook(); err == nil {
+		for _, rules := range book.Rules {
+			if rules.SourceKind == request.SourceKind && rules.SourceID == request.SourceID {
+				for _, pair := range rules.Separate {
+					config.Separate = append(config.Separate, groupsession.Pair{A: pair.A, B: pair.B})
+				}
+				for _, pair := range rules.Together {
+					config.Together = append(config.Together, groupsession.Pair{A: pair.A, B: pair.B})
+				}
+			}
+		}
+	}
+	return a.groupSession.Start(config)
+}
+
+// GetGroupingSessionInfo는 모둠 참여 회차의 진행 상태를 돌려줍니다(회차가 없으면 running=false).
+func (a *App) GetGroupingSessionInfo() (GroupSessionInfo, error) {
+	return a.groupSession.Info()
+}
+
+// OpenGroupingPreferences는 학생 지망 제출을 시작합니다(seconds: 제출 시간).
+func (a *App) OpenGroupingPreferences(seconds int) (GroupSessionInfo, error) {
+	return a.groupSession.OpenPreferences(seconds)
+}
+
+// ExtendGroupingDeadline은 지망 제출 시간을 늘립니다.
+func (a *App) ExtendGroupingDeadline(seconds int) (GroupSessionInfo, error) {
+	return a.groupSession.Extend(seconds)
+}
+
+// CloseGroupingPreferences는 지망 제출을 마감하고 배정합니다.
+func (a *App) CloseGroupingPreferences() (GroupSessionInfo, error) {
+	return a.groupSession.ClosePreferences()
+}
+
+// RevealGroupingNextRound는 다음 지망 라운드 결과를 공개합니다.
+func (a *App) RevealGroupingNextRound() (GroupSessionInfo, error) {
+	return a.groupSession.RevealNext()
+}
+
+// RevealGroupingNames는 배정이 모두 끝난 뒤 실명을 공개합니다.
+func (a *App) RevealGroupingNames() (GroupSessionInfo, error) {
+	return a.groupSession.RevealNames()
+}
+
+// ResetGroupingStudent는 학생 기기 연결을 풀어 다시 들어오게 합니다.
+func (a *App) ResetGroupingStudent(key string) (GroupSessionInfo, error) {
+	return a.groupSession.ResetStudent(key)
+}
+
+// StopGroupingSession은 모둠 참여 회차를 닫고 메모리의 지망·닉네임을 지웁니다.
+func (a *App) StopGroupingSession() {
+	a.groupSession.Stop()
 }
 
 // GetAttendance는 선택 날짜의 재학생 출결을 반환합니다.

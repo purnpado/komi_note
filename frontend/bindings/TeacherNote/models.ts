@@ -12,6 +12,9 @@ import * as attendance$0 from "./internal/attendance/models.js";
 import * as cleaning$0 from "./internal/cleaning/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as groupsession$0 from "./internal/groupsession/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as seating$0 from "./internal/seating/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
@@ -73,6 +76,16 @@ export type CourseRosterStudent = vault$0.CourseRosterStudent;
 export type GroupPlan = vault$0.GroupPlan;
 
 export type GroupRules = vault$0.GroupRules;
+
+/**
+ * GroupSessionInfo는 학생 참여형 모둠 편성(지망 배정) QR 회차 상태입니다.
+ */
+export type GroupSessionInfo = groupsession$0.Info;
+
+/**
+ * GroupSessionRequest는 학생 참여형 모둠 편성 회차 설정입니다.
+ */
+export type GroupSessionRequest = groupsession$0.StartRequest;
 
 export type GroupingBook = vault$0.GroupingBook;
 
