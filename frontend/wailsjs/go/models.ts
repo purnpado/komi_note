@@ -1486,5 +1486,122 @@ export namespace main {
 	    }
 	}
 
-}
+	// 시간표: 학생 정보 없이 과목·반·교시 시각만 담는다.
+	export class TimetableBellRule {
+	    firstStart: string;
+	    lessonMinutes: number;
+	    breakMinutes: number;
+	    lunchAfter: number;
+	    lunchMinutes: number;
+	    periodCount: number;
 
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.firstStart = source["firstStart"] || "";
+	        this.lessonMinutes = source["lessonMinutes"] || 0;
+	        this.breakMinutes = source["breakMinutes"] || 0;
+	        this.lunchAfter = source["lunchAfter"] || 0;
+	        this.lunchMinutes = source["lunchMinutes"] || 0;
+	        this.periodCount = source["periodCount"] || 0;
+	    }
+	}
+	export class TimetablePeriod {
+	    number: number;
+	    start: string;
+	    end: string;
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.number = source["number"] || 0;
+	        this.start = source["start"] || "";
+	        this.end = source["end"] || "";
+	    }
+	}
+	export class TimetableCell {
+	    day: number;
+	    period: number;
+	    subject: string;
+	    className: string;
+	    room: string;
+	    note: string;
+	    courseRosterId: string;
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.day = source["day"] || 0;
+	        this.period = source["period"] || 0;
+	        this.subject = source["subject"] || "";
+	        this.className = source["className"] || "";
+	        this.room = source["room"] || "";
+	        this.note = source["note"] || "";
+	        this.courseRosterId = source["courseRosterId"] || "";
+	    }
+	}
+	export class Timetable {
+	    id: string;
+	    kind: string;
+	    schoolYear: string;
+	    semester: string;
+	    cells: TimetableCell[];
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"] || "";
+	        this.kind = source["kind"] || "";
+	        this.schoolYear = source["schoolYear"] || "";
+	        this.semester = source["semester"] || "";
+	        this.cells = (source["cells"] || []).map((item: any) => new TimetableCell(item));
+	    }
+	}
+	export class TimetableChange {
+	    id: string;
+	    date: string;
+	    period: number;
+	    kind: string;
+	    target: string;
+	    subject: string;
+	    className: string;
+	    room: string;
+	    note: string;
+	    courseRosterId: string;
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"] || "";
+	        this.date = source["date"] || "";
+	        this.period = source["period"] || 0;
+	        this.kind = source["kind"] || "";
+	        this.target = source["target"] || "";
+	        this.subject = source["subject"] || "";
+	        this.className = source["className"] || "";
+	        this.room = source["room"] || "";
+	        this.note = source["note"] || "";
+	        this.courseRosterId = source["courseRosterId"] || "";
+	    }
+	}
+	export class TimetableBook {
+	    rule: TimetableBellRule;
+	    periods: TimetablePeriod[];
+	    activeSchoolYear: string;
+	    activeSemester: string;
+	    timetables: Timetable[];
+	    changes: TimetableChange[];
+	    updatedAt: string;
+
+	    static createFrom(source: any = {}) {
+	        return new TimetableBook(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.rule = new TimetableBellRule(source["rule"] || {});
+	        this.periods = (source["periods"] || []).map((item: any) => new TimetablePeriod(item));
+	        this.activeSchoolYear = source["activeSchoolYear"] || "";
+	        this.activeSemester = source["activeSemester"] || "";
+	        this.timetables = (source["timetables"] || []).map((item: any) => new Timetable(item));
+	        this.changes = (source["changes"] || []).map((item: any) => new TimetableChange(item));
+	        this.updatedAt = source["updatedAt"] || "";
+	    }
+	}
+
+}

@@ -78,6 +78,8 @@ export function ListAcademicChanges():Promise<Array<main.AcademicChange>>;
 
 export function ListAllConsultations():Promise<Array<main.Consultation>>;
 
+export function GetTimetableBook():Promise<main.TimetableBook>;
+
 export function ListAssessments():Promise<Array<main.Assessment>>;
 
 export function ListAttendanceTemplates():Promise<Array<main.AttendanceTemplate>>;
@@ -145,6 +147,8 @@ export function SaveAttendanceTemplate(arg1:string,arg2:string,arg3:Array<string
 export function SaveAttendanceTemplateCustomValues(arg1:string,arg2:Record<string, string>):Promise<main.AttendanceTemplate>;
 
 export function SaveAttendanceTemplateMappings(arg1:string,arg2:Array<main.AttendanceFieldPoint>):Promise<main.AttendanceTemplate>;
+
+export function SaveTimetableBook(arg1:main.TimetableBook):Promise<main.TimetableBook>;
 
 export function SaveCleaningPlan(arg1:main.CleaningPlan):Promise<main.CleaningPlan>;
 

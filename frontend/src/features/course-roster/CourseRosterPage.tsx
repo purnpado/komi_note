@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { takePageFocus } from "../shared/pageFocus";
 import { ListCourseRosters } from "../../../wailsjs/go/main/App";
 import { main as models } from "../../../wailsjs/go/models";
 import { EventsOn } from "../../../wailsjs/runtime/runtime";
@@ -8,7 +9,7 @@ import "./course-roster.css";
 import { errorMessage } from "../shared/format";
 export function CourseRosterPage() {
   const [rosters, setRosters] = useState<models.CourseRoster[]>([]);
-  const [selectedID, setSelectedID] = useState("");
+  const [selectedID, setSelectedID] = useState(() => takePageFocus("수업 명렬")?.courseRosterId || "");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [notice, setNotice] = useState("");
   const [feedback, setFeedback] = useState("");

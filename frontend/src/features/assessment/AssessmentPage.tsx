@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AssessmentStatus } from "./AssessmentStatus";
 import { ClassroomNetworkNotice } from "../shared/ClassroomNetworkNotice";
 import { mergeAssessmentEvent } from "./assessmentState";
+import { takePageFocus } from "../shared/pageFocus";
 import { SendCourseRosterDialog } from "./SendCourseRosterDialog";
 import { AssessmentList, GradeSelect } from "./AssessmentList";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
@@ -84,7 +85,18 @@ export function AssessmentPage({ config }: Props) {
   const activeDomain = selected?.domains.find((domain) => domain.id === domainID) || selected?.domains[0] || null;
   const classWarning = preview && config?.teachingClasses?.length && !config.teachingClasses.includes(preview.className) ? `환경설정 수업 학반(${config.teachingClasses.join(", ")})에는 파일 반(${preview.className})이 없지만, 파일에 든 해당 반 학생 명렬로 등록합니다.` : "";
   const load = async (keepID?: string) => { const next = await ListAssessments(); setItems(next); setSelected(next.find((item) => item.id === (keepID || selected?.id)) || next[0] || null); };
-  useEffect(() => { void load(); }, []);
+  useEffect(() => {
+    // 시간표·대시보드에서 반을 골라 들어오면 그 반의 가장 최근 평가를 먼저 연다.
+    const focus = takePageFocus("평가 관리");
+    if (!focus) { void load(); return; }
+    void ListAssessments().then((next) => {
+      setItems(next);
+      const matches = next.filter((item) => item.className === focus.className && (!focus.grade || item.grade === focus.grade) && (!focus.schoolYear || item.schoolYear === focus.schoolYear));
+      const latest = [...matches].sort((a, b) => (b.updatedAt || b.createdAt).localeCompare(a.updatedAt || a.createdAt))[0];
+      setSelected(latest || next[0] || null);
+      if (!latest) setNotice(`${focus.grade ? `${focus.grade}학년 ` : ""}${focus.className}반의 저장된 평가가 없습니다. 나이스 파일을 가져와 주세요.`);
+    });
+  }, []);
   useEffect(() => {
     let active = true;
     let requestID = 0;

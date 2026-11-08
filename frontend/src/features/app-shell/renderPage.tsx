@@ -3,6 +3,7 @@ import { CourseRosterPage } from "../course-roster/CourseRosterPage";
 import { DashboardPage } from "../dashboard/DashboardPage";
 import { SettingsFeaturePage } from "../settings/SettingsPage";
 import { CleaningPage } from "../cleaning/CleaningPage";
+import { TimetablePage } from "../timetable/TimetablePage";
 import { SubmissionDocumentsPage } from "../submissions/SubmissionDocumentsPage";
 import { StudentsPage } from "../students/StudentsPage";
 import { StudentStatsPage } from "../students/StudentStatsPage";
@@ -98,12 +99,7 @@ export function renderPage(
   }
   if (active === "수업 명렬") return <CourseRosterPage />;
   if (active === "시간표")
-    return (
-      <FeatureGuidePage
-        title="반 시간표 · 교사 시간표"
-        description="담당 수업 반을 기준으로 시간표를 등록하고 대시보드에 표시하는 기능을 준비하고 있습니다."
-      />
-    );
+    return <TimetablePage config={config} isHomeroomTeacher={isHomeroomTeacher} />;
   if (active === "모둠 편성")
     return (
       <FeatureGuidePage

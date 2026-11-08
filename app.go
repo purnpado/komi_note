@@ -84,6 +84,7 @@ type AssessmentCriterionScore = assessment.AssessmentCriterionScore
 type AssessmentObjection = assessment.AssessmentObjection
 type AssessmentHistory = assessment.AssessmentHistory
 type CourseRoster = vault.CourseRoster
+type TimetableBook = vault.TimetableBook
 type CourseRosterStudent = vault.CourseRosterStudent
 type CourseRosterPreview = vault.CourseRosterPreview
 type AssessmentImportPreview = vault.AssessmentImportPreview
@@ -520,6 +521,16 @@ func (a *App) SaveCleaningPlan(plan CleaningPlan) (CleaningPlan, error) {
 // DeleteCleaningPlan은 청소구역 편성 이력을 삭제합니다.
 func (a *App) DeleteCleaningPlan(id string) error {
 	return a.vault.DeleteCleaningPlan(id)
+}
+
+// GetTimetableBook은 교시 시각·학기별 시간표·날짜별 교체 기록을 반환합니다.
+func (a *App) GetTimetableBook() (TimetableBook, error) {
+	return a.vault.GetTimetableBook()
+}
+
+// SaveTimetableBook은 시간표 전체를 암호화해 저장합니다.
+func (a *App) SaveTimetableBook(book TimetableBook) (TimetableBook, error) {
+	return a.vault.SaveTimetableBook(book)
 }
 
 // GetAttendance는 선택 날짜의 재학생 출결을 반환합니다.

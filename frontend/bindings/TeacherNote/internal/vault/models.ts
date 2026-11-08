@@ -10,6 +10,9 @@ import * as attendance$0 from "../attendance/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
 import * as students$0 from "../students/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as timetable$0 from "../timetable/models.js";
 
 /**
  * AcademicChange는 개인정보를 삭제한 뒤 남기는 최소 학적변동 이력입니다.
@@ -180,3 +183,8 @@ export interface SetupRequest {
     "recoveryPassword": string;
     "recoveryFilePath": string;
 }
+
+/**
+ * TimetableBook은 교시 시각·학기별 시간표·날짜별 교체 기록 전체입니다.
+ */
+export type TimetableBook = timetable$0.Book;

@@ -11,6 +11,7 @@ import { main as models } from "../../../wailsjs/go/models";
 import type { PageKey } from "../navigation/menuTypes";
 import { toLocalDateString, todayLocal } from "../shared/format";
 import { Attention, Quick } from "./DashboardWidgets";
+import { DashboardTimetable } from "../timetable/DashboardTimetable";
 import "./dashboard.css";
 
 type StatProps = { icon: string; title: string; value: string; note: string; color: string; onClick?: () => void };
@@ -214,6 +215,7 @@ export function DashboardPage({
           </>
         )}
       </section>
+      <DashboardTimetable today={today} isHomeroomTeacher={isHomeroomTeacher} navigate={navigate} />
       {isHomeroomTeacher && (
         <section className="two-column">
           <div className="panel">

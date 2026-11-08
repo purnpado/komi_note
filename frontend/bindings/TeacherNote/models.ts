@@ -109,6 +109,8 @@ export type Survey = survey$0.Survey;
 
 export type SurveySessionInfo = survey$0.SurveySessionInfo;
 
+export type TimetableBook = vault$0.TimetableBook;
+
 /**
  * UpdateInfo는 공개 업데이트 채널에서 받는 정보와 화면 표시 상태를 함께 담습니다.
  */

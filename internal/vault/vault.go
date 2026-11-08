@@ -110,6 +110,7 @@ type vaultData struct {
 	CleaningPlans       []CleaningPlan       `json:"cleaningPlans"`
 	Assessments         []Assessment         `json:"assessments"`
 	CourseRosters       []CourseRoster       `json:"courseRosters,omitempty"`
+	Timetable           *TimetableBook       `json:"timetable,omitempty"`
 	CreatedAt           time.Time            `json:"createdAt"`
 	UpdatedAt           time.Time            `json:"updatedAt"`
 	RecoveryCreated     bool                 `json:"recoveryCreated"`

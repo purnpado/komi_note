@@ -18,5 +18,6 @@ export type {
     RosterImportResult,
     RosterPreview,
     SessionResult,
-    SetupRequest
+    SetupRequest,
+    TimetableBook
 } from "./models.js";

@@ -36,5 +36,6 @@ export type {
     SubmissionDocument,
     Survey,
     SurveySessionInfo,
+    TimetableBook,
     UpdateInfo
 } from "./models.js";

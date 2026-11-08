@@ -231,6 +231,13 @@ export function GetSurveySessionInfo(surveyID: string): $CancellablePromise<$mod
 }
 
 /**
+ * GetTimetableBook은 교시 시각·학기별 시간표·날짜별 교체 기록을 반환합니다.
+ */
+export function GetTimetableBook(): $CancellablePromise<$models.TimetableBook> {
+    return $Call.ByID(2036320023);
+}
+
+/**
  * HasPin은 간편 PIN 번호 설정 여부를 반환합니다.
  */
 export function HasPin(): $CancellablePromise<boolean> {
@@ -567,6 +574,13 @@ export function SaveSubmissionStatus(documentID: string, studentID: string, stat
  */
 export function SaveSurvey(item: $models.Survey): $CancellablePromise<$models.Survey> {
     return $Call.ByID(256636678, item);
+}
+
+/**
+ * SaveTimetableBook은 시간표 전체를 암호화해 저장합니다.
+ */
+export function SaveTimetableBook(book: $models.TimetableBook): $CancellablePromise<$models.TimetableBook> {
+    return $Call.ByID(855583710, book);
 }
 
 /**
