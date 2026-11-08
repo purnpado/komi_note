@@ -1,3 +1,4 @@
+import { SeatingAccessList } from "./SeatingAccessList";
 import { main as models } from "../../../wailsjs/go/models";
 import { ClassroomNetworkNotice } from "../shared/ClassroomNetworkNotice";
 import "./seating-execution.css";
@@ -23,6 +24,7 @@ export function SeatingExecutionPanel({
   onCloseSession,
   onRevealNames,
   onHideNames,
+  students = [],
 }: {
   drawMethod: string;
   seatingSession: models.SeatingSessionInfo | null;
@@ -38,6 +40,7 @@ export function SeatingExecutionPanel({
   onCloseSession: () => void;
   onRevealNames: () => void;
   onHideNames: () => void;
+  students?: models.Student[];
 }) {
   const preferenceCompetition = seatingSession?.drawMethod === "희망 경쟁배정";
 	const randomLadder = seatingSession?.drawMethod === "랜덤 사다리 배정" || drawMethod === "랜덤 사다리 배정";
@@ -157,6 +160,7 @@ export function SeatingExecutionPanel({
               )}
               {seatingSession.partialClosed && <> · 결석·미참여 예외 마감</>}
             </p>
+            <SeatingAccessList planId={seatingSession.planId} students={students} />
           </div>
           <div className="dialog-actions">
             {seatingSession.boardUrl && (

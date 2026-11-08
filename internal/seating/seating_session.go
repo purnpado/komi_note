@@ -47,13 +47,17 @@ type SeatingSessionInfo struct {
 }
 
 type seatingSession struct {
-	planID            string
-	token             string
-	boardToken        string
-	shortCode         string
-	listener          net.Listener
-	server            *http.Server
-	joined            map[string]string
+	planID     string
+	token      string
+	boardToken string
+	shortCode  string
+	listener   net.Listener
+	server     *http.Server
+	joined     map[string]string
+	// deviceTokens는 학생 ID → 이 회차에서 먼저 들어온 기기의 무작위 토큰, deviceStudents는 그 반대 방향이다.
+	// 학생 쿠키에는 학생 ID 대신 이 토큰만 넣어, 다른 기기가 같은 학생으로 들어오지 못하게 한다.
+	deviceTokens      map[string]string
+	deviceStudents    map[string]string
 	joinedOrder       []string
 	rosterCount       int
 	phase             string
@@ -258,7 +262,7 @@ func (s *SeatingServer) Start(planID string) (SeatingSessionInfo, error) {
 		activeSeats = activeSeats[:rosterCount]
 	}
 	available, seatLabels, seatLayout := seatingLayout(activeSeats)
-	session := &seatingSession{planID: planID, token: base64.RawURLEncoding.EncodeToString(b), boardToken: base64.RawURLEncoding.EncodeToString(boardBytes), shortCode: code, listener: listener, joined: map[string]string{}, rosterCount: rosterCount, phase: "입장 대기", drawMethod: plan.DrawMethod, competitionMethod: plan.CompetitionMethod, available: available, seatLabels: seatLabels, seatLayout: seatLayout, placementMode: plan.PlacementMode, layoutMode: plan.LayoutMode, deskPosition: plan.DeskPosition, assigned: map[string]string{}, fixed: map[string]string{}, preferences: map[string][]string{}, rpsChoices: map[string]string{}, ladderStarts: map[string]int{}, ladderSeatByStudent: map[string]string{}, ladderRungs: []ladderRung{}, ladderChoices: map[string][]int{}, loginAttempts: map[string]seatingLoginAttempt{}, history: map[string][]string{}}
+	session := &seatingSession{planID: planID, token: base64.RawURLEncoding.EncodeToString(b), boardToken: base64.RawURLEncoding.EncodeToString(boardBytes), shortCode: code, listener: listener, joined: map[string]string{}, deviceTokens: map[string]string{}, deviceStudents: map[string]string{}, rosterCount: rosterCount, phase: "입장 대기", drawMethod: plan.DrawMethod, competitionMethod: plan.CompetitionMethod, available: available, seatLabels: seatLabels, seatLayout: seatLayout, placementMode: plan.PlacementMode, layoutMode: plan.LayoutMode, deskPosition: plan.DeskPosition, assigned: map[string]string{}, fixed: map[string]string{}, preferences: map[string][]string{}, rpsChoices: map[string]string{}, ladderStarts: map[string]int{}, ladderSeatByStudent: map[string]string{}, ladderRungs: []ladderRung{}, ladderChoices: map[string][]int{}, loginAttempts: map[string]seatingLoginAttempt{}, history: map[string][]string{}}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/assets/seating/rps-rock.webp", writeSeatingPublicAsset("image/webp", rpsRockWebP))
 	mux.HandleFunc("/assets/seating/rps-paper.webp", writeSeatingPublicAsset("image/webp", rpsPaperWebP))
@@ -1026,6 +1030,33 @@ func ladderRungsForAssignments(x *seatingSession, seatIDs []string) []ladderRung
 	}
 	return rungs
 }
+
+// ResetStudentAccess는 학생의 기기 연결을 풀어 다른 기기(본인)로 다시 들어오게 한다. 닉네임과 진행 기록은 유지한다.
+func (s *SeatingServer) ResetStudentAccess(planID, studentID string) (SeatingSessionInfo, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	x := s.sessions[planID]
+	if x == nil || x.closed {
+		return SeatingSessionInfo{}, errors.New("진행 중인 자리배정 회차가 없습니다")
+	}
+	if token := x.deviceTokens[studentID]; token != "" {
+		delete(x.deviceStudents, token)
+		delete(x.deviceTokens, studentID)
+	}
+	return s.infoLocked(x)
+}
+
+// JoinedStudentIDs는 교사 화면의 접속 초기화 목록에 쓸, 입장한 학생 ID 목록이다(닉네임은 보내지 않는다).
+func (s *SeatingServer) JoinedStudentIDs(planID string) []string {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	x := s.sessions[planID]
+	if x == nil {
+		return []string{}
+	}
+	return append([]string{}, x.joinedOrder...)
+}
+
 func (s *SeatingServer) Stop(planID string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -1085,7 +1116,7 @@ func (s *SeatingServer) infoLocked(x *seatingSession) (SeatingSessionInfo, error
 	if currentIndex < len(x.order) {
 		current = x.joined[x.order[currentIndex]]
 	}
-	notice := "QR을 스캔해 이름·생년월일을 확인하면 회차 닉네임이 배정됩니다."
+	notice := "QR을 스캔해 번호·이름을 확인하면 회차 닉네임이 배정됩니다."
 	if x.phase == "희망 자리 제출 준비" {
 		notice = "입장이 마감되었습니다. 교사가 희망 자리 제출을 열면 학생이 1~3지망을 제출합니다."
 	} else if x.phase == "희망 자리 제출" {
@@ -1184,8 +1215,8 @@ func (s *SeatingServer) loginAPI(x *seatingSession) http.HandlerFunc {
 			return
 		}
 		var q struct {
-			Name      string `json:"name"`
-			BirthDate string `json:"birthDate"`
+			Number string `json:"number"`
+			Name   string `json:"name"`
 		}
 		if json.NewDecoder(http.MaxBytesReader(w, r.Body, 4096)).Decode(&q) != nil {
 			http.Error(w, "입력값을 확인해 주세요", 400)
@@ -1214,11 +1245,11 @@ func (s *SeatingServer) loginAPI(x *seatingSession) http.HandlerFunc {
 			http.Error(w, "보관함이 잠겨 있습니다", 423)
 			return
 		}
-		birth := normalizeSeatingBirth(q.BirthDate)
+		// 학생 확인은 번호+이름으로 한다(사용자 결정 2026-11-08, 생년월일은 쓰지 않음). "01"·"1번"도 1번으로 본다.
+		number := normalizeSeatingNumber(q.Number)
 		var id string
 		for _, st := range students {
-			storedBirth := normalizeSeatingBirth(st.BirthDate)
-			if normalizeSeatingName(st.Name) == normalizeSeatingName(q.Name) && storedBirth == birth {
+			if number != "" && fmt.Sprint(st.Number) == number && normalizeSeatingName(st.Name) == normalizeSeatingName(q.Name) {
 				id = st.ID
 				break
 			}
@@ -1231,7 +1262,7 @@ func (s *SeatingServer) loginAPI(x *seatingSession) http.HandlerFunc {
 				http.Error(w, "인증을 여러 번 시도했습니다. 30초 뒤 다시 시도해 주세요", http.StatusTooManyRequests)
 				return
 			}
-			http.Error(w, "이름 또는 생년월일을 확인해 주세요", 401)
+			http.Error(w, "번호 또는 이름을 확인해 주세요", 401)
 			return
 		}
 		s.mu.Lock()
@@ -1246,6 +1277,26 @@ func (s *SeatingServer) loginAPI(x *seatingSession) http.HandlerFunc {
 			return
 		}
 		delete(x.loginAttempts, clientIP)
+		// 이미 다른 기기로 들어온 학생이면 막는다. 같은 기기(쿠키 일치)는 다시 들어온 것으로 본다.
+		if existing := x.deviceTokens[id]; existing != "" {
+			if cookie, cookieErr := r.Cookie("kkomi-seat"); cookieErr != nil || cookie.Value != existing {
+				s.mu.Unlock()
+				http.Error(w, "이미 다른 기기에서 들어와 있습니다. 본인이 아니라면 선생님께 접속 초기화를 부탁하세요", http.StatusConflict)
+				return
+			}
+		}
+		token := x.deviceTokens[id]
+		if token == "" {
+			tokenBytes, tokenErr := system.RandomBytes(18)
+			if tokenErr != nil {
+				s.mu.Unlock()
+				http.Error(w, "다시 시도해 주세요", http.StatusInternalServerError)
+				return
+			}
+			token = base64.RawURLEncoding.EncodeToString(tokenBytes)
+			x.deviceTokens[id] = token
+			x.deviceStudents[token] = id
+		}
 		nick := x.joined[id]
 		if nick == "" {
 			nick, err = randomSeatingNickname(x.joined)
@@ -1258,7 +1309,7 @@ func (s *SeatingServer) loginAPI(x *seatingSession) http.HandlerFunc {
 			x.joinedOrder = append(x.joinedOrder, id)
 		}
 		s.mu.Unlock()
-		http.SetCookie(w, &http.Cookie{Name: "kkomi-seat", Value: id, Path: "/", HttpOnly: true, SameSite: http.SameSiteStrictMode})
+		http.SetCookie(w, &http.Cookie{Name: "kkomi-seat", Value: token, Path: "/", HttpOnly: true, SameSite: http.SameSiteStrictMode})
 		system.WriteJSON(w, map[string]any{"ok": true, "nickname": nick})
 	}
 }
@@ -1299,13 +1350,19 @@ func normalizeSeatingName(value string) string {
 	}, strings.TrimSpace(value))
 }
 
-func normalizeSeatingBirth(value string) string {
-	return strings.Map(func(r rune) rune {
+// normalizeSeatingNumber는 "01"·"1번"·" 1 "을 "1"로 맞춘다.
+func normalizeSeatingNumber(value string) string {
+	all := strings.Map(func(r rune) rune {
 		if unicode.IsDigit(r) {
 			return r
 		}
 		return -1
 	}, value)
+	trimmed := strings.TrimLeft(all, "0")
+	if trimmed == "" && all != "" {
+		return "0"
+	}
+	return trimmed
 }
 
 func randomSeatingNickname(joined map[string]string) (string, error) {
@@ -1351,7 +1408,7 @@ func (s *SeatingServer) stateAPI(x *seatingSession, finalNameAccess ...bool) htt
 		// 전자칠판 응답은 학생 로그인 쿠키를 무시한다. 같은 브라우저로 학생 화면을 시험해 본 뒤
 		// 전자칠판을 열어도 배치도가 "자리 받은 학생" 화면처럼 비지 않게 한다.
 		if cookie, err := r.Cookie("kkomi-seat"); err == nil && !includeFinalNames {
-			studentID = cookie.Value
+			studentID = x.deviceStudents[cookie.Value]
 		}
 		seats := make([]map[string]any, 0, len(x.available))
 		for id := range x.available {
@@ -1562,6 +1619,12 @@ func (s *SeatingServer) rpsAPI(x *seatingSession) http.HandlerFunc {
 		}
 		s.mu.Lock()
 		defer s.mu.Unlock()
+		// 쿠키에는 기기 토큰이 들어 있다. 아래 코드가 쓰는 cookie.Value를 학생 ID로 바꾼다.
+		cookie = &http.Cookie{Name: cookie.Name, Value: x.deviceStudents[cookie.Value]}
+		if cookie.Value == "" {
+			http.Error(w, "먼저 입장해 주세요", http.StatusUnauthorized)
+			return
+		}
 		if x.paused {
 			http.Error(w, "교사가 회차를 안전 일시정지했습니다", http.StatusLocked)
 			return
@@ -1607,6 +1670,12 @@ func (s *SeatingServer) ladderAPI(x *seatingSession) http.HandlerFunc {
 		}
 		s.mu.Lock()
 		defer s.mu.Unlock()
+		// 쿠키에는 기기 토큰이 들어 있다. 아래 코드가 쓰는 cookie.Value를 학생 ID로 바꾼다.
+		cookie = &http.Cookie{Name: cookie.Name, Value: x.deviceStudents[cookie.Value]}
+		if cookie.Value == "" {
+			http.Error(w, "먼저 입장해 주세요", http.StatusUnauthorized)
+			return
+		}
 		if x.paused {
 			http.Error(w, "교사가 회차를 안전 일시정지했습니다", http.StatusLocked)
 			return
@@ -1699,6 +1768,12 @@ func (s *SeatingServer) preferenceAPI(x *seatingSession) http.HandlerFunc {
 		}
 		s.mu.Lock()
 		defer s.mu.Unlock()
+		// 쿠키에는 기기 토큰이 들어 있다. 아래 코드가 쓰는 cookie.Value를 학생 ID로 바꾼다.
+		cookie = &http.Cookie{Name: cookie.Name, Value: x.deviceStudents[cookie.Value]}
+		if cookie.Value == "" {
+			http.Error(w, "먼저 입장해 주세요", http.StatusUnauthorized)
+			return
+		}
 		if x.paused {
 			http.Error(w, "교사가 회차를 안전 일시정지했습니다", http.StatusLocked)
 			return
@@ -1907,6 +1982,12 @@ func (s *SeatingServer) arrowAPI(x *seatingSession) http.HandlerFunc {
 		}
 		s.mu.Lock()
 		defer s.mu.Unlock()
+		// 쿠키에는 기기 토큰이 들어 있다. 아래 코드가 쓰는 cookie.Value를 학생 ID로 바꾼다.
+		cookie = &http.Cookie{Name: cookie.Name, Value: x.deviceStudents[cookie.Value]}
+		if cookie.Value == "" {
+			http.Error(w, "먼저 입장해 주세요", http.StatusUnauthorized)
+			return
+		}
 		if x.paused {
 			http.Error(w, "교사가 회차를 안전 일시정지했습니다", http.StatusLocked)
 			return

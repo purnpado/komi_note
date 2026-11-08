@@ -600,6 +600,7 @@ export function ClassroomPage({
           onCloseSession={() => setCloseSessionOpen(true)}
           onRevealNames={() => setRevealDialogOpen(true)}
           onHideNames={() => void revealSeatingNames(false)}
+          students={orderedStudents}
         />
       )}
       {seatingTab === "확정 및 결과" && (

@@ -235,3 +235,12 @@
   justify-content: flex-start;
   flex-wrap: wrap;
 }
+
+/* 학생별 입장 현황(교사만 보기) · 접속 초기화 */
+.seating-access-list { margin-top: 10px; }
+.seating-access-list summary { color: #5d6f69; font-size: 12px; font-weight: 800; cursor: pointer; }
+.seating-access-list ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px; max-height: 240px; overflow: auto; margin: 8px 0 0; padding: 0; list-style: none; }
+.seating-access-list li { display: flex; align-items: center; gap: 6px; padding: 6px 9px; border: 1px solid #e3ebe8; border-radius: 9px; background: #fff; font-size: 13px; }
+.seating-access-list li span { flex: 1; }
+.seating-access-list li small { color: #6b7f78; }
+.seating-access-message { margin: 8px 0 0; padding: 8px 10px; border-radius: 9px; color: #176b53; background: #effaf4; font-size: 12px; }

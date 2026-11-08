@@ -238,6 +238,10 @@ export function StopAssessmentAnswerReview(arg1:string,arg2:string):Promise<void
 
 export function StopAssessmentReview(arg1:string,arg2:string):Promise<void>;
 
+export function ResetSeatingStudentAccess(arg1:string,arg2:string):Promise<main.SeatingSessionInfo>;
+
+export function GetSeatingJoinedStudentIDs(arg1:string):Promise<Array<string>>;
+
 export function StopSeatingSession(arg1:string):Promise<void>;
 
 export function StopSurveySession(arg1:string):Promise<void>;

@@ -231,6 +231,13 @@ export function GetParticipationSafetyState(): $CancellablePromise<$models.Parti
 }
 
 /**
+ * GetSeatingJoinedStudentIDs는 자리배정 회차에 입장한 학생 ID 목록입니다(교사 화면의 접속 초기화용, 닉네임 없음).
+ */
+export function GetSeatingJoinedStudentIDs(planID: string): $CancellablePromise<string[] | null> {
+    return $Call.ByID(1715630224, planID);
+}
+
+/**
  * GetSeatingSessionInfo는 현재 QR 참여 회차의 입장 인원과 진행 상태를 반환합니다.
  */
 export function GetSeatingSessionInfo(planID: string): $CancellablePromise<$models.SeatingSessionInfo> {
@@ -495,6 +502,13 @@ export function ResetGroupingStudent(key: string): $CancellablePromise<$models.G
  */
 export function ResetMasterPassword(recoveryPath: string, recoveryPassword: string, newPassword: string): $CancellablePromise<void> {
     return $Call.ByID(3611519763, recoveryPath, recoveryPassword, newPassword);
+}
+
+/**
+ * ResetSeatingStudentAccess는 자리배정 회차에서 학생의 기기 연결을 풀어 다른 기기로 다시 들어오게 합니다.
+ */
+export function ResetSeatingStudentAccess(planID: string, studentID: string): $CancellablePromise<$models.SeatingSessionInfo> {
+    return $Call.ByID(3631419880, planID, studentID);
 }
 
 /**

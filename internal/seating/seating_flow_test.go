@@ -74,7 +74,7 @@ func newFlowServer(t *testing.T, method string, rosterCount int) (*SeatingServer
 
 func joinStudent(t *testing.T, server *SeatingServer, x *seatingSession, number int) {
 	t.Helper()
-	body := fmt.Sprintf(`{"name":"학생%02d","birthDate":"2012-01-%02d"}`, number, number)
+	body := fmt.Sprintf(`{"number":"%d","name":"학생%02d"}`, number, number)
 	recorder := httptest.NewRecorder()
 	request := httptest.NewRequest(http.MethodPost, "/api/token/login", strings.NewReader(body))
 	request.RemoteAddr = fmt.Sprintf("10.0.0.%d:1234", number)
@@ -278,7 +278,7 @@ func TestStudentStateReturnsOnlyOwnHistory(t *testing.T) {
 	x.history = map[string][]string{"st-01": {"내 기록"}, "st-02": {"다른 학생 기록"}}
 	recorder := httptest.NewRecorder()
 	request := httptest.NewRequest(http.MethodGet, "/api/token/state", nil)
-	request.AddCookie(&http.Cookie{Name: "kkomi-seat", Value: "st-01"})
+	request.AddCookie(deviceCookie(x, "st-01"))
 	server.stateAPI(x, false)(recorder, request)
 	body := recorder.Body.String()
 	if !strings.Contains(body, "내 기록") || strings.Contains(body, "다른 학생 기록") {
@@ -324,7 +324,7 @@ func TestBoardShowsNamesOnlyAfterTeacherReveal(t *testing.T) {
 	}
 	recorder := httptest.NewRecorder()
 	request := httptest.NewRequest(http.MethodGet, "/api/token/state", nil)
-	request.AddCookie(&http.Cookie{Name: "kkomi-seat", Value: "st-01"})
+	request.AddCookie(deviceCookie(x, "st-01"))
 	server.stateAPI(x, false)(recorder, request)
 	if strings.Contains(recorder.Body.String(), "학생0") {
 		t.Fatal("공개 뒤에도 학생 휴대폰에는 실명을 보내면 안 됩니다")
@@ -341,7 +341,7 @@ func TestBoardStateIgnoresStudentCookie(t *testing.T) {
 	server, _, x := finishRouletteWithAll(t, 3)
 	recorder := httptest.NewRecorder()
 	request := httptest.NewRequest(http.MethodGet, "/board-api/board/state", nil)
-	request.AddCookie(&http.Cookie{Name: "kkomi-seat", Value: "st-01"})
+	request.AddCookie(deviceCookie(x, "st-01"))
 	server.stateAPI(x, true)(recorder, request)
 	var state map[string]any
 	_ = json.NewDecoder(recorder.Body).Decode(&state)
@@ -424,5 +424,77 @@ func assertAssignedCount(t *testing.T, store *memSeatingStore, want int) {
 	}
 	if count != want {
 		t.Fatalf("배정된 학생 수 %d명, 기대 %d명", count, want)
+	}
+}
+
+// deviceCookie는 실제 입장처럼 학생에게 기기 토큰을 등록하고 그 토큰을 담은 쿠키를 돌려준다.
+// 학생 쿠키에는 학생 ID가 아니라 기기 토큰이 들어간다.
+func deviceCookie(x *seatingSession, studentID string) *http.Cookie {
+	if x.deviceTokens == nil {
+		x.deviceTokens = map[string]string{}
+		x.deviceStudents = map[string]string{}
+	}
+	token := x.deviceTokens[studentID]
+	if token == "" {
+		token = "test-token-" + studentID
+		x.deviceTokens[studentID] = token
+		x.deviceStudents[token] = studentID
+	}
+	return &http.Cookie{Name: "kkomi-seat", Value: token}
+}
+
+// 자리배정 입장은 번호+이름으로 하고, 먼저 들어온 기기만 허용하며, 교사가 접속을 초기화할 수 있다.
+func TestLoginUsesNumberAndNameWithOneDevice(t *testing.T) {
+	server, _, x := newFlowServer(t, "희망 경쟁배정", 3)
+	login := func(body string, cookie *http.Cookie, ip string) *httptest.ResponseRecorder {
+		recorder := httptest.NewRecorder()
+		request := httptest.NewRequest(http.MethodPost, "/api/token/login", strings.NewReader(body))
+		request.RemoteAddr = ip + ":1234"
+		if cookie != nil {
+			request.AddCookie(cookie)
+		}
+		server.loginAPI(x)(recorder, request)
+		return recorder
+	}
+	if code := login(`{"name":"학생01","birthDate":"2012-01-01"}`, nil, "10.0.0.1").Code; code != http.StatusUnauthorized {
+		t.Fatalf("생년월일로는 들어올 수 없어야 합니다: %d", code)
+	}
+	if code := login(`{"number":"2","name":"학생01"}`, nil, "10.0.0.1").Code; code != http.StatusUnauthorized {
+		t.Fatalf("번호가 다르면 거부: %d", code)
+	}
+	first := login(`{"number":"01번","name":"학생 01"}`, nil, "10.0.0.2")
+	if first.Code != http.StatusOK {
+		t.Fatalf("번호+이름 입장 실패: %d %s", first.Code, first.Body.String())
+	}
+	cookies := first.Result().Cookies()
+	if len(cookies) != 1 || cookies[0].Value == "st-01" || cookies[0].Value == "" {
+		t.Fatalf("쿠키에 학생 ID 대신 기기 토큰이 들어가야 합니다: %+v", cookies)
+	}
+	if code := login(`{"number":"1","name":"학생01"}`, cookies[0], "10.0.0.2").Code; code != http.StatusOK {
+		t.Fatalf("같은 기기 다시 입장은 허용: %d", code)
+	}
+	if code := login(`{"number":"1","name":"학생01"}`, nil, "10.0.0.3").Code; code != http.StatusConflict {
+		t.Fatalf("다른 기기 입장은 막아야 합니다: %d", code)
+	}
+	// 학생 ID를 쿠키에 직접 넣어도 학생으로 인정되지 않는다.
+	recorder := httptest.NewRecorder()
+	request := httptest.NewRequest(http.MethodGet, "/api/token/state", nil)
+	request.AddCookie(&http.Cookie{Name: "kkomi-seat", Value: "st-01"})
+	server.stateAPI(x, false)(recorder, request)
+	if strings.Contains(recorder.Body.String(), `"nickname":"`+x.joined["st-01"]+`"`) {
+		t.Fatal("학생 ID 쿠키로 다른 학생 상태를 볼 수 없어야 합니다")
+	}
+	if _, err := server.ResetStudentAccess("plan", "st-01"); err != nil {
+		t.Fatal(err)
+	}
+	second := login(`{"number":"1","name":"학생01"}`, nil, "10.0.0.3")
+	if second.Code != http.StatusOK {
+		t.Fatalf("접속 초기화 뒤 다른 기기 입장: %d", second.Code)
+	}
+	if nick := x.joined["st-01"]; nick == "" || len(x.joinedOrder) != 1 {
+		t.Fatal("초기화해도 닉네임·입장 기록은 유지돼야 합니다")
+	}
+	if ids := server.JoinedStudentIDs("plan"); len(ids) != 1 || ids[0] != "st-01" {
+		t.Fatalf("입장 학생 목록 %v", ids)
 	}
 }

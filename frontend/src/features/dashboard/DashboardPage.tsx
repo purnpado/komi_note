@@ -154,7 +154,7 @@ export function DashboardPage({
       if (items.length >= 6) break;
       const guardianPhone = student.fatherPhone || student.motherPhone || student.guardianPhone;
       if (!guardianPhone) items.push({ student, text: "보호자 연락처가 비어 있습니다", tag: "정보 확인", action: () => openStudent(student) });
-      else if (!student.birthDate) items.push({ student, text: "생년월일이 비어 있습니다(자리배정·QR 입장에 필요)", tag: "정보 확인", action: () => openStudent(student) });
+      else if (!student.birthDate) items.push({ student, text: "생년월일이 비어 있습니다(학생 통계 만 나이 계산에 쓰임)", tag: "정보 확인", action: () => openStudent(student) });
     }
     return items.slice(0, 6);
   }, [followUps, students, studentByID, today, openConsultation, openStudent]);

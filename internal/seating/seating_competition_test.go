@@ -104,7 +104,7 @@ func TestPreferenceStateHidesVacantSeatsFromAssignedStudent(t *testing.T) {
 	}
 	recorder := httptest.NewRecorder()
 	request := httptest.NewRequest("GET", "/api/token/state", nil)
-	request.AddCookie(&http.Cookie{Name: "kkomi-seat", Value: "assigned-student"})
+	request.AddCookie(deviceCookie(session, "assigned-student"))
 	server.stateAPI(session)(recorder, request)
 	var state map[string]any
 	if err := json.NewDecoder(recorder.Body).Decode(&state); err != nil {

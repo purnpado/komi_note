@@ -176,7 +176,7 @@ function pickView(j){const p=j.phase,m=j.drawMethod;
 
 // ---------- 장면별 그리기 ----------
 const scenes={
-entry:{mount(){scene.innerHTML='<div class="entry"><div class="qrcard"><img src="'+QR+'" alt="학생 입장 QR 코드"><div style="font-size:20px;font-weight:800">휴대폰으로 QR을 찍거나 주소를 입력하세요</div><code>'+esc(STUDENT_URL)+'</code></div><div class="panel" style="display:flex;flex-direction:column;gap:16px"><div class="label">입장한 학생 <span id="cnt"></span></div><div class="chips" id="chips"></div><div class="muted" style="margin-top:auto;font-size:18px">이름과 생년월일로 본인 확인 뒤 닉네임으로만 표시돼요</div></div></div>'},
+entry:{mount(){scene.innerHTML='<div class="entry"><div class="qrcard"><img src="'+QR+'" alt="학생 입장 QR 코드"><div style="font-size:20px;font-weight:800">휴대폰으로 QR을 찍거나 주소를 입력하세요</div><code>'+esc(STUDENT_URL)+'</code></div><div class="panel" style="display:flex;flex-direction:column;gap:16px"><div class="label">입장한 학생 <span id="cnt"></span></div><div class="chips" id="chips"></div><div class="muted" style="margin-top:auto;font-size:18px">번호와 이름으로 본인 확인 뒤 닉네임으로만 표시돼요</div></div></div>'},
   update(j){$('title').textContent='QR로 입장해 주세요';$('cnt').textContent=(j.participants||0)+' / '+(j.rosterCount||0)+'명';const names=j.joinedNicknames||[],fs=names.length>30?18:names.length>18?21:25;$('chips').innerHTML=names.map(n=>'<span class="chip" style="font-size:'+fs+'px">'+esc(n)+'</span>').join('')}},
 closed:{mount(){scene.innerHTML='<div class="notice"><strong id="nb"></strong><span id="ns"></span></div>'},
   update(j){$('title').textContent='입장을 마감했어요';$('nb').textContent=(j.participants||0)+'명이 참여해요';$('ns').textContent=j.drawMethod==='희망 경쟁배정'?'선생님이 희망 자리 제출을 열면 시작해요':'선생님이 순서 섞기를 누르면 순서를 정해요'}},

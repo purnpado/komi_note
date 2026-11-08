@@ -206,6 +206,16 @@ func (a *App) RecoverSeatingSession(planID, action string) (SeatingSessionInfo, 
 	return a.seating.Recover(planID, action)
 }
 
+// ResetSeatingStudentAccess는 자리배정 회차에서 학생의 기기 연결을 풀어 다른 기기로 다시 들어오게 합니다.
+func (a *App) ResetSeatingStudentAccess(planID, studentID string) (SeatingSessionInfo, error) {
+	return a.seating.ResetStudentAccess(planID, studentID)
+}
+
+// GetSeatingJoinedStudentIDs는 자리배정 회차에 입장한 학생 ID 목록입니다(교사 화면의 접속 초기화용, 닉네임 없음).
+func (a *App) GetSeatingJoinedStudentIDs(planID string) []string {
+	return a.seating.JoinedStudentIDs(planID)
+}
+
 // StopSeatingSession은 자리배정 참여 회차와 임시 인증 정보를 닫습니다.
 func (a *App) StopSeatingSession(planID string) { a.seating.Stop(planID) }
 

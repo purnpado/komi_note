@@ -68,7 +68,7 @@ func TestBoardPageCoversEveryMethodAndScalesStage(t *testing.T) {
 }
 
 func TestStudentPageSendsExpectedRequests(t *testing.T) {
-	for _, want := range []string{"post('/login',{name,birthDate:birth})", "post('/arrow')", "post('/ladder',{start:ladderPick})", "post('/preferences',{seatIds:prefPicks})", "post('/rps',{choice:b.dataset.choice})"} {
+	for _, want := range []string{"post('/login',{number,name})", "post('/arrow')", "post('/ladder',{start:ladderPick})", "post('/preferences',{seatIds:prefPicks})", "post('/rps',{choice:b.dataset.choice})"} {
 		if !strings.Contains(seatingStudentPageHTML, want) {
 			t.Fatalf("학생 화면 요청 코드에 %q가 없음", want)
 		}
