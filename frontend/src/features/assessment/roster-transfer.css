@@ -1,0 +1,16 @@
+.roster-transfer-dialog { width:min(640px,calc(100vw - 32px)); }
+.roster-transfer-dialog .roster-transfer-body { display:grid; gap:14px; margin:18px 24px 0!important; }
+.roster-transfer-eyebrow { margin:0 0 5px!important; color:#b26938!important; font-size:12px!important; font-weight:800; }
+.roster-transfer-steps { display:flex; flex-wrap:wrap; gap:8px; list-style:none; padding:0; margin:0; }
+.roster-transfer-steps li { display:flex; align-items:center; gap:6px; padding:7px 9px; border-radius:999px; color:#776657; background:#f5eee7; font-size:12px; font-weight:700; }
+.roster-transfer-steps li.current { color:#76421c; background:#ffe6c4; }.roster-transfer-steps span { display:grid; width:20px; height:20px; border-radius:50%; background:#fff; place-items:center; }
+.roster-transfer-section { border:1px solid #efddcb; border-radius:12px; padding:15px; background:#fffdfa; }
+.roster-transfer-section h3 { margin:0 0 5px; color:#553522; font-size:16px; }.roster-transfer-section>p { margin:0; color:#806b5b; font-size:13px; line-height:1.6; }
+.roster-transfer-fields { display:grid; grid-template-columns:1fr 1fr; gap:12px; }.roster-transfer-fields .assessment-field,.roster-transfer-fields .assessment-grade-field { margin:12px 0; }
+.roster-transfer-summary { display:flex; gap:8px; flex-wrap:wrap; }.roster-transfer-summary span { padding:8px 10px; border-radius:8px; color:#79573d; background:#fff3e2; font-size:13px; }.roster-transfer-summary strong { color:#533421; }
+.roster-transfer-students { margin-top:12px; color:#76563e; }.roster-transfer-students summary { cursor:pointer; font-weight:700; }.roster-transfer-students ul { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:6px; max-height:180px; overflow:auto; list-style:none; padding:0; font-size:13px; }
+.roster-transfer-placeholder,.roster-transfer-result,.roster-transfer-error { margin:12px 0 0; padding:12px; border-radius:9px; background:#f5f3ef; color:#66574d; font-size:13px; line-height:1.6; }
+.roster-transfer-result { background:#edf8ef; color:#285b3d; }.roster-transfer-result.attention,.roster-transfer-error { background:#fff1dd; color:#7a4a20; }.roster-transfer-result p { margin:4px 0; }.roster-transfer-result>div { margin-top:9px; }
+.roster-transfer-dialog .roster-transfer-actions { margin:18px 24px 24px; }.roster-transfer-dialog summary:focus-visible { outline:3px solid #d9803a; outline-offset:2px; }
+[data-kkomi-theme="classic"] .roster-transfer-section { border-color:#c8dfd3; background:#fbfffc; }[data-kkomi-theme="classic"] .roster-transfer-summary span { background:#e6f3eb; color:#245442; }
+@media(max-width:520px) { .roster-transfer-fields { grid-template-columns:1fr; gap:0; }.roster-transfer-dialog .roster-transfer-body { margin:14px 16px 0!important; }.roster-transfer-dialog .roster-transfer-actions { margin:16px; } }

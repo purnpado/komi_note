@@ -1,0 +1,53 @@
+.submission-tabs { display:flex; gap:8px; margin-bottom:16px; padding:8px; border:1px solid #ecd7c1; border-radius:13px; background:#fffdf9; }
+.submission-tabs button { flex:1; min-height:42px; padding:10px 14px; border:0; border-radius:9px; color:#785c47; background:transparent; font:inherit; font-weight:800; cursor:pointer; }
+.submission-tabs button.active { color:#8a481f; background:#ffe6c7; box-shadow:0 3px 8px #8f552018; }
+.submission-toolbar { display:flex; align-items:center; gap:10px; }
+.submission-document-layout { display:grid; grid-template-columns:minmax(220px,.65fr) minmax(0,1.35fr); gap:16px; align-items:start; }
+.submission-document-list { display:grid; gap:10px; border-color:#edd5bb; background:linear-gradient(180deg,#fffdf9,#fff8ef); }
+.submission-document-list > .panel-heading { padding-bottom:12px; border-bottom:1px solid #f1dfcb; }
+.submission-document-item { display:grid; gap:4px; width:100%; padding:12px; border:1px solid #ead7c5; border-radius:10px; color:#4c392d; background:#fffaf5; text-align:left; cursor:pointer; }
+.submission-document-item.active { border-color:#d88943; background:#fff0df; box-shadow:0 4px 12px #8f552014; }
+.submission-document-item small,.submission-document-item span { color:#8a7160; font-size:11px; }
+.submission-document-item strong { font-size:13px; }
+.submission-document-item:hover { border-color:#df9b5d; transform:translateY(-1px); }
+.submission-editor { min-width:0; border-color:#edd5bb; background:linear-gradient(180deg,#fffdfa,#fffaf3); }
+.submission-editor form { padding-bottom:18px; border-bottom:1px solid #f0dfcc; }
+.submission-editor .panel-heading { align-items:flex-start; gap:14px; margin-bottom:16px; }
+.submission-editor .panel-heading h3 { font-size:20px; }
+.submission-editor .form-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px; }
+.submission-editor .form-grid label { display:grid; gap:7px; color:#735845; font-size:12px; font-weight:800; }
+.submission-editor .form-grid label.full-width { grid-column:1 / -1; }
+.submission-editor .form-grid input,.submission-editor .form-grid textarea { width:100%; box-sizing:border-box; padding:12px 13px; border:1px solid #e5cdb5; border-radius:10px; color:#44342b; background:#fff; font:inherit; font-size:13px; transition:border-color .15s ease,box-shadow .15s ease; }
+.submission-editor .form-grid textarea { min-height:74px; resize:vertical; line-height:1.55; }
+.submission-editor .form-grid input:focus,.submission-editor .form-grid textarea:focus { outline:0; border-color:#d9853d; box-shadow:0 0 0 3px #d9853d20; }
+.submission-editor .dialog-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; margin:0; }
+.submission-editor .dialog-actions button { min-width:70px; }
+.submission-overview { margin-bottom:16px; border-color:#edd5bb; background:linear-gradient(180deg,#fffdfa,#fff8ef); }
+.submission-overview-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:11px; margin-top:16px; }
+.submission-overview-card { display:grid; gap:8px; padding:15px; border:1px solid #ead1b7; border-radius:12px; color:#4c392d; background:#fffaf5; text-align:left; cursor:pointer; transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease; }
+.submission-overview-card:hover,.submission-overview-card.active { border-color:#d88943; background:#fff0df; box-shadow:0 7px 17px #93542314; transform:translateY(-1px); }
+.submission-overview-card strong { font-size:15px; }.submission-overview-card small { color:#8a7160; font-size:11px; }
+.submission-overview-card > div { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; }.submission-overview-card span { padding:7px 4px; border-radius:7px; color:#7f6b5a; background:#f5eee7; font-size:11px; text-align:center; }.submission-overview-card span b { display:block; margin-top:2px; color:#4c392d; font-size:15px; }.submission-overview-card .submitted { color:#23745c; background:#e5f5ee; }.submission-overview-card .missing { color:#9d5d28; background:#fff0d9; }
+.submission-student-panel { border-color:#edd5bb; background:linear-gradient(180deg,#fffdfa,#fffaf3); }.submission-student-panel .panel-heading { align-items:flex-start; gap:12px; }.submission-detail-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:16px; padding-top:14px; border-top:1px solid #f0dfcc; }
+.submission-breadcrumb { display:flex; align-items:center; gap:10px; margin-bottom:16px; color:#8a7160; font-size:12px; font-weight:800; }.submission-breadcrumb .quiet-button { padding:7px 10px; border:1px solid #e5cdb5; border-radius:999px; color:#8a512b; background:#fffaf4; }
+.submission-filter-tabs { display:flex; flex-wrap:wrap; gap:7px; margin:16px 0; padding:8px; border:1px solid #ecd7c1; border-radius:11px; background:#fffaf5; }.submission-filter-tabs button { min-width:90px; padding:8px 10px; border:0; border-radius:8px; color:#7c6757; background:transparent; font:inherit; font-size:12px; font-weight:800; cursor:pointer; }.submission-filter-tabs button.active { color:#8a481f; background:#ffe6c7; }.submission-filter-tabs b { margin-left:5px; }
+.submission-table-wrap { overflow-x:auto; border:1px solid #ead7c5; border-radius:11px; }.submission-status-table { width:100%; min-width:780px; border-collapse:collapse; color:#4c392d; font-size:12px; }.submission-status-table th { padding:11px 8px; border-bottom:1px solid #e8d2ba; color:#7a6250; background:#fff8ed; font-size:11px; text-align:center; white-space:nowrap; }.submission-status-table td { padding:9px 8px; border-bottom:1px solid #f2e5d7; text-align:center; vertical-align:middle; }.submission-status-table tbody tr:last-child td { border-bottom:0; }.submission-status-table tbody tr:hover { background:#fffaf4; }.submission-name-cell { min-width:100px; font-weight:800; text-align:left !important; }.submission-check { width:17px; height:17px; accent-color:#d4772f; cursor:pointer; }.submission-status-table .submission-note-input { min-width:150px; padding:7px 8px; }
+.submission-summary { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:9px; margin:16px 0; }
+.submission-student-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(245px,1fr)); gap:10px; }
+.submission-student-list-view { display:grid; gap:8px; }
+.submission-student-card { display:grid; gap:9px; padding:12px; border:1px solid #ead7c5; border-radius:11px; background:#fffdfa; }
+.submission-student-header { display:flex; align-items:center; gap:9px; min-width:0; }
+.submission-student-header > div { min-width:0; }
+.submission-student-header strong { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.submission-student-header small { display:block; margin-top:3px; color:#8b7667; font-size:11px; }
+.submission-status-select,.submission-note-input { width:100%; box-sizing:border-box; padding:8px; border:1px solid #e4cdb8; border-radius:8px; color:#4b392f; background:#fffdfa; font:inherit; font-size:12px; }
+.submission-note-input { background:#fff; }
+.submission-student-card:hover { border-color:#dfa064; box-shadow:0 7px 17px #93542312; }
+.submission-student-card .submission-status-select:focus,.submission-student-card .submission-note-input:focus { outline:0; border-color:#d9853d; box-shadow:0 0 0 3px #d9853d18; }
+.theme-classic .submission-document-item,.theme-classic .submission-student-card { border-color:#d5e8e0; background:#fff; }
+.theme-classic .submission-document-item.active { border-color:#60ae91; background:#eaf7f1; }
+.theme-classic .submission-status-select,.theme-classic .submission-note-input { border-color:#cde1d9; }
+.theme-classic .submission-document-list,.theme-classic .submission-editor { border-color:#d5e8e0; background:linear-gradient(180deg,#fff,#f8fcfa); }
+.theme-classic .submission-tabs { border-color:#d2e6dd; background:#fff; }.theme-classic .submission-tabs button { color:#48675d; }.theme-classic .submission-tabs button.active { color:#17664f; background:#ddf3e9; }.theme-classic .submission-overview,.theme-classic .submission-student-panel { border-color:#d5e8e0; background:linear-gradient(180deg,#fff,#f8fcfa); }.theme-classic .submission-overview-card { border-color:#d5e8e0; background:#fff; }.theme-classic .submission-overview-card:hover,.theme-classic .submission-overview-card.active { border-color:#60ae91; background:#eaf7f1; }.theme-classic .submission-overview-card .submitted { color:#1e7159; background:#e1f4eb; }.theme-classic .submission-filter-tabs,.theme-classic .submission-table-wrap { border-color:#d5e8e0; background:#fff; }.theme-classic .submission-filter-tabs button { color:#48675d; }.theme-classic .submission-filter-tabs button.active { color:#17664f; background:#ddf3e9; }.theme-classic .submission-status-table th { border-color:#d5e8e0; background:#f2fbf7; }.theme-classic .submission-status-table td { border-color:#e5f1ec; }
+.theme-classic .submission-editor .form-grid input:focus,.theme-classic .submission-editor .form-grid textarea:focus,.theme-classic .submission-student-card .submission-status-select:focus,.theme-classic .submission-student-card .submission-note-input:focus { border-color:#55a88b; box-shadow:0 0 0 3px #55a88b20; }
+@media (max-width:780px) { .submission-document-layout { grid-template-columns:1fr; }.submission-summary { grid-template-columns:repeat(2,minmax(0,1fr)); }.submission-toolbar { flex-wrap:wrap; }.submission-editor .form-grid { grid-template-columns:1fr; }.submission-editor .form-grid label.full-width { grid-column:auto; }.submission-overview-card > div { grid-template-columns:repeat(2,1fr); }.submission-student-panel .panel-heading { flex-direction:column; } }

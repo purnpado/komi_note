@@ -1,0 +1,103 @@
+.attention {
+  margin-top: 13px;
+}
+
+.attention-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #edf0f4;
+}
+
+.attention-row:last-child {
+  border-bottom: 0;
+}
+
+.attention-row div {
+  flex: 1;
+}
+
+.attention-row b,
+.attention-row small {
+  display: block;
+  font-size: 12px;
+}
+
+.attention-row small {
+  margin-top: 3px;
+  color: #84909e;
+}
+
+.attention-row > span {
+  padding: 4px 6px;
+  border-radius: 4px;
+  color: #a26b1f;
+  background: #fff3da;
+  font-size: 10px;
+}
+
+.quick-panel {
+  margin-top: 18px;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.quick {
+  position: relative;
+  padding: 15px;
+  border: 1px solid #e7ecf1;
+  border-radius: 10px;
+  background: #fcfdff;
+  text-align: left;
+}
+
+.quick:hover {
+  border-color: #77b9a4;
+}
+
+.quick i {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  color: #17705c;
+  background: #e8f4f0;
+  font-style: normal;
+  place-items: center;
+}
+
+.quick b {
+  display: block;
+  margin: 12px 0 4px;
+  font-size: 13px;
+}
+
+.quick small {
+  color: #8290a0;
+  font-size: 11px;
+}
+
+.quick > span {
+  position: absolute;
+  right: 14px;
+  bottom: 13px;
+  color: #2b7967;
+}
+
+@media (max-width: 1200px) {
+  .quick-actions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 680px) {
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+}

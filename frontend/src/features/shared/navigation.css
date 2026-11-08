@@ -1,0 +1,9 @@
+/* 여러 화면에서 함께 쓰는 조작 상태 */
+.quiet-button,.primary-button,.dialog-content { transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease; }
+@media (max-width:680px) {
+  .application { grid-template-columns: minmax(150px,190px) minmax(0,1fr); }
+  .topbar,.page-content { padding-left:12px; padding-right:12px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .quiet-button,.primary-button,.dialog-content { transition:none; }
+}

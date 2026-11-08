@@ -1,0 +1,366 @@
+/* 학생 명렬 화면 전용: 기존 공통 버튼·대화상자 토큰을 재사용한다. */
+.students-page .page-intro {
+  align-items: center;
+}
+
+.students-title-icon {
+  width: 42px;
+  height: 42px;
+  margin-bottom: 6px;
+  fill: none;
+  stroke: var(--kkomi-accent, #d87c35);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.students-page .page-actions {
+  justify-content: flex-end;
+}
+
+/* 학생 명렬 카드 그리드 전용 스타일 */
+.student-directory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.student-directory-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  border: 1px solid #ead6c2;
+  border-radius: 14px;
+  background: #fffdfa;
+  box-shadow: 0 4px 12px rgba(111, 70, 35, 0.05);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.student-directory-card:hover {
+  transform: translateY(-3px);
+  border-color: #d88943;
+  box-shadow: 0 10px 24px rgba(111, 70, 35, 0.12);
+}
+
+.student-directory-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  width: 100%;
+  padding: 16px;
+  border: 0;
+  color: #44352b;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.student-directory-main:focus-visible,
+.student-row:focus-visible {
+  outline: 3px solid var(--kkomi-accent, #d87c35);
+  outline-offset: -3px;
+}
+
+.student-card-photo {
+  display: grid;
+  flex: 0 0 52px;
+  width: 52px;
+  height: 52px;
+  overflow: hidden;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(140, 75, 32, 0.18);
+  color: #9a552b;
+  background: #ffe8c9;
+  background-image: radial-gradient(circle at 30% 25%, #fff8e8 0 12%, transparent 13%), linear-gradient(135deg, #ffe7c0, #f5b46d);
+  font-style: normal;
+  font-weight: 800;
+  font-size: 18px;
+  place-items: center;
+}
+
+.student-card-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.student-directory-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.student-directory-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.student-card-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #8c4c25;
+  background: #ffeedb;
+}
+
+.student-card-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: #3b2c24;
+}
+
+.student-card-meta {
+  font-size: 12px;
+  color: #8b7667;
+}
+
+.student-card-status {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.student-card-note {
+  margin-top: 6px;
+  padding: 6px 9px;
+  border-radius: 7px;
+  background: #fff5ea;
+  border-left: 3px solid #e58a3e;
+  color: #795232;
+  font-size: 11px;
+  line-height: 1.45;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.student-directory-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 10px 14px 14px;
+  border-top: 1px solid #f2e4d5;
+}
+
+.student-directory-actions .quiet-button {
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 8px;
+}
+
+/* 클래식 초록 테마 */
+.theme-classic .student-directory-card {
+  border-color: #d5e8e0;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(27, 88, 79, 0.05);
+}
+.theme-classic .student-directory-card:hover {
+  border-color: #2b826b;
+  box-shadow: 0 10px 24px rgba(27, 88, 79, 0.12);
+}
+.theme-classic .student-card-photo {
+  color: #164a41;
+  background: #e2f4ed;
+  background-image: radial-gradient(circle at 30% 25%, #ffffff 0 12%, transparent 13%), linear-gradient(135deg, #d8eee4, #a3d9c7);
+  box-shadow: 0 2px 8px rgba(22, 74, 65, 0.15);
+}
+.theme-classic .student-card-number {
+  color: #176b53;
+  background: #e4f5ed;
+}
+.theme-classic .student-card-name {
+  color: #1a332d;
+}
+.theme-classic .student-card-meta {
+  color: #60756e;
+}
+.theme-classic .student-card-note {
+  background: #f2fbf7;
+  border-left-color: #2b826b;
+  color: #1f6b55;
+}
+.theme-classic .student-directory-actions {
+  border-top-color: #e5f0eb;
+}
+
+@media (max-width: 780px) {
+  .students-page .page-intro,
+  .students-page .page-actions {
+    align-items: stretch;
+  }
+
+  .students-page .page-actions > * {
+    flex: 1 1 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .students-page .student-directory-card {
+    transition: none;
+  }
+}
+/* 학생 통계와 설문 통계 */
+.consultation-summary-card { display: grid; align-content: start; gap: 10px; }.consultation-summary-card h3,.consultation-summary-card p { margin: 0; }.consultation-summary-card > p:last-of-type { color: #77685c; font-size: 13px; line-height: 1.55; }.consultation-summary-values { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }.consultation-summary-values span { padding: 9px; border-radius: 8px; color: #76553d; background: #fff3e4; font-size: 11px; }.consultation-summary-values b { display: block; margin-top: 3px; color: #87481f; font-size: 16px; }.theme-classic .consultation-summary-values span { color: #37685a; background: #eff8f4; }.theme-classic .consultation-summary-values b { color: #1d654f; }
+.student-consultation-recent { display: grid; gap: 7px; }.student-consultation-recent article { padding: 9px 10px; border-left: 3px solid #e6bc8e; border-radius: 0 8px 8px 0; background: #fff8ef; }.student-consultation-recent time { margin-right: 8px; color: #93613d; font-size: 11px; }.student-consultation-recent b { color: #644230; font-size: 12px; }.student-consultation-recent p { display: -webkit-box; overflow: hidden; margin: 5px 0 0; color: #605147; font-size: 12px; line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }.career-hope-card p { margin: 4px 0 0; color: #625247; line-height: 1.65; white-space: pre-wrap; }.consultation-summary-filters { margin-bottom: 10px; }
+.stats-tabs { display: flex; gap: 8px; margin-bottom: 20px; padding: 8px; border: 1px solid #ecd7c1; border-radius: 13px; background: #fffdf9; }
+.stats-tabs button { padding: 10px 14px; border: 0; border-radius: 9px; color: #705945; background: transparent; font: inherit; font-weight: 800; cursor: pointer; }.stats-tabs button.active { color: #8b4e25; background: #ffecd4; }
+.student-survey-stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 13px; }
+.student-survey-stats-card { display: grid; gap: 9px; padding: 16px; border: 1px solid #ead3bd; border-radius: 13px; background: #fffdf9; }
+.student-survey-stats-card h4,.student-survey-stats-card p { margin: 0; }
+.student-survey-stats-card h4 { color: #49352a; font-size: 16px; }
+.student-survey-stats-card p { color: #887161; font-size: 12px; }
+.student-survey-stats-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.student-survey-stats-heading small { color: #806b5b; font-size: 11px; font-weight: 700; }
+.student-survey-question-stats { display: grid; gap: 6px; padding-top: 8px; border-top: 1px solid #f1e2d3; }
+.student-survey-question-stats span { display: flex; justify-content: space-between; gap: 8px; color: #6f5b4d; font-size: 12px; line-height: 1.45; }
+.student-survey-question-stats b { flex: 0 0 auto; color: #a14e20; }
+.theme-classic .student-survey-stats-card { border-color: #d3e7de; background: #fff; }
+.theme-classic .student-survey-question-stats { border-top-color: #deeee8; }
+.theme-classic .stats-tabs { border-color: #d2e6dd; background: #fff; }
+.theme-classic .stats-tabs button { color: #48675d; }
+.theme-classic .stats-tabs button.active { color: #17664f; background: #ddf3e9; }
+
+/* 학생 명렬 테이블 및 학적변동 전용 스타일 */
+.student-table {
+  border-top: 1px solid #e8edf2;
+}
+.student-row-wrap {
+  position: relative;
+}
+.student-row {
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  border-bottom: 1px solid #edf1f4;
+  background: white;
+  color: #485665;
+  text-align: left;
+  font-size: 13px;
+  display: grid;
+  grid-template-columns: 75px 2fr 0.7fr 2fr 25px;
+  align-items: center;
+  column-gap: 10px;
+}
+.student-row:hover {
+  background: #f5faf8;
+}
+.student-row strong {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #263442;
+}
+.student-row strong small {
+  color: #768493;
+  font-size: 11px;
+  font-weight: 400;
+}
+.student-row strong .transfer-badge {
+  color: #23755f;
+}
+.student-row .avatar {
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+.student-row .avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.student-delete-button {
+  position: absolute;
+  top: 50%;
+  right: 13px;
+  padding: 5px 7px;
+  transform: translateY(-50%);
+  border: 1px solid #e5bbbb;
+  border-radius: 6px;
+  color: #a34343;
+  background: #fff;
+  font-size: 11px;
+  opacity: 0;
+}
+.student-row-wrap:hover .student-delete-button,
+.student-delete-button:focus,
+.student-row-wrap:hover .student-status-button,
+.student-status-button:focus {
+  opacity: 1;
+}
+.student-delete-button:hover {
+  background: #fff1f1;
+}
+.student-status-button {
+  position: absolute;
+  top: 50%;
+  right: 57px;
+  padding: 5px 7px;
+  transform: translateY(-50%);
+  border: 1px solid #b9dfd1;
+  border-radius: 6px;
+  color: #176b53;
+  background: #fff;
+  font-size: 11px;
+  opacity: 0;
+}
+.student-status-button:hover {
+  background: #effaf4;
+}
+.academic-history-panel {
+  margin-top: 18px;
+}
+.academic-history-list {
+  border-top: 1px solid #e8edf2;
+}
+.academic-history-row {
+  display: grid;
+  grid-template-columns: 1.5fr 0.8fr 1fr 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border-bottom: 1px solid #edf1f4;
+  color: #61707e;
+  font-size: 13px;
+}
+.academic-history-row strong {
+  color: #4e5b68;
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+.academic-history-row time {
+  color: #758291;
+}
+.academic-history-row small {
+  color: #9a6a2b;
+  font-size: 11px;
+}
+.academic-dialog-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 18px 0;
+}
+.academic-dialog-fields select {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 7px;
+  padding: 12px 13px;
+  border: 1px solid #d8e0e7;
+  border-radius: 8px;
+  color: #364656;
+  background: #fbfcfd;
+  font: inherit;
+}

@@ -1,0 +1,7 @@
+.assessment-grade-list { display:grid; gap:10px; margin-top:12px; }
+.assessment-grade-group { border:1px solid #ecd8c4; border-radius:12px; padding:8px; }
+.assessment-grade-toggle { display:flex; justify-content:space-between; width:100%; border:0; border-radius:8px; padding:9px; color:#553523; background:#fff3e5; font:inherit; font-weight:700; cursor:pointer; }
+.assessment-grade-toggle:focus-visible { outline:3px solid #d9803a; outline-offset:2px; }
+.assessment-grade-toggle small { color:#82644d; font-weight:500; }
+.assessment-grade-field { display:grid; gap:6px; margin:12px 0; color:#765846; font-size:13px; font-weight:700; }
+.assessment-grade-field select { min-height:38px; border:1px solid #e2cdb9; border-radius:8px; padding:6px 9px; color:#523426; background:#fffefa; font:inherit; }

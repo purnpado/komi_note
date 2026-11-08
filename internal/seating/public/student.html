@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>꼬미노트 자리배정</title>
+<style>
+:root{--bg:#12352C;--panel:#0C2620;--line:#2E5C50;--chalk:#F5F1E6;--sun:#FFD45C;--coral:#FF7B54;--coralD:#C2410C;--mint:#9FD8C3;--muted:#C9DDD5;--ink:#2A1A05;--cream:#FFF8EC;--sand:#F3E3C8;--brown:#6B4A22;
+  font-family:system-ui,-apple-system,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{min-height:100vh;min-height:100dvh;background:var(--cream);color:var(--ink);transition:background .3s}
+body.dark{background:var(--bg);color:var(--chalk)}
+main{max-width:520px;margin:0 auto;min-height:100vh;min-height:100dvh;padding:max(20px,env(safe-area-inset-top)) clamp(16px,5vw,26px) max(24px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:clamp(12px,2.4vh,20px)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;font-weight:800}
+.top .kind{color:#9A5B16}.dark .top .kind{color:var(--sun)}
+.top .nick{padding:6px 12px;border-radius:999px;background:var(--sand)}.dark .top .nick{background:#1F4E41}
+h1{margin:0;font-size:clamp(30px,9vw,44px);font-weight:900;line-height:1.15;text-align:center;letter-spacing:-.02em}
+p.lead{margin:0;text-align:center;font-size:clamp(15px,4.4vw,18px);font-weight:600;color:var(--brown)}.dark p.lead{color:var(--muted)}
+label{display:flex;flex-direction:column;gap:6px;font-weight:800;font-size:15px}
+input{height:56px;border:2px solid #E0B57D;border-radius:16px;padding:0 16px;font:inherit;font-size:18px;background:#fff;color:var(--ink)}
+.btn{display:block;width:100%;min-height:64px;border:0;border-radius:20px;background:var(--coral);color:#fff;font:inherit;font-size:clamp(22px,6.5vw,28px);font-weight:900;box-shadow:0 6px 0 var(--coralD);cursor:pointer}
+.btn:active{transform:translateY(3px);box-shadow:0 3px 0 var(--coralD)}
+.btn:disabled{background:#E7C9B6;box-shadow:none;cursor:default}
+.err{min-height:22px;margin:0;text-align:center;color:#B42318;font-weight:800}
+.box{border-radius:22px;padding:16px;background:#fff;border:1px solid #E8D3B5}.dark .box{background:var(--panel);border:0}
+.huge{align-self:center;display:grid;place-items:center;border-radius:36px;background:var(--sun);color:var(--ink);width:min(62vw,230px);aspect-ratio:1}
+.huge strong{font-size:clamp(70px,24vw,120px);font-weight:900;line-height:1}
+.ring{align-self:center;width:min(58vw,220px);aspect-ratio:1;border-radius:50%;display:grid;place-items:center}
+.ring>div{width:86%;height:86%;border-radius:50%;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring strong{font-size:clamp(64px,22vw,100px);font-weight:900;line-height:1;color:var(--sun)}
+.grid{display:grid;gap:8px}
+.pick{min-height:54px;border-radius:14px;border:2px solid #E0B57D;background:#fff;color:var(--ink);font:inherit;font-size:clamp(17px,5vw,21px);font-weight:900;box-shadow:0 3px 0 #E0B57D;cursor:pointer}
+.pick.on{border-color:transparent;background:var(--sun);box-shadow:0 4px 0 #C99A1A}
+.pick:disabled{border-color:transparent;background:#E9E1D3;color:#9C8F7C;box-shadow:none;text-decoration:line-through}
+.rows{display:flex;flex-direction:column;gap:10px}.rows>div{display:flex;justify-content:space-between;font-size:17px;font-weight:800}.rows b{color:var(--sun)}
+.dots{display:flex;flex-wrap:wrap;gap:5px}.dots i{width:16px;height:16px;border-radius:8px;background:#23493F}.dots i.d{background:#7FA597}.dots i.m{background:var(--sun);box-shadow:0 0 0 3px var(--coral)}
+.mini{position:relative;width:100%}
+.mini .s{position:absolute;border-radius:7px;display:grid;place-items:center;font-weight:800;background:#1F4E41;color:#9FBFB4}
+.mini .s.me{background:var(--sun);color:var(--ink);box-shadow:0 0 0 3px var(--coral)}
+.desk{align-self:center;padding:4px 12px;border-radius:999px;background:#1F4E41;font-size:13px;font-weight:800}
+.wheel{align-self:center;width:min(60vw,240px);aspect-ratio:1;border-radius:50%;background:var(--bg);padding:12px;position:relative;box-shadow:0 14px 30px #00000033}
+.wheel>div{width:100%;height:100%;border-radius:50%;background:conic-gradient(#F7D774 0 60deg,#86D9C0 0 120deg,#F5A9B0 0 180deg,#94C9FF 0 240deg,#C9B8FF 0 300deg,#FFC08F 0);display:grid;place-items:center}
+.wheel>div>span{width:44%;height:44%;border-radius:50%;background:var(--bg);color:var(--sun);display:grid;place-items:center;font-size:22px;font-weight:900}
+.wheel.spin>div{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.wheel::before{content:'';position:absolute;left:50%;top:-6px;width:28px;height:28px;margin-left:-14px;border-radius:8px 8px 8px 2px;background:var(--coral);transform:rotate(-45deg);box-shadow:0 0 0 3px var(--cream);z-index:1}
+.bar{height:10px;border-radius:5px;background:var(--sand);overflow:hidden}.dark .bar{background:#0A231D}.bar>i{display:block;height:100%;background:var(--coral);transition:width .5s linear}
+.hand{display:flex;align-items:center;gap:16px;width:100%;flex:1;min-height:84px;border:0;border-radius:22px;background:var(--chalk);color:var(--ink);font:inherit;font-size:clamp(24px,7vw,30px);font-weight:900;padding:0 18px;cursor:pointer}
+.hand img{height:min(18vw,84px);aspect-ratio:1;object-fit:contain}
+.hand.on{background:var(--sun);outline:5px solid var(--coral)}
+.hand:disabled{opacity:.6}
+.chosen{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.chosen div{border-radius:14px;padding:8px;text-align:center;background:var(--sand);font-size:13px;font-weight:800}.chosen div strong{display:block;font-size:22px}.chosen div.on{background:var(--sun)}
+.foot{margin-top:auto;text-align:center;font-size:14px;color:var(--brown)}.dark .foot{color:var(--muted)}
+.hidden{display:none!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main id="app">
+  <section id="login" style="display:flex;flex-direction:column;gap:16px">
+    <div class="top"><span class="kind">꼬미노트 · 자리배정</span></div>
+    <h1 style="margin-top:20px">자리배정 참여</h1>
+    <p class="lead">이름과 생년월일로 본인을 확인해요.<br>입장하면 닉네임으로만 표시돼요.</p>
+    <label>이름<input id="name" autocomplete="off" placeholder="이름"></label>
+    <label>생년월일<input id="birth" inputmode="numeric" autocomplete="off" placeholder="예: 2013-03-01"></label>
+    <p class="err" id="loginErr" role="alert"></p>
+    <button class="btn" id="join" type="button">입장하기</button>
+  </section>
+  <section id="play" class="hidden" style="display:flex;flex-direction:column;gap:inherit;flex:1"></section>
+</main>
+<script>
+(()=>{
+const API='/api/__TOKEN__';
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const left=iso=>iso?Math.max(0,Math.ceil((new Date(iso)-Date.now())/1000)):0;
+const HAND={'가위':'rps-scissors','바위':'rps-rock','보':'rps-paper'};
+let state=null,lastKey='',ladderPick=0,prefPicks=[],prefEditing=false,busy=false;
+
+async function post(path,body){const r=await fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});const text=await r.text();if(!r.ok)throw new Error((text||'').trim()||'다시 시도해 주세요');try{return JSON.parse(text)}catch(e){return {}}}
+
+$('join').onclick=async()=>{const name=$('name').value.trim(),birth=$('birth').value.trim();if(!name||!birth){$('loginErr').textContent='이름과 생년월일을 모두 입력해 주세요.';return}
+  $('join').disabled=true;try{await post('/login',{name,birthDate:birth});$('loginErr').textContent='';tick(true)}catch(e){$('loginErr').textContent=e.message}finally{$('join').disabled=false}};
+
+function top(j,kind){return '<div class="top"><span class="kind">'+esc(kind)+'</span><span class="nick">'+esc(j.nickname)+'</span></div>'}
+function kindName(j){return {'랜덤 룰렛 배정':'랜덤 룰렛','랜덤 사다리 배정':'랜덤 사다리','희망 경쟁배정':'희망 자리 고르기'}[j.drawMethod]||'자리배정'}
+function myOrder(j){const order=j.finalOrderNicknames||[];return order.indexOf(j.nickname)}
+
+// 내 자리 미니 배치도: 다른 학생 이름 없이 위치만 보여 준다
+function mini(j,mySeat){const seats=j.seatMap||[];if(!seats.length)return '';const rows=Math.max(...seats.map(s=>s.row||1)),cols=Math.max(...seats.map(s=>s.column||1)),W=Math.min(innerWidth-56,470),gap=5,cw=(W-gap*(cols-1))/cols,ch=Math.min(cw*.8,40),H=rows*ch+(rows-1)*gap,custom=j.layoutMode==='사용자 지정';
+  const fs=Math.max(9,Math.min(14,cw*.34));let html='<div class="mini" style="height:'+(custom?W*.7:H)+'px">';
+  seats.forEach(s=>{let x,y,w=cw,h=ch;if(custom){w=Math.min(46,W/7);h=w*.7;x=((s.x??500)/1000)*(W-w);y=((s.y??500)/1000)*(W*.7-h)}else{x=((s.column||1)-1)*(cw+gap);y=((s.row||1)-1)*(ch+gap)}
+    html+='<span class="s'+(s.id===mySeat?' me':'')+'" style="left:'+x.toFixed(1)+'px;top:'+y.toFixed(1)+'px;width:'+w.toFixed(1)+'px;height:'+h.toFixed(1)+'px;font-size:'+fs+'px">'+esc(s.seatNumber)+'</span>'});
+  const front=!/뒤쪽/.test(j.deskPosition||'');return (front?'<span class="desk">교탁 ▲ 앞</span>':'')+html+'</div>'+(front?'':'<span class="desk">교탁 ▼ 뒤</span>')}
+
+function orderInfo(j,heading){const idx=myOrder(j),cur=j.currentOrderIndex||0,n=(j.finalOrderNicknames||[]).length;if(idx<0)return '<p class="lead">순서를 기다리고 있어요</p>';const ahead=Math.max(0,idx-cur);
+  let dots='';for(let i=0;i<n;i++)dots+='<i class="'+(i===idx?'m':i<cur?'d':'')+'"></i>';
+  return '<p class="lead" style="margin-top:12px;font-size:20px;font-weight:800;color:var(--mint)">'+esc(heading||'내 순서는')+'</p><div class="ring" style="background:conic-gradient(#FFD45C 0deg '+(n?360*(idx+1)/n:0)+'deg,#23493F 0deg)"><div><strong>'+(idx+1)+'</strong><span style="font-size:20px;font-weight:800">번째</span></div></div><div class="box rows"><div><span>내 앞에</span><b>'+ahead+'명</b></div><div><span>예상 차례</span><b>'+(ahead?'약 '+Math.max(1,Math.round(ahead*14/60))+'분 뒤':'곧')+'</b></div><div class="dots">'+dots+'</div></div>'}
+
+function result(j){return {dark:true,html:top(j,'배정 완료')+'<p class="lead" style="margin-top:14px;font-size:20px;font-weight:800;color:var(--mint)">내 자리는</p><div class="huge"><strong>'+esc(String(j.mySeatLabel||'').replace('번',''))+'</strong></div><p class="lead" style="font-size:22px;font-weight:900;color:var(--chalk)">번 자리예요</p><div class="box" style="display:flex;flex-direction:column;gap:8px">'+mini(j,j.mySeatId)+'</div><div class="foot">친구들 이름은 선생님 화면에서만 보여요</div>'}}
+
+// 단계별 학생 화면
+function screen(j){const p=j.phase,m=j.drawMethod,me=j.nickname;
+  if(j.mySeatLabel&&!(m==='랜덤 룰렛 배정'&&p==='룰렛 연출'&&j.currentNickname===me))return result(j);
+  if(p==='입장 대기'||p==='입장 마감')return {html:top(j,kindName(j))+'<h1 style="margin-top:40px">입장 완료!</h1><p class="lead">'+esc(me)+'님으로 입장했어요.<br>선생님이 시작할 때까지 기다려요.</p><div class="wheel" style="margin-top:20px"><div><span>대기</span></div></div><div class="foot">전자칠판을 함께 봐요</div>'};
+  if(p==='순서 섞기')return {html:top(j,kindName(j)+' · 순서 정하기')+'<h1 style="margin-top:40px">순서를<br>섞고 있어요</h1><p class="lead">전자칠판을 함께 봐요</p><div class="wheel spin" style="margin-top:20px"><div><span>?</span></div></div>'};
+  if(p==='회차 종료')return {html:top(j,kindName(j))+'<h1 style="margin-top:40px">회차가 끝났어요</h1>'};
+  if(p==='자리 확인'||p==='배정 완료')return {html:top(j,kindName(j))+'<h1 style="margin-top:40px">배정이 끝났어요</h1><p class="lead">전자칠판에서 자리를 확인해 주세요</p>'};
+  if(m==='랜덤 룰렛 배정'){
+    if(j.yourTurn)return {key:'turn',html:top(j,'랜덤 룰렛')+'<h1>내 차례예요!</h1><p class="lead">버튼을 누르면 전자칠판의 룰렛이 돌아가요</p><div class="wheel"><div><span>GO!</span></div></div><button class="btn" id="spin" type="button" style="min-height:76px;font-size:32px">룰렛 돌리기</button><div class="bar"><i id="tbar" style="width:100%"></i></div><p class="lead" id="tleft"></p><p class="err" id="actErr"></p>'};
+    if(j.spinning&&j.currentNickname===me)return {dark:true,html:top(j,'랜덤 룰렛')+'<h1 style="margin-top:30px">룰렛이 돌아가요!</h1><p class="lead">전자칠판을 보세요</p><div class="wheel spin" style="margin-top:16px"><div><span>…</span></div></div>'};
+    return {dark:true,html:top(j,'랜덤 룰렛 · 순서')+orderInfo(j)+'<div class="foot">'+(j.currentNickname?esc(j.currentNickname)+'님 차례예요 · ':'')+'내 차례가 되면 [룰렛 돌리기] 버튼이 나와요</div>'}}
+  if(m==='랜덤 사다리 배정'){
+    if(p==='사다리 출발점 선택'){const myStart=j.myLadderStart||0;
+      if(myStart)return {dark:true,html:top(j,'랜덤 사다리')+'<h1 style="margin-top:30px">출발점 '+myStart+'번<br>확정!</h1><p class="lead">친구들이 고를 때까지 기다려요</p>'};
+      if(j.currentNickname===me){const n=j.ladderLaneCount||0,taken={};(j.ladderPaths||[]).forEach(x=>{if(x.start)taken[x.start]=1});if(taken[ladderPick])ladderPick=0;const cols=n>20?5:4;
+        let b='';for(let i=1;i<=n;i++)b+='<button type="button" class="pick'+(ladderPick===i?' on':'')+'" data-start="'+i+'"'+(taken[i]?' disabled aria-label="'+i+'번 이미 선택됨"':'')+'>'+i+'</button>';
+        return {key:'ladder'+Object.keys(taken).join(',')+':'+ladderPick,html:top(j,'랜덤 사다리')+'<h1>출발점을 골라요</h1><p class="lead">회색 번호는 친구가 이미 골랐어요</p><div class="grid" style="grid-template-columns:repeat('+cols+',1fr)">'+b+'</div><p class="err" id="actErr"></p><button class="btn" id="confirm" type="button"'+(ladderPick?'':' disabled')+'>'+(ladderPick?ladderPick+'번으로 확정':'번호를 골라 주세요')+'</button>'}}
+      return {dark:true,html:top(j,'랜덤 사다리 · 순서')+orderInfo(j)+'<div class="foot">'+esc(j.currentNickname||'')+'님이 출발점을 고르는 중이에요</div>'}}
+    return {dark:true,html:top(j,'랜덤 사다리')+'<h1 style="margin-top:30px">사다리 공개 중</h1><p class="lead">출발점 '+(j.myLadderStart||'?')+'번 · 전자칠판에서 꼬미가 경로를 따라가요</p>'}}
+  // 희망 경쟁
+  if(p==='희망 자리 제출'){
+    if(!j.canSubmitPreferences)return {html:top(j,'희망 자리 고르기')+'<h1 style="margin-top:30px">잠시 기다려요</h1>'};
+    const submitted=(j.myPreferences||[]).length>0&&!prefEditing;const limit=j.preferenceLimit||3,seats=(j.layout||[]).filter(s=>s.available);
+    if(submitted){const lbl=id=>(seats.find(s=>s.id===id)||{}).seatNumber||'?';return {key:'sub'+(j.myPreferences||[]).join(','),html:top(j,'희망 자리 고르기')+'<h1 style="margin-top:20px">제출 완료!</h1><p class="lead">선생님이 마감할 때까지 기다려요</p><div class="chosen">'+(j.myPreferences||[]).map((id,i)=>'<div class="on">'+(i+1)+'지망<strong>'+lbl(id)+'번</strong></div>').join('')+'</div><button class="btn" id="reedit" type="button" style="margin-top:auto;background:#fff;color:var(--ink);box-shadow:0 4px 0 #E0B57D;border:2px solid #E0B57D">다시 고르기</button>'}}
+    prefPicks=prefPicks.filter(id=>seats.some(s=>s.id===id)).slice(0,limit);
+    const cols=Math.max(...seats.map(s=>s.column||1),1);let b='';(j.layout||[]).forEach(s=>{const k=prefPicks.indexOf(s.id);b+='<button type="button" class="pick'+(k>=0?' on':'')+'" data-seat="'+esc(s.id)+'" style="grid-column:'+(s.column||1)+';grid-row:'+(s.row||1)+'"'+(s.available?'':' disabled')+'>'+(k>=0?'<span style="display:block;font-size:.72em;line-height:1">'+'①②③④⑤'[k]+'</span>':'')+esc(s.seatNumber)+'</button>'});
+    let chosen='';for(let i=0;i<limit;i++){const id=prefPicks[i],s=seats.find(x=>x.id===id);chosen+='<div class="'+(s?'on':'')+'">'+(i+1)+'지망<strong>'+(s?s.seatNumber+'번':'-')+'</strong></div>'}
+    return {key:'pref'+prefPicks.join(',')+seats.map(s=>s.id).join(','),html:top(j,'희망 자리 고르기')+'<h1 style="font-size:clamp(26px,7.5vw,34px)">앉고 싶은 자리를<br>순서대로 눌러요</h1><div class="box" style="display:flex;flex-direction:column;gap:8px"><span class="desk" style="background:var(--sand)">교탁 ▲ 앞</span><div class="grid" style="grid-template-columns:repeat('+cols+',1fr);gap:'+(cols>6?4:6)+'px">'+b+'</div></div><div class="chosen" style="grid-template-columns:repeat('+limit+',1fr)">'+chosen+'</div><p class="err" id="actErr"></p><button class="btn" id="submit" type="button"'+(prefPicks.length?'':' disabled')+'>희망 자리 제출</button>'}}
+  if(p==='가위바위보 선택'){const match=(j.rpsMatches||[]).find(x=>!x.winner&&!x.bye&&(x.left===me||x.right===me));
+    if(match){const other=match.left===me?match.right:match.left,mine=j.myRPSChoice||'';
+      return {dark:true,key:'rps'+mine,html:top(j,esc(j.rpsSeatLabel||'')+' 자리 경쟁')+'<h1 style="font-size:clamp(28px,8vw,38px)">'+esc(other)+'와<br>가위바위보!</h1><div class="bar"><i id="tbar" style="width:100%;background:var(--sun)"></i></div><p class="lead" id="tleft"></p><div style="display:flex;flex-direction:column;gap:12px;flex:1">'+['가위','바위','보'].map(c=>'<button type="button" class="hand'+(mine===c?' on':'')+'" data-choice="'+c+'"><img src="/assets/seating/'+HAND[c]+'.webp" alt="">'+c+(mine===c?'<span style="margin-left:auto;font-size:16px">선택함</span>':'')+'</button>').join('')+'</div><p class="err" id="actErr"></p><div class="foot">시간 안에 고르지 않으면 탈락해요 · 바꿀 수 있어요</div>'}}
+    if((j.rpsCandidates||[]).includes(me))return {dark:true,html:top(j,esc(j.rpsSeatLabel||'')+' 자리 경쟁')+'<h1 style="margin-top:30px">다음 판을<br>기다려요</h1><p class="lead">전자칠판의 대진표를 확인하세요</p>'};
+    return {dark:true,html:top(j,'희망 자리 고르기')+'<h1 style="margin-top:30px">'+esc(j.rpsSeatLabel||'')+' 자리<br>경쟁 중</h1><p class="lead">전자칠판을 함께 봐요</p>'}}
+  const text=p==='경쟁률 공개'?'경쟁률을 공개해요':p==='가위바위보 결과'?'가위바위보 결과 공개':/지망 처리 완료/.test(p)?'이번 지망 처리 완료':p==='다음 차 지망 제출 준비'?'다음 희망 자리를 준비해요':'잠시 기다려요';
+  return {dark:true,html:top(j,'희망 자리 고르기')+'<h1 style="margin-top:30px">'+esc(text)+'</h1><p class="lead">전자칠판을 함께 봐요 · 아직 자리가 정해지지 않았어요</p>'}}
+
+function bind(){
+  const spin=$('spin');if(spin)spin.onclick=async()=>{if(busy)return;busy=true;spin.disabled=true;try{await post('/arrow')}catch(e){$('actErr').textContent=e.message;spin.disabled=false}finally{busy=false;tick(true)}};
+  document.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>{ladderPick=+b.dataset.start;lastKey='';draw()});
+  const confirm=$('confirm');if(confirm)confirm.onclick=async()=>{if(!ladderPick||busy)return;busy=true;confirm.disabled=true;try{await post('/ladder',{start:ladderPick})}catch(e){$('actErr').textContent=e.message;ladderPick=0}finally{busy=false;lastKey='';tick(true)}};
+  document.querySelectorAll('[data-seat]').forEach(b=>b.onclick=()=>{const id=b.dataset.seat,k=prefPicks.indexOf(id),limit=(state&&state.preferenceLimit)||3;if(k>=0)prefPicks.splice(k,1);else if(prefPicks.length<limit)prefPicks.push(id);lastKey='';draw()});
+  const submit=$('submit');if(submit)submit.onclick=async()=>{if(busy||!prefPicks.length)return;busy=true;submit.disabled=true;try{await post('/preferences',{seatIds:prefPicks});prefEditing=false}catch(e){$('actErr').textContent=e.message;submit.disabled=false}finally{busy=false;lastKey='';tick(true)}};
+  const re=$('reedit');if(re)re.onclick=()=>{prefPicks=[...(state.myPreferences||[])];prefEditing=true;lastKey='';draw()};
+  document.querySelectorAll('[data-choice]').forEach(b=>b.onclick=async()=>{if(busy)return;busy=true;try{await post('/rps',{choice:b.dataset.choice})}catch(e){const x=$('actErr');if(x)x.textContent=e.message}finally{busy=false;lastKey='';tick(true)}})}
+
+function timers(j){const bar=$('tbar'),txt=$('tleft');if(!bar)return;const end=j.yourTurn?j.turnEndsAt:j.rpsEndsAt,total=j.yourTurn?5:10,s=left(end);bar.style.width=Math.min(100,s/total*100)+'%';if(txt)txt.textContent=j.yourTurn?s+'초 뒤 자동으로 돌아가요':s+'초 남았어요'}
+
+function draw(){const j=state;if(!j)return;if(!j.nickname){$('login').classList.remove('hidden');$('play').classList.add('hidden');return}
+  $('login').classList.add('hidden');$('play').classList.remove('hidden');const s=screen(j),key=(s.key||'')+'|'+s.html.length+'|'+s.html.slice(0,400)+(s.key?'':s.html);
+  document.body.classList.toggle('dark',!!s.dark);if(key!==lastKey){lastKey=key;$('play').innerHTML=s.html;bind()}timers(j)}
+
+let timer=0;async function tick(now){clearTimeout(timer);try{const r=await fetch(API+'/state',{cache:'no-store'});if(r.ok){state=await r.json();draw()}}catch(e){}timer=setTimeout(tick,state&&state.nickname?700:1500)}
+tick();
+})();
+</script>
+</body>
+</html>

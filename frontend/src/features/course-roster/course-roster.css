@@ -1,0 +1,19 @@
+.course-roster-page { display:grid; gap:16px; color:#493020; }
+.course-roster-heading { display:flex; justify-content:space-between; align-items:flex-end; gap:16px; }
+.course-roster-heading h2 { margin:3px 0 7px; font-size:30px; }
+.course-roster-heading p,.course-roster-detail p { margin:0; color:#806a5a; }
+.course-roster-eyebrow { color:#a76438!important; font-size:12px; font-weight:800; }
+.course-roster-count { border-radius:999px; padding:9px 13px; background:#fff0d8; color:#784725; font-weight:700; white-space:nowrap; }
+.course-roster-guide,.course-roster-nav,.course-roster-detail,.course-roster-empty { border:1px solid #ecd8c4; border-radius:16px; background:#fffdf9; box-shadow:0 5px 18px #63411b0a; }
+.course-roster-guide { padding:15px 18px; }.course-roster-guide summary { cursor:pointer; color:#694029; font-weight:800; }.course-roster-guide p { margin:10px 0 0; color:#725c4e; line-height:1.6; }
+.course-roster-layout { display:grid; grid-template-columns:minmax(220px,280px) minmax(0,1fr); gap:16px; align-items:start; }
+.course-roster-nav,.course-roster-detail { padding:20px; min-width:0; }.course-roster-nav h3 { margin:0 0 14px; font-size:16px; }
+.course-roster-group + .course-roster-group { margin-top:10px; }.course-roster-group-toggle,.course-roster-class { width:100%; border:0; cursor:pointer; font:inherit; text-align:left; }
+.course-roster-group-toggle { display:flex; justify-content:space-between; padding:10px; border-radius:9px; background:#fff2e0; color:#704729; font-weight:800; }.course-roster-group-toggle small { font-weight:500; }
+.course-roster-classes { display:grid; gap:5px; padding-top:6px; }.course-roster-class { display:flex; justify-content:space-between; gap:10px; padding:11px; border-radius:9px; background:transparent; color:#604633; }.course-roster-class.active { background:#ffead1; box-shadow:inset 3px 0 #d9803a; }.course-roster-class span { font-size:12px; }
+.course-roster-page button:focus-visible,.course-roster-page summary:focus-visible { outline:3px solid #d9803a; outline-offset:2px; }
+.course-roster-detail header { display:flex; justify-content:space-between; gap:15px; align-items:center; margin-bottom:16px; }.course-roster-detail h3 { margin:5px 0; font-size:24px; }.course-roster-detail header>strong { padding:10px 14px; border-radius:10px; background:#e8f6eb; color:#216546; white-space:nowrap; }
+.course-roster-table-wrap { overflow:auto; border:1px solid #ecd8c4; border-radius:12px; }.course-roster-table-wrap table { width:100%; border-collapse:collapse; text-align:left; }.course-roster-table-wrap th,.course-roster-table-wrap td { padding:12px 16px; border-bottom:1px solid #f1e4d8; }.course-roster-table-wrap th { background:#fff6eb; color:#765846; }.course-roster-table-wrap tr:last-child td { border-bottom:0; }.course-roster-table-wrap th:first-child { width:90px; }
+.course-roster-empty { padding:38px; text-align:center; color:#725c4e; }.course-roster-empty strong { color:#493020; font-size:18px; }.course-roster-notice { color:#a23420; }
+[data-kkomi-theme="classic"] .course-roster-page { color:#173e36; }[data-kkomi-theme="classic"] .course-roster-guide,[data-kkomi-theme="classic"] .course-roster-nav,[data-kkomi-theme="classic"] .course-roster-detail,[data-kkomi-theme="classic"] .course-roster-empty { border-color:#c8dfd3; background:#fbfffc; }[data-kkomi-theme="classic"] .course-roster-group-toggle,[data-kkomi-theme="classic"] .course-roster-table-wrap th { background:#e6f3eb; color:#245442; }[data-kkomi-theme="classic"] .course-roster-class.active { background:#d9efdf; box-shadow:inset 3px 0 #39845c; }
+@media(max-width:760px) { .course-roster-layout { grid-template-columns:1fr; }.course-roster-heading { align-items:flex-start; }.course-roster-nav,.course-roster-detail { padding:15px; } }

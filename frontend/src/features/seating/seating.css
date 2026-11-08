@@ -1,0 +1,651 @@
+/* 자리배정 교사용 화면과 배치도 전용 스타일 */
+
+/* 1. 상단 워크플로우 세그먼트 알약형 탭 */
+.seating-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 20px;
+  padding: 8px;
+  border-radius: 14px;
+  background: rgba(251, 245, 238, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid #ead8c5;
+  box-shadow: 0 4px 12px rgba(135, 87, 43, 0.08);
+}
+.seating-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  padding: 9px 18px;
+  color: #7b624f;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.seating-tabs button:hover {
+  background: #f4e8dc;
+  color: #5d422f;
+}
+.seating-tabs button.active {
+  background: #ffffff;
+  color: #b94f12;
+  border-color: #e8c7a6;
+  box-shadow: 0 4px 12px rgba(185, 79, 18, 0.12);
+}
+.tab-step-badge {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ead3bd;
+  color: #734e32;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+}
+.seating-tabs button.active .tab-step-badge {
+  background: linear-gradient(135deg, #e47225, #bd4e10);
+  color: #ffffff;
+  box-shadow: 0 2px 5px rgba(189, 78, 16, 0.3);
+}
+.tab-icon {
+  font-size: 14px;
+}
+.tab-label {
+  letter-spacing: -0.01em;
+}
+
+/* 2. 작업 공간 그리드 레이아웃 */
+.classroom-workspace,
+.history-workspace {
+  display: grid;
+  grid-template-columns: minmax(270px, 0.32fr) minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+.seating-setup-workspace {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) minmax(0, 1.85fr);
+  gap: 22px;
+  align-items: start;
+}
+.seating-live-preview,
+.history-preview {
+  min-width: 0;
+}
+.classroom-main {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+
+/* 3. 패널 헤더 및 단계 뱃지 */
+.seating-settings,
+.seating-editor,
+.seating-history {
+  border: 1px solid #ebd9c5;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(134, 83, 34, 0.06);
+}
+.seating-settings .panel-heading,
+.seating-editor .panel-heading,
+.seating-history .panel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid #f0e2d4;
+}
+.seating-settings .panel-heading h3,
+.seating-editor .panel-heading h3,
+.seating-history .panel-heading h3 {
+  margin: 5px 0 4px;
+  color: #432b1b;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+.seating-settings .panel-heading p,
+.seating-editor .panel-heading p,
+.seating-history .panel-heading p {
+  margin: 0;
+  color: #886c57;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+/* 단계 표시 알약형 뱃지 (Eyebrow Badge) */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: #fff0de;
+  color: #b75317;
+  border: 1px solid #ebd0b6;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  margin: 0 0 4px;
+}
+
+/* 4. 이전 자리배치도 히스토리 패널 */
+.seating-history {
+  position: sticky;
+  top: 18px;
+  display: grid;
+  gap: 12px;
+  padding: 0 0 16px;
+  border-top: 4px solid #d98235;
+}
+.seating-history-item {
+  display: grid;
+  gap: 6px;
+  width: calc(100% - 32px);
+  margin: 0 16px;
+  padding: 13px 16px;
+  border: 1.5px solid #ead7c2;
+  border-radius: 12px;
+  color: #654c37;
+  background: #fffdfa;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.seating-history-item:hover {
+  border-color: #d98235;
+  background: #fff6ec;
+  transform: translateY(-1px);
+}
+.seating-history-item.active {
+  border-color: #d98235;
+  background: #fff0de;
+  box-shadow: 0 4px 12px rgba(217, 130, 53, 0.16);
+}
+.seating-history-item strong {
+  color: #402919;
+  font-size: 14.5px;
+  font-weight: 900;
+}
+.seating-history-item small {
+  color: #92755e;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+/* 5. 폼 그리드 및 입력 필드 */
+.seating-settings {
+  padding: 0 0 20px;
+}
+.seating-settings .form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 18px;
+  padding: 18px 22px 0;
+  align-items: start;
+}
+.seating-settings .form-grid label {
+  display: grid;
+  gap: 6px;
+  color: #65462f;
+  font-size: 12.5px;
+  font-weight: 800;
+}
+.seating-settings .form-grid input,
+.seating-settings .form-grid select {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 13px;
+  border: 1.5px solid #e3ccb4;
+  border-radius: 11px;
+  color: #472f1e;
+  background: #fffdfa;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.seating-settings .form-grid input:hover,
+.seating-settings .form-grid select:hover {
+  border-color: #d88944;
+}
+.seating-settings .form-grid input:focus,
+.seating-settings .form-grid select:focus {
+  outline: 0;
+  border-color: #d5752b;
+  box-shadow: 0 0 0 3px rgba(213, 117, 43, 0.18);
+  background: #ffffff;
+}
+
+/* 6. 배정 규칙 카드형 뱃지 토글 */
+.seating-rules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 22px 0;
+  padding: 14px 16px;
+  border: 1.5px solid #ecdbca;
+  border-radius: 13px;
+  background: #fff9f2;
+}
+.seating-rules .muted-copy {
+  width: 100%;
+  margin: 0 0 6px;
+  color: #8c603b;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+.seating-rules label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  background: #ffffff;
+  border: 1.5px solid #e7cbac;
+  border-radius: 10px;
+  color: #5d3f2a;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(144, 91, 40, 0.05);
+  transition: all 0.16s ease;
+}
+.seating-rules label:hover {
+  border-color: #d88232;
+  background: #fff5ea;
+  transform: translateY(-1px);
+}
+.seating-rules input[type="checkbox"] {
+  accent-color: #d5752b;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* 7. 고정 학생 선택 뱃지 그리드 */
+.fixed-students {
+  margin: 14px 22px 0;
+  padding: 13px 16px;
+  border: 1.5px solid #ebd9c5;
+  border-radius: 13px;
+  color: #654832;
+  background: #fffdfa;
+}
+.fixed-students summary {
+  cursor: pointer;
+  color: #924d1e;
+  font-size: 13px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.fixed-students summary::marker {
+  color: #d97e2f;
+}
+.fixed-students .muted-copy {
+  margin: 10px 0 8px;
+  color: #886c56;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.fixed-students-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+.fixed-students-grid label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border: 1px solid #ebd4bc;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #624630;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.fixed-students-grid label:hover {
+  border-color: #d88334;
+  background: #fff8f0;
+}
+.fixed-students-grid label.selected {
+  background: #ffecd7;
+  border-color: #e07b27;
+  color: #8f3b06;
+  font-weight: 900;
+  box-shadow: 0 2px 6px rgba(224, 123, 39, 0.16);
+}
+.fixed-student-num {
+  font-weight: 900;
+  color: #b35613;
+}
+.fixed-student-name {
+  white-space: nowrap;
+}
+
+/* 8. 알림 뱃지 */
+.seating-notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 0 16px;
+  padding: 8px 15px;
+  border: 1px solid #e7c08a;
+  border-radius: 999px;
+  color: #884819;
+  background: #fff4e2;
+  box-shadow: 0 4px 12px rgba(181, 107, 42, 0.1);
+  font-size: 12.5px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+.seating-notice span {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  color: #ffffff;
+  background: #d7792e;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* 9. 버튼 통일화 */
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 18px 22px 0;
+}
+.primary-button,
+.accent-button,
+.quiet-button,
+.danger-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 42px;
+  padding: 10px 18px;
+  border-radius: 11px;
+  font-size: 13.5px;
+  font-weight: 800;
+  white-space: nowrap;
+  word-break: keep-all;
+  cursor: pointer;
+  transition: transform 0.16s ease, filter 0.16s ease, box-shadow 0.16s ease;
+}
+.accent-button {
+  border: 1px solid #c86821;
+  color: #ffffff;
+  background: linear-gradient(135deg, #e47b2c, #b85213);
+  box-shadow: 0 6px 14px rgba(184, 82, 19, 0.22);
+}
+.accent-button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 8px 18px rgba(184, 82, 19, 0.28);
+}
+.primary-button {
+  border: 1px solid #d47b2b;
+  color: #ffffff;
+  background: linear-gradient(135deg, #ea8434, #c25b15);
+  box-shadow: 0 6px 14px rgba(194, 91, 21, 0.2);
+}
+.primary-button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+.quiet-button {
+  border: 1.5px solid #e1cfbc;
+  color: #654a34;
+  background: #fffcf8;
+}
+.quiet-button:hover {
+  border-color: #d48b48;
+  background: #fff4e8;
+  color: #4d3320;
+}
+.danger-button {
+  border: 1px solid #d85c5c;
+  color: #ffffff;
+  background: linear-gradient(135deg, #e45b5b, #c43838);
+  box-shadow: 0 5px 12px rgba(196, 56, 56, 0.18);
+}
+.danger-button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+/* 10. 교탁 및 자리배치판 (Seating Board) */
+.seating-editor {
+  padding: 0 0 24px;
+}
+.seating-board {
+  overflow: hidden;
+  margin: 14px 18px 0;
+  padding: 16px 18px;
+  border: 1px solid #e5d8c8;
+  border-radius: 16px;
+  background: radial-gradient(circle at 50% 0%, #fffbf6 0, #f8efe2 75%);
+  box-shadow: inset 0 2px 6px rgba(144, 93, 44, 0.04);
+}
+.seating-board .teacher-desk {
+  width: min(240px, 60%);
+  margin: 0 auto 14px;
+  padding: 8px 18px;
+  border-radius: 12px;
+  color: #5a381d;
+  background: linear-gradient(135deg, #fedca5, #efbc78);
+  border: 2px solid #df9f4b;
+  box-shadow: 0 4px 10px rgba(162, 95, 29, 0.15);
+  font-weight: 900;
+  font-size: 13.5px;
+  letter-spacing: 0.05em;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.seating-board .teacher-desk::before,
+.seating-board .teacher-desk::after {
+  content: "▲";
+  font-size: 11px;
+  color: #c4761e;
+}
+
+/* 좌석 그리드 */
+.seating-grid {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+.seating-grid.grouped-grid {
+  gap: 16px;
+  min-width: 0;
+  align-items: start;
+}
+.seating-cluster {
+  display: grid;
+  gap: 0;
+  overflow: hidden;
+  border: 2px solid #d9b17e;
+  border-radius: 14px;
+  background: #fff8ed;
+  box-shadow: 0 6px 14px rgba(169, 108, 42, 0.08);
+}
+.seating-cluster .seating-cell {
+  min-height: 0;
+  height: var(--seat-h, 82px);
+  border-width: 0 1px 1px 0;
+  border-style: solid;
+  border-color: #e7ccb0;
+  border-radius: 0;
+}
+.seating-cluster.cluster-2 .seating-cell:nth-child(2n),
+.seating-cluster.cluster-3 .seating-cell:nth-child(3n) {
+  border-right: 0;
+}
+.seating-cluster.cluster-2 .seating-cell:nth-last-child(-n + 2),
+.seating-cluster.cluster-3 .seating-cell:nth-last-child(-n + 3) {
+  border-bottom: 0;
+}
+.seating-cell {
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  min-height: 0;
+  height: var(--seat-h, 82px);
+  min-width: 0;
+  padding: clamp(4px, 0.75vw, 11px);
+  border: 1.5px dashed #dec9b1;
+  border-radius: 11px;
+  background: #fffdfa;
+  box-shadow: 0 2px 5px rgba(135, 87, 43, 0.04);
+  transition: all 0.16s ease;
+}
+.seating-cell[draggable="true"] {
+  cursor: grab;
+}
+.seating-cell[draggable="true"]:hover {
+  border-color: #d98235;
+  box-shadow: 0 0 0 3px rgba(217, 130, 53, 0.16);
+  transform: translateY(-1px);
+}
+.seating-cell.filled {
+  border-style: solid;
+  border-color: #d6b27e;
+  background: #fff3df;
+}
+.seating-cell small {
+  color: #92755e;
+  overflow: hidden;
+  font-size: clamp(8px, 0.7vw, 11px);
+  font-weight: 800;
+}
+.seating-cell small b {
+  color: #b85b20;
+}
+.seating-cell select {
+  min-width: 0;
+  width: 100%;
+  padding: clamp(3px, 0.5vw, 7px) 4px;
+  border: 1px solid #e5cdb2;
+  border-radius: 8px;
+  color: #483222;
+  background: #ffffff;
+  font-size: clamp(9px, 0.8vw, 12px);
+  font-weight: 700;
+}
+
+/* 학생이 많아 책상이 낮아지면 글자·여백을 줄여 한 화면에 모두 보이게 한다 */
+.seating-grid.compact .seating-cell {
+  gap: 2px;
+  padding: 3px 5px;
+}
+.seating-grid.compact .seating-cell small {
+  font-size: 10px;
+  line-height: 1.1;
+}
+.seating-grid.compact .seating-cell select,
+.seating-grid.compact .seating-cell strong {
+  padding: 2px 3px;
+  font-size: 11px;
+}
+
+/* 사용자 지정 캔버스 */
+.custom-layout-summary {
+  display: grid;
+  gap: 4px;
+  align-content: center;
+  padding: 10px 14px;
+  border: 1px solid #e8cda9;
+  border-radius: 11px;
+  background: #fff7ea;
+  color: #794820;
+  font-size: 12.5px;
+}
+.custom-layout-summary span {
+  color: #9b7658;
+  font-size: 11.5px;
+}
+.custom-seat-canvas {
+  position: relative;
+  min-height: min(520px, 62vh);
+  overflow: hidden;
+  border: 2px dashed #dfb477;
+  border-radius: 18px;
+  background: linear-gradient(90deg, #e8d4b622 1px, transparent 1px), linear-gradient(#e8d4b622 1px, transparent 1px), #fffaf2;
+  background-size: 5% 5%;
+  touch-action: none;
+}
+.custom-seat {
+  position: absolute;
+  z-index: 1;
+  display: grid;
+  gap: 4px;
+  /* 배치도 폭에 비례해 줄어들어 좌석끼리 겹치지 않게 한다 */
+  width: clamp(72px, 12%, 124px);
+  padding: clamp(4px, 0.6vw, 9px);
+  font-size: clamp(10px, 0.85vw, 13px);
+  border: 2px solid #d89951;
+  border-radius: 12px;
+  background: #fffefa;
+  box-shadow: 0 5px 12px rgba(150, 82, 34, 0.1);
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  user-select: none;
+}
+.custom-seat select {
+  min-width: 0;
+  width: 100%;
+  font-size: inherit;
+}
+.custom-seat.dragging {
+  z-index: 3;
+  cursor: grabbing;
+  box-shadow: 0 10px 22px rgba(150, 82, 34, 0.2);
+}
+.custom-seat.filled {
+  background: #fff0d8;
+}
+.custom-layout-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+@media (max-width: 900px) {
+  .classroom-workspace,
+  .history-workspace,
+  .seating-setup-workspace {
+    grid-template-columns: 1fr;
+  }
+  .seating-history {
+    position: static;
+  }
+}

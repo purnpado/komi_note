@@ -1,0 +1,24 @@
+build/bin
+bin/
+.task/
+.DS_Store
+*.syso
+.wails-provider-checked
+node_modules
+frontend/dist
+*.db
+*.sqlite
+*.sqlite3
+*.teacherbackup
+*.teacher-recovery
+*.xlsx
+*.xls
+*.csv
+*.hwp
+*.hwpx
+data/
+backups/
+oauth-client-secret.json
+
+# 업데이트 서명 개인키는 저장소에 넣지 않는다
+*.key

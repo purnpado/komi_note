@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>꼬미노트 자리배정 전자칠판</title>
+<style>
+:root{--bg:#12352C;--panel:#0C2620;--panel2:#1A443A;--line:#2E5C50;--chalk:#F5F1E6;--sun:#FFD45C;--coral:#FF7B54;--mint:#9FD8C3;--muted:#C9DDD5;--ink:#2A1A05;--wood:#B97A43;
+  font-family:system-ui,-apple-system,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#0A1F1A;overflow:hidden;color:var(--chalk)}
+/* 16:9 무대를 화면 크기에 맞춰 통째로 확대·축소한다(어떤 전자칠판 해상도에서도 잘리지 않음) */
+#stage{position:fixed;left:50%;top:50%;width:1600px;height:900px;transform-origin:center;background:var(--bg);border:16px solid var(--wood);border-radius:8px;padding:26px 34px;display:flex;flex-direction:column;gap:20px}
+header{display:grid;grid-template-columns:330px minmax(0,1fr) 330px;align-items:center;gap:20px;height:64px;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:800;color:var(--sun)}
+.brand img{width:48px;height:48px;border-radius:12px;object-fit:cover}
+h1{margin:0;text-align:center;font-size:48px;font-weight:900;letter-spacing:-.02em;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.progress{display:flex;flex-direction:column;align-items:flex-end;gap:8px;font-size:21px;font-weight:800}
+.bar{width:240px;height:12px;border-radius:6px;background:#0A231D;overflow:hidden}.bar>i{display:block;height:100%;background:var(--sun);transition:width .4s}
+#scene{flex:1;min-height:0;position:relative}
+.panel{background:var(--panel);border-radius:26px;padding:22px;min-height:0;min-width:0}
+.label{font-size:18px;font-weight:800;color:var(--mint)}
+.muted{color:var(--muted)}
+.cols{display:grid;gap:24px;height:100%}
+.center{display:flex;align-items:center;justify-content:center}
+/* 입장 대기 */
+.entry{display:grid;grid-template-columns:520px minmax(0,1fr);gap:28px;height:100%}
+.qrcard{background:var(--chalk);color:var(--bg);border-radius:30px;padding:30px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.qrcard img{width:330px;height:330px;image-rendering:pixelated}
+.qrcard code{font-size:22px;font-weight:800;word-break:break-all;text-align:center}
+.chips{display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start;overflow:hidden}
+.chip{padding:8px 16px;border-radius:999px;background:var(--panel2);font-weight:800}
+/* 큰 안내 */
+.notice{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center}
+.notice strong{font-size:64px;font-weight:900}.notice span{font-size:28px;color:var(--muted)}
+/* 순서 정하기 */
+.reel{width:100%;border-radius:24px;background:#071A16;padding:12px;box-shadow:inset 0 0 0 2px var(--line);display:flex;flex-direction:column;gap:8px;position:relative}
+.reel div{height:64px;border-radius:14px;display:grid;place-items:center;font-size:30px;font-weight:800;color:#5E9584}
+.reel .hit{height:96px;background:var(--sun);color:var(--ink);font-size:46px;font-weight:900;box-shadow:0 0 28px #FFD45C66}
+.slot{position:absolute;border-radius:14px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:4px 12px;min-width:0;transition:background .2s}
+.slot b{align-self:flex-start;padding:0 8px;border-radius:10px;font-size:.62em;line-height:1.7}
+.slot span{align-self:center;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.slot.empty{border:2px dashed var(--line);color:#5E9584}.slot.empty b{background:#163B32}
+.slot.done{background:var(--chalk);color:var(--bg)}.slot.done b{background:var(--bg);color:var(--sun)}
+.slot.now{background:var(--sun);color:var(--ink);box-shadow:0 0 0 4px var(--coral),0 0 20px #FFD45C66}.slot.now b{background:var(--ink);color:var(--sun)}
+/* 순서 진행표 */
+.timeline{display:flex;flex-direction:column;gap:6px;height:100%}
+.trow{display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:14px;font-weight:800;min-width:0}
+.trow .no{flex-shrink:0;width:34px;height:34px;border-radius:17px;display:grid;place-items:center;font-size:15px;background:#1F4E41}
+.trow .nm{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trow.done{color:#9FBFB4}.trow.done .st{color:var(--sun)}
+.trow.last{background:#1F4E41}.trow.last .no{background:var(--coral);color:#fff}.trow.last .st{padding:2px 10px;border-radius:9px;background:var(--coral);color:#fff}
+.trow.now{background:var(--sun);color:var(--ink)}.trow.now .no{background:var(--ink);color:var(--sun)}
+/* 룰렛 */
+.wheelbox{position:relative}
+.wheel-ring{position:absolute;inset:0;border-radius:50%;background:var(--panel);box-shadow:0 30px 70px #00000066,inset 0 0 0 1px var(--line)}
+.wheel-rot{position:absolute;inset:4%;border-radius:50%;will-change:transform}
+.wheel-face,.wheel-gap{position:absolute;inset:0;border-radius:50%}
+.wheel-label{position:absolute;display:grid;place-items:center;color:var(--bg);font-weight:900;line-height:1}
+.hub{position:absolute;left:50%;top:50%;width:40%;height:40%;transform:translate(-50%,-50%);border-radius:50%;display:grid;place-items:center;box-shadow:0 0 0 12px var(--bg)}
+.hub>div{width:88%;height:88%;border-radius:50%;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:10px}
+.hub small{font-size:17px;font-weight:800;color:var(--mint)}.hub strong{font-size:34px;font-weight:900;line-height:1.15;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hub em{font-style:normal;font-size:40px;font-weight:900;color:var(--sun)}
+.pointer{position:absolute;left:50%;top:0;width:48px;height:48px;margin-left:-24px;border-radius:12px 12px 12px 3px;background:var(--coral);transform:translateY(-6px) rotate(-45deg);box-shadow:0 0 0 5px var(--bg),0 6px 16px #00000066;z-index:3}
+/* 교실 배치도 */
+.map{position:relative;width:100%;height:100%}
+.desk{position:absolute;left:50%;transform:translateX(-50%);padding:6px 28px;border-radius:12px;background:var(--wood);color:var(--ink);font-weight:900;white-space:nowrap}
+.seat{position:absolute;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;line-height:1.15;overflow:hidden;text-align:center;padding:2px 4px}
+.seat .n{opacity:.85}.seat .t{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seat.open{border:2px dashed #3E6E60;color:var(--muted)}
+.seat.taken{background:var(--sun);color:var(--ink)}
+.seat.hot{background:var(--coral);color:#fff;box-shadow:0 0 0 3px var(--sun)}
+.seat.final{background:var(--chalk);color:var(--bg)}
+.seat.demand{background:#1F4E41;color:var(--chalk);border:2px solid var(--line)}
+.seat.contest{background:var(--coral);color:#fff}
+.seat .badge{margin-top:2px;padding:0 8px;border-radius:8px;background:var(--bg);color:var(--sun);font-size:.8em}
+.legend{display:flex;gap:16px;justify-content:center;font-size:16px;font-weight:800;color:var(--muted)}.legend i{display:inline-block;width:16px;height:16px;border-radius:5px;margin-right:6px;vertical-align:-2px}
+/* 사다리 */
+.ladder svg{width:100%;height:100%;display:block}
+/* 카드 */
+.card{border-radius:22px;padding:18px 20px}
+.card.sun{background:var(--sun);color:var(--ink)}.card.chalk{background:var(--chalk);color:var(--bg)}
+.big{font-size:42px;font-weight:900;line-height:1.1}
+.rows{display:flex;flex-direction:column;gap:10px}.rows>div{display:flex;justify-content:space-between;gap:10px;font-size:21px;font-weight:800}
+.rows .on{color:var(--sun)}
+/* 가위바위보 */
+.match{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;padding:14px;border-radius:22px;background:#163B32}
+.player{display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px;border-radius:18px;text-align:center;min-width:0}
+.player .hand{width:100%;aspect-ratio:1;max-width:210px;border-radius:20px;background:var(--chalk);display:grid;place-items:center;font-size:56px;font-weight:900;color:var(--bg)}
+.player .hand img{width:84%;height:84%;object-fit:contain}
+.player strong{font-size:26px;font-weight:900;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.player.win{background:var(--sun);color:var(--ink)}.player.win .hand{background:#FFF6D6}
+.player.lose{opacity:.5}
+.vs{font-size:40px;font-weight:900;color:var(--sun)}
+.bracket{display:flex;flex-direction:column;align-items:stretch;gap:0;height:100%;overflow:hidden}
+.bround{display:flex;justify-content:center;gap:14px;flex-wrap:nowrap}
+.bbox{flex:0 1 190px;min-width:0;border-radius:12px;overflow:hidden;background:#1F4E41;font-size:17px;font-weight:800}
+.bbox div{padding:7px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bbox div+div{border-top:1px solid var(--panel)}
+.bbox .w{background:var(--sun);color:var(--ink)}.bbox .l{color:#7FA597;text-decoration:line-through}.bbox .bye{color:#7FA597;font-style:italic}
+.bbox.cur{box-shadow:0 0 0 3px var(--sun)}
+.blink{align-self:center;width:4px;height:26px;background:var(--line);border-radius:2px}
+.trophy{align-self:center;margin-top:4px;padding:12px 30px;border-radius:20px;background:radial-gradient(circle at 35% 30%,#FFF0B8,#F2B744 55%,#B5762C);color:var(--ink);text-align:center;box-shadow:0 0 22px #FFD45C88}
+.trophy small{display:block;font-size:14px;font-weight:800}.trophy strong{font-size:28px;font-weight:900}
+.ring{width:96px;height:96px;border-radius:50%;display:grid;place-items:center;flex-shrink:0}.ring>span{width:76px;height:76px;border-radius:50%;background:var(--chalk);display:grid;place-items:center;font-size:32px;font-weight:900;color:var(--bg)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="stage">
+  <header>
+    <div class="brand"><img src="/assets/seating/kkomi.png" alt=""><span id="method">자리배정</span></div>
+    <h1 id="title" role="status" aria-live="polite">불러오는 중</h1>
+    <div class="progress"><span id="progressText"></span><div class="bar"><i id="progressBar" style="width:0"></i></div></div>
+  </header>
+  <div id="scene"></div>
+</div>
+<script>
+(()=>{
+const API='/board-api/__BOARD_TOKEN__',QR='/api/__TOKEN__/qr',STUDENT_URL='__STUDENT_URL__';
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const left=iso=>iso?Math.max(0,Math.ceil((new Date(iso)-Date.now())/1000)):0;
+const HAND={'가위':'rps-scissors','바위':'rps-rock','보':'rps-paper'};
+const COLORS=['#F7D774','#86D9C0','#F5A9B0','#94C9FF','#C9B8FF','#FFC08F'];
+let view='',state=null,scene=$('scene');
+
+// 화면 크기에 맞춰 1600×900 무대를 확대·축소
+function fit(){const s=Math.min(innerWidth/1600,innerHeight/900);$('stage').style.transform='translate(-50%,-50%) scale('+s+')'}
+addEventListener('resize',fit);fit();
+
+// 인원수에 맞는 격자 크기 계산: 주어진 영역에 n칸을 가장 크게 배치하는 열 수를 찾는다
+function gridFor(n,W,H,aspect,gap){let best={cols:1,rows:n,w:0,h:0,score:0};for(let cols=1;cols<=Math.max(1,n);cols++){const rows=Math.ceil(n/cols),w=(W-gap*(cols-1))/cols,h=(H-gap*(rows-1))/rows;if(w<=0||h<=0)continue;const cw=Math.min(w,h*aspect),score=cw;if(score>best.score)best={cols,rows,w:Math.min(w,h*aspect*1.25),h:Math.min(h,w/aspect*1.4),score}}return best}
+
+// 교실 배치도: 격자형(행·열, 2열·3열 묶음, 모둠형)과 사용자 지정 교실형을 같은 방식으로 그린다
+function seatMap(box,seats,opt){
+  const W=box.clientWidth,H=box.clientHeight;if(!W||!H)return '';
+  const front=!/뒤쪽/.test(opt.desk||''),deskH=opt.noDesk?0:Math.max(30,Math.min(44,H*.07)),gapY=deskH?deskH+12:0;
+  const areaTop=front?gapY:0,areaH=H-gapY;let html='';
+  if(!opt.noDesk){const align=/왼쪽/.test(opt.desk)?'left:8%;transform:none':/오른쪽/.test(opt.desk)?'left:auto;right:8%;transform:none':'';html+='<div class="desk" style="'+(front?'top:0':'bottom:0')+';height:'+deskH+'px;line-height:'+(deskH-12)+'px;font-size:'+Math.round(deskH*.42)+'px;'+align+'">교탁 · '+(front?'앞':'뒤')+'</div>'}
+  const list=[...seats].sort((a,b)=>(a.seatNumber||0)-(b.seatNumber||0));
+  if(opt.layoutMode==='사용자 지정'){
+    const n=list.length,cw=Math.min(W/(Math.ceil(Math.sqrt(n))+1.2),opt.maxW||200),ch=Math.min(cw*.62,areaH/4);
+    list.forEach(s=>{const x=((s.x??500)/1000)*(W-cw),y=areaTop+((s.y??500)/1000)*(areaH-ch);html+=seatCell(s,x,y,cw,ch,opt)});return html}
+  const rows=Math.max(1,...list.map(s=>s.row||1)),cols=Math.max(1,...list.map(s=>s.column||1));
+  const mode=opt.placementMode||'',colGroup=mode==='2열 묶음'||mode==='모둠형'?2:mode==='3열 묶음'?3:0,rowGroup=mode==='모둠형'?2:0;
+  const gap=Math.max(4,Math.min(12,W/cols*.08)),aisle=colGroup?gap*3:0,rowAisle=rowGroup?gap*3:0;
+  const aislesX=colGroup?Math.ceil(cols/colGroup)-1:0,aislesY=rowGroup?Math.ceil(rows/rowGroup)-1:0;
+  let cw=(W-gap*(cols-1)-aisle*aislesX)/cols,ch=(areaH-gap*(rows-1)-rowAisle*aislesY)/rows;
+  cw=Math.min(cw,opt.maxW||260);ch=Math.min(ch,cw*.9,opt.maxH||150);
+  const totalW=cw*cols+gap*(cols-1)+aisle*aislesX,totalH=ch*rows+gap*(rows-1)+rowAisle*aislesY,ox=(W-totalW)/2,oy=areaTop+(areaH-totalH)/2;
+  list.forEach(s=>{const c=(s.column||1)-1,r=(s.row||1)-1,x=ox+c*(cw+gap)+(colGroup?Math.floor(c/colGroup)*aisle:0),y=oy+r*(ch+gap)+(rowGroup?Math.floor(r/rowGroup)*rowAisle:0);html+=seatCell(s,x,y,cw,ch,opt)});
+  return html}
+function seatCell(s,x,y,w,h,opt){const c=opt.cell(s)||{};const fs=Math.max(11,Math.min(c.text?h*.3:h*.42,w*(c.text?.2:.36),opt.maxFont||40));
+  return '<div class="seat '+(c.cls||'')+'" style="left:'+x.toFixed(1)+'px;top:'+y.toFixed(1)+'px;width:'+w.toFixed(1)+'px;height:'+h.toFixed(1)+'px;font-size:'+fs.toFixed(1)+'px">'+(c.text?'<span class="n" style="font-size:.62em">'+esc(s.seatNumber)+'번</span><span class="t">'+esc(c.text)+'</span>':'<span>'+esc(s.seatNumber)+'</span>')+(c.badge?'<span class="badge">'+esc(c.badge)+'</span>':'')+'</div>'}
+
+// 순서 진행표: 이미 돌린 학생은 결과, 지금 학생은 강조, 다음 학생은 차례대로
+function timeline(box,j){const order=j.finalOrderNicknames||[],seatBy={};(j.confirmedAssignments||[]).forEach(c=>seatBy[c.nickname]=c.seatLabel);
+  const cur=Math.min(j.currentOrderIndex||0,order.length),H=box.clientHeight,rowH=Math.max(38,Math.min(58,H/9)),count=Math.max(3,Math.floor((H-34)/(rowH+6))),start=Math.max(0,Math.min(cur-3,order.length-count));
+  let html='';for(let i=start;i<Math.min(order.length,start+count);i++){const name=order[i],seat=seatBy[name];let cls='',st='';
+    if(seat){cls=i===cur-1||j.lastShot&&j.lastShot.indexOf(name+' ')===0?'last':'done';st=seat}else if(i===cur){cls='now';st=j.spinning?'돌리는 중':j.drawMethod==='랜덤 사다리 배정'?'진행 중':'차례'}
+    html+='<div class="trow '+cls+'" style="height:'+rowH+'px;font-size:'+Math.round(rowH*.4)+'px"><span class="no">'+(i+1)+'</span><span class="nm">'+(seat?'✓ ':'')+esc(name)+'</span><span class="st" style="font-size:.8em">'+esc(st)+'</span></div>'}
+  return html}
+
+function header(j){const m={'랜덤 룰렛 배정':'랜덤 룰렛','랜덤 사다리 배정':'랜덤 사다리','희망 경쟁배정':'희망 경쟁'}[j.drawMethod]||'';$('method').textContent='자리배정 · '+m;
+  const total=j.participants||0,done=(j.confirmedAssignments||[]).length;let text='',pct=0;
+  if(j.phase==='입장 대기'){text='입장 '+total+' / '+(j.rosterCount||0)+'명';pct=j.rosterCount?total/j.rosterCount:0}else{text=Math.min(done,total)+' / '+total+'명 확정';pct=total?done/total:0}
+  $('progressText').textContent=text;$('progressBar').style.width=Math.round(Math.min(1,pct)*100)+'%'}
+
+function pickView(j){const p=j.phase,m=j.drawMethod;
+  if(p==='입장 대기')return 'entry';if(p==='회차 종료'||p==='오류')return 'notice';if(p==='자리 확인'||p==='배정 완료')return 'final';if(p==='입장 마감')return 'closed';
+  if(m==='희망 경쟁배정')return /가위바위보/.test(p)?'rps':'pref';
+  if(p==='순서 섞기')return 'order';
+  // 순서판은 첫 학생이 돌리기 전까지만 보여 준다. 학생 사이의 5초 대기(룰렛 시작 대기)는 룰렛 화면에서 보여 준다.
+  if(m==='랜덤 룰렛 배정')return p==='룰렛 시작 준비'||(p==='룰렛 시작 대기'&&!(j.confirmedAssignments||[]).length&&!(j.currentOrderIndex>0))?'order':'roulette';
+  return 'ladder'}
+
+// ---------- 장면별 그리기 ----------
+const scenes={
+entry:{mount(){scene.innerHTML='<div class="entry"><div class="qrcard"><img src="'+QR+'" alt="학생 입장 QR 코드"><div style="font-size:20px;font-weight:800">휴대폰으로 QR을 찍거나 주소를 입력하세요</div><code>'+esc(STUDENT_URL)+'</code></div><div class="panel" style="display:flex;flex-direction:column;gap:16px"><div class="label">입장한 학생 <span id="cnt"></span></div><div class="chips" id="chips"></div><div class="muted" style="margin-top:auto;font-size:18px">이름과 생년월일로 본인 확인 뒤 닉네임으로만 표시돼요</div></div></div>'},
+  update(j){$('title').textContent='QR로 입장해 주세요';$('cnt').textContent=(j.participants||0)+' / '+(j.rosterCount||0)+'명';const names=j.joinedNicknames||[],fs=names.length>30?18:names.length>18?21:25;$('chips').innerHTML=names.map(n=>'<span class="chip" style="font-size:'+fs+'px">'+esc(n)+'</span>').join('')}},
+closed:{mount(){scene.innerHTML='<div class="notice"><strong id="nb"></strong><span id="ns"></span></div>'},
+  update(j){$('title').textContent='입장을 마감했어요';$('nb').textContent=(j.participants||0)+'명이 참여해요';$('ns').textContent=j.drawMethod==='희망 경쟁배정'?'선생님이 희망 자리 제출을 열면 시작해요':'선생님이 순서 섞기를 누르면 순서를 정해요'}},
+notice:{mount(){scene.innerHTML='<div class="notice"><strong id="nb"></strong><span id="ns"></span></div>'},update(j){$('title').textContent=j.phase;$('nb').textContent=j.phase==='회차 종료'?'회차가 끝났어요':'잠시 기다려 주세요';$('ns').textContent='선생님 화면을 확인해 주세요'}},
+order:{reelTimer:0,revealed:0,revealTimer:0,
+  mount(){scene.innerHTML='<div class="cols" style="grid-template-columns:420px minmax(0,1fr)"><div class="panel" style="display:flex;flex-direction:column;align-items:center;gap:18px"><div class="label" style="align-self:flex-start" id="reelLabel"></div><div class="reel" id="reel"></div><div class="muted" style="margin-top:auto;font-size:19px;text-align:center" id="reelNote"></div></div><div class="panel" style="display:flex;flex-direction:column;gap:14px"><div style="display:flex;justify-content:space-between"><span class="label">순서판</span><span class="muted" style="font-size:17px">자기 번호가 되면 휴대폰에서 진행해요</span></div><div id="slots" style="position:relative;flex:1;min-height:0"></div></div></div>';this.revealed=0},
+  unmount(){clearInterval(this.reelTimer);clearInterval(this.revealTimer);this.reelTimer=this.revealTimer=0},
+  update(j){const shuffling=j.phase==='순서 섞기',names=shuffling?(j.joinedNicknames||[]):(j.finalOrderNicknames||[]),n=names.length;
+    $('title').textContent=shuffling?(j.drawMethod==='랜덤 사다리 배정'?'사다리 순서를 정하고 있어요':'룰렛 돌릴 순서를 정하고 있어요'):j.phase==='룰렛 시작 대기'?'곧 첫 번째 룰렛이 시작돼요 · '+left(j.turnStartsAt)+'초':'순서가 정해졌어요';
+    if(shuffling&&!this.reelTimer){let k=0;this.reelTimer=setInterval(()=>{const pool=(state&&state.joinedNicknames)||[];if(!pool.length)return;k++;$('reel').innerHTML=[-2,-1,0,1,2].map(d=>'<div class="'+(d===0?'hit':'')+'">'+esc(pool[(k+d+pool.length*3)%pool.length])+'</div>').join('')},reduced?600:90)}
+    if(!shuffling&&this.reelTimer){clearInterval(this.reelTimer);this.reelTimer=0}
+    if(!shuffling&&!this.revealTimer&&this.revealed<n){this.revealTimer=setInterval(()=>{this.revealed++;this.draw();if(this.revealed>=((state&&state.finalOrderNicknames)||[]).length){clearInterval(this.revealTimer);this.revealTimer=0}},reduced?20:Math.max(60,Math.min(220,6000/Math.max(1,n))))}
+    $('reelLabel').textContent=shuffling?'무작위로 섞는 중':'순서 확정';
+    $('reelNote').textContent=shuffling?'참여 학생 '+n+'명을 무작위로 섞어요 · '+left(j.orderEndsAt)+'초':(j.phase==='룰렛 시작 대기'?'첫 번째 학생의 휴대폰에 버튼이 나타나요':'선생님이 시작하면 1번부터 진행해요');
+    if(!shuffling){const shown=names.slice(0,this.revealed),last=shown[shown.length-1]||'';$('reel').innerHTML=['','',last||'준비 중','',''].map((v,i)=>'<div class="'+(i===2?'hit':'')+'">'+esc(v)+'</div>').join('')}
+    this.draw()},
+  draw(){const j=state;if(!j)return;const shuffling=j.phase==='순서 섞기',names=j.finalOrderNicknames||[],n=Math.max(shuffling?(j.participants||0):names.length,1),box=$('slots');if(!box)return;
+    const g=gridFor(n,box.clientWidth,box.clientHeight,2.6,10),fs=Math.max(13,Math.min(30,g.h*.32,g.w*.13));let html='';
+    for(let i=0;i<n;i++){const c=i%g.cols,r=Math.floor(i/g.cols),name=!shuffling&&i<this.revealed?names[i]:'';const cls=name?(i===this.revealed-1&&this.revealed<names.length?'now':'done'):'empty';
+      html+='<div class="slot '+cls+'" style="left:'+(c*(g.w+10)).toFixed(1)+'px;top:'+(r*(g.h+10)).toFixed(1)+'px;width:'+g.w.toFixed(1)+'px;height:'+g.h.toFixed(1)+'px;font-size:'+fs.toFixed(1)+'px"><b>'+(i+1)+'</b><span>'+esc(name)+'</span></div>'}
+    box.innerHTML=html}},
+roulette:{key:'',rot:0,spinKey:'',
+  mount(){scene.innerHTML='<div class="cols" style="grid-template-columns:330px minmax(0,1fr) 380px"><div class="panel" style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;justify-content:space-between"><span class="label">배정 순서</span><span class="muted" style="font-size:15px">닉네임으로만 표시</span></div><div id="tl" class="timeline"></div></div><div class="center"><div class="wheelbox" id="wb"><div class="wheel-ring"></div><div class="wheel-rot" id="rot"><div class="wheel-face" id="face"></div><div class="wheel-gap" id="gap"></div><div id="labels"></div></div><div class="pointer"></div><div class="hub" id="hub"><div><small id="hubTop">지금 차례</small><strong id="hubName"></strong><em id="hubSub"></em></div></div></div></div><div class="panel" style="display:flex;flex-direction:column;gap:12px"><div class="label">교실 자리 현황</div><div class="map" id="map" style="flex:1;min-height:0"></div><div class="legend"><span><i style="background:var(--sun)"></i>확정</span><span><i style="background:var(--coral)"></i>방금 확정</span><span><i style="border:2px dashed #3E6E60"></i>남은 자리</span></div></div></div>';
+    this.key='';this.rot=0;this.spinKey='';const wb=$('wb'),size=Math.min(wb.parentElement.clientWidth,wb.parentElement.clientHeight)-8;wb.style.width=wb.style.height=size+'px'},
+  wheel(items){const n=Math.max(1,items.length),step=360/n,from='from '+(-step/2).toFixed(2)+'deg,';
+    $('face').style.background='conic-gradient('+from+items.map((_,i)=>COLORS[i%COLORS.length]+' '+(i*step).toFixed(2)+'deg '+((i+1)*step).toFixed(2)+'deg').join(',')+')';
+    const gap=Math.min(1.6,step*.12);$('gap').style.background=n>1?'conic-gradient('+from+items.map((_,i)=>'#12352C '+(i*step).toFixed(2)+'deg,#12352C '+(i*step+gap).toFixed(2)+'deg,#12352C00 '+(i*step+gap).toFixed(2)+'deg,#12352C00 '+((i+1)*step).toFixed(2)+'deg').join(',')+')':'none';
+    const R=$('rot').clientWidth/2,r=R*.8,fs=Math.max(15,Math.min(46,R*3.4/n,R*.2)),bw=fs*2.2;
+    $('labels').innerHTML=items.map((s,i)=>{const a=(i*step-90)*Math.PI/180;return '<span class="wheel-label" style="left:'+(R+r*Math.cos(a)-bw/2).toFixed(1)+'px;top:'+(R+r*Math.sin(a)-fs*.7).toFixed(1)+'px;width:'+bw.toFixed(1)+'px;height:'+(fs*1.4).toFixed(1)+'px;font-size:'+fs.toFixed(1)+'px;transform:rotate(0deg)">'+esc(s.seatNumber)+'</span>'}).join('')},
+  update(j){const holding=j.phase==='결과 확인'||j.phase==='최종 결과 확인',items=j.rouletteSeats||[],key=items.map(s=>s.id).join(',');
+    // 처음 그릴 때는 회전 중이어도 반드시 룰렛을 채운다(도중에 화면을 열거나 다시 그린 경우)
+    if(key!==this.key&&(!this.key||(!j.spinning&&!holding))){this.key=key;this.items=items;this.wheel(items);this.rot=0;const rot=$('rot');rot.style.transition='none';rot.style.transform='rotate(0deg)'}
+    if(j.spinning&&j.spinSeatId&&this.spinKey!==j.spinSeatId+j.spinStartedAt){this.spinKey=j.spinSeatId+j.spinStartedAt;const list=this.items||items,idx=Math.max(0,list.findIndex(s=>s.id===j.spinSeatId)),step=360/Math.max(1,list.length);
+      const target=-(idx*step),base=this.rot-(this.rot%360),next=base-360*6+target,dur=reduced?0:Math.max(1200,new Date(j.endsAt)-Date.now());this.rot=next;const rot=$('rot'),ease='transform '+dur+'ms cubic-bezier(.12,.75,.15,1)';rot.style.transition=ease;rot.style.transform='rotate('+next+'deg)';
+      // 숫자는 룰렛과 반대로 돌려 항상 똑바로 보이게 한다
+      rot.querySelectorAll('.wheel-label').forEach(l=>{l.style.transition=ease;l.style.transform='rotate('+(-next)+'deg)'})}
+    const cur=j.currentNickname||'';
+    if(holding){$('hubTop').textContent='결과';const parts=(j.lastShot||'').split(' → ');$('hubName').textContent=parts[0]||'';$('hubSub').textContent=parts[1]||''}
+    else if(j.spinning){$('hubTop').textContent='돌리는 중';$('hubName').textContent=cur;$('hubSub').textContent=''}
+    else if(j.phase==='룰렛 대기'){$('hubTop').textContent='지금 차례';$('hubName').textContent=cur;$('hubSub').textContent=left(j.turnEndsAt)+'초'}
+    else{$('hubTop').textContent='다음 차례';$('hubName').textContent=cur;$('hubSub').textContent=j.turnStartsAt?left(j.turnStartsAt)+'초':''}
+    const total=Math.max(5,(new Date(j.turnEndsAt)-new Date(j.turnStartsAt))/1000||5),pct=j.phase==='룰렛 대기'?Math.min(1,left(j.turnEndsAt)/total):1;$('hub').style.background='conic-gradient(#FFD45C 0deg '+(pct*360)+'deg,#23493F '+(pct*360)+'deg 360deg)';
+    $('title').textContent=holding?(j.lastShot||'결과 확인'):j.spinning?cur+'님의 룰렛이 돌아가요':j.phase==='룰렛 대기'?cur+'님 차례예요':j.phase;
+    $('tl').innerHTML=timeline($('tl'),j);
+    $('map').innerHTML=seatMap($('map'),j.layout||[],{desk:j.deskPosition,placementMode:j.placementMode,layoutMode:j.layoutMode,maxFont:22,cell:s=>({cls:s.id===j.lastShotSeatId&&(holding||!s.available)?'hot':s.available?'open':'taken'})})}},
+ladder:{
+  mount(){scene.innerHTML='<div class="cols" style="grid-template-columns:300px minmax(0,1fr) 330px"><div class="panel" style="display:flex;flex-direction:column;gap:8px"><span class="label">사다리 순서</span><div id="tl" class="timeline"></div></div><div class="panel ladder" id="lad" style="padding:14px 16px"></div><div style="display:flex;flex-direction:column;gap:14px;min-height:0"><div class="card sun" id="now"></div><div class="panel" style="flex:1;display:flex;flex-direction:column;gap:10px"><span class="label">교실 자리 현황</span><div class="map" id="map" style="flex:1;min-height:0"></div></div></div></div>';this.mk=''},
+  update(j){const n=j.ladderLaneCount||j.participants||0,paths=j.ladderPaths||[],rungs=j.ladderRungs||[],box=$('lad'),W=box.clientWidth-32,H=box.clientHeight-28;
+    const picked=paths.filter(p=>p.start).length,active=paths.find(p=>p.active),revealed=!!j.ladderRevealed;
+    $('title').textContent=j.phase==='사다리 출발점 선택'?(picked>=n&&n?'모두 골랐어요 · 선생님이 사다리를 공개해요':(j.currentNickname||'')+'님이 출발점을 골라요'):active?active.nickname+'님의 사다리를 따라가요':j.phase;
+    $('tl').innerHTML=timeline($('tl'),j);
+    const seatLabels=j.ladderSeatLabels||[];
+    if(j.phase==='사다리 출발점 선택')$('now').innerHTML='<div style="font-size:17px;font-weight:800">출발점 선택</div><div class="big">'+esc(j.currentNickname||'완료')+'</div><div style="font-size:19px;font-weight:800;margin-top:6px">'+picked+' / '+n+'명 선택</div>';
+    else{const p=active||[...paths].reverse().find(p=>p.complete);$('now').innerHTML=p?'<div style="font-size:17px;font-weight:800">'+(active?'지금 공개 중':'방금 공개')+'</div><div class="big">'+esc(p.nickname)+'</div><div style="display:flex;gap:10px;align-items:center;font-size:21px;font-weight:800;margin-top:8px"><span style="padding:4px 12px;border-radius:10px;background:var(--ink);color:var(--sun)">출발 '+p.start+'번</span>→<span style="padding:4px 12px;border-radius:10px;background:var(--coral);color:#fff">'+esc(seatLabels[p.end-1]||'?')+'</span></div>':'<div class="big">사다리 공개</div><div style="font-size:19px;font-weight:800">선생님이 한 명씩 공개해요</div>'}
+    $('map').innerHTML=seatMap($('map'),j.layout||[],{desk:j.deskPosition,placementMode:j.placementMode,layoutMode:j.layoutMode,maxFont:20,cell:s=>({cls:s.available?'open':'taken'})});
+    // 사다리 SVG: 인원수에 따라 칸 간격·글자 크기 자동 조절
+    const key=[n,W,H,j.phase,picked,revealed,rungs.length,paths.map(p=>p.start+':'+p.end+':'+(p.active?1:0)+(p.complete?1:0)).join(',')].join('|');if(key===this.mk)return;this.mk=key;
+    if(!n){box.innerHTML='';return}
+    const gap=W/n,badge=Math.max(16,Math.min(40,gap*.82)),fs=Math.max(10,Math.min(18,badge*.48)),top=badge+16,bottom=H-badge-16,x=i=>gap*(i+.5),levels=Math.max(1,...rungs.map(r=>r.level+1));
+    const y=l=>top+(l+1)*((bottom-top)/(levels+1)),stroke=Math.max(2,Math.min(5,gap*.08));
+    let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="사다리 '+n+'칸">';
+    for(let i=0;i<n;i++)s+='<line x1="'+x(i)+'" y1="'+top+'" x2="'+x(i)+'" y2="'+bottom+'" stroke="#3E6E60" stroke-width="'+stroke+'" stroke-linecap="round"/>';
+    if(revealed)rungs.forEach(r=>{s+='<line x1="'+x(r.left)+'" y1="'+y(r.level)+'" x2="'+x(r.left+1)+'" y2="'+y(r.level)+'" stroke="#3E6E60" stroke-width="'+stroke+'" stroke-linecap="round"/>'});
+    const route=start=>{let lane=start-1,pts=[[x(lane),top]];const by={};rungs.forEach(r=>{(by[r.level]=by[r.level]||{})[r.left]=1});for(let l=0;l<levels;l++){const row=by[l]||{};if(row[lane-1]){pts.push([x(lane),y(l)]);lane--;pts.push([x(lane),y(l)])}else if(row[lane]){pts.push([x(lane),y(l)]);lane++;pts.push([x(lane),y(l)])}}pts.push([x(lane),bottom]);return pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')};
+    if(revealed)paths.filter(p=>p.complete&&!p.active&&p.start).forEach(p=>{s+='<polyline points="'+route(p.start)+'" fill="none" stroke="#FFD45C55" stroke-width="'+stroke+'" stroke-linejoin="round"/>'});
+    if(revealed&&active&&active.start){const pts=route(active.start),dur=Math.max(1.5,(new Date(j.ladderEndsAt)-Date.now())/1000||5);s+='<polyline id="hot" points="'+pts+'" fill="none" stroke="#FFD45C" stroke-width="'+(stroke*2)+'" stroke-linejoin="round" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"><animate attributeName="stroke-dashoffset" from="1" to="0" dur="'+(reduced?0.01:dur)+'s" fill="freeze"/></polyline><image href="/assets/seating/kkomi.png" width="'+badge*1.2+'" height="'+badge*1.2+'" x="'+(-badge*.6)+'" y="'+(-badge*.6)+'"><animateMotion dur="'+(reduced?0.01:dur)+'s" fill="freeze" path="M'+pts.replace(/ /g,' L')+'"/></image>'}
+    const taken={};paths.forEach(p=>{if(p.start)taken[p.start]=p});
+    for(let i=0;i<n;i++){const p=taken[i+1],on=active&&active.start===i+1;s+='<g><rect x="'+(x(i)-badge/2)+'" y="4" width="'+badge+'" height="'+badge+'" rx="'+badge/2+'" fill="'+(on?'#FFD45C':p?'#F5F1E6':'#1F4E41')+'"/><text x="'+x(i)+'" y="'+(4+badge/2)+'" dy=".35em" text-anchor="middle" font-size="'+fs+'" font-weight="800" fill="'+(on||p?'#12352C':'#C9DDD5')+'">'+(i+1)+'</text></g>';
+      const endOn=active&&active.end===i+1;s+='<g><rect x="'+(x(i)-badge/2)+'" y="'+(H-badge-4)+'" width="'+badge+'" height="'+badge+'" rx="8" fill="'+(endOn?'#FF7B54':'#F5F1E6')+'"/><text x="'+x(i)+'" y="'+(H-4-badge/2)+'" dy=".35em" text-anchor="middle" font-size="'+fs+'" font-weight="800" fill="'+(endOn?'#fff':'#12352C')+'">'+esc(String(seatLabels[i]||'').replace('번',''))+'</text></g>'}
+    s+='</svg>';box.innerHTML=s}},
+pref:{
+  mount(){scene.innerHTML='<div class="cols" style="grid-template-columns:300px minmax(0,1fr) 320px"><div class="panel" style="display:flex;flex-direction:column;gap:14px"><span class="label">진행 상황</span><div class="card sun"><div style="font-size:17px;font-weight:800" id="pl"></div><div class="big" id="pc"></div></div><div class="muted" style="font-size:19px;line-height:1.5" id="pg"></div></div><div class="panel" style="display:flex;flex-direction:column;gap:10px"><div class="map" id="map" style="flex:1;min-height:0"></div><div class="legend" id="lg"></div></div><div class="panel" style="display:flex;flex-direction:column;gap:12px;overflow:hidden"><span class="label">경쟁 · 확정</span><div class="rows" id="ct"></div><div class="rows" id="cf" style="margin-top:auto"></div></div></div>'},
+  update(j){const p=j.phase,demand=j.seatDemand||{},open=p==='희망 자리 제출',rate=p==='경쟁률 공개',cycle=j.preferenceCycle||1,prio=j.preferencePriority||1;
+    $('title').textContent=open?'희망 자리를 '+(j.preferenceLimit||3)+'지망까지 골라요':rate?prio+'지망 경쟁률 공개':/지망 처리 완료/.test(p)?cycle+'차 · '+p:p==='다음 차 지망 제출 준비'?(cycle+1)+'차 희망 자리 준비':'희망 자리 제출 준비';
+    const waiting=(j.participants||0)-(j.confirmedAssignments||[]).length;
+    $('pl').textContent=open?'제출한 학생':'남은 학생';$('pc').textContent=open?(j.preferenceSubmitted||0)+' / '+waiting+'명':waiting+'명';
+    $('pg').textContent=open?'휴대폰에서 자리 번호를 순서대로 눌러 제출해요. 칠판의 번호를 확인하세요.':rate?'혼자 고른 자리는 바로 확정되고, 여러 명이면 가위바위보로 정해요.':'선생님의 다음 진행을 기다려요.';
+    const contestBy={};(j.contests||[]).forEach(c=>contestBy[c.seatId]=c);
+    $('map').innerHTML=seatMap($('map'),j.layout||[],{desk:j.deskPosition,placementMode:j.placementMode,layoutMode:j.layoutMode,maxFont:34,cell:s=>{if(!s.available)return {cls:'taken',text:s.nickname||'확정'};if(rate&&demand[s.id])return {cls:contestBy[s.id]?'contest':'demand',badge:demand[s.id]+'명'};return {cls:'open'}}});
+    $('lg').innerHTML=rate?'<span><i style="background:var(--coral)"></i>경쟁</span><span><i style="background:#1F4E41"></i>희망 있음</span><span><i style="background:var(--sun)"></i>확정</span>':'<span><i style="background:var(--sun)"></i>확정</span><span><i style="border:2px dashed #3E6E60"></i>남은 자리</span>';
+    $('ct').innerHTML=(j.contests||[]).slice(0,7).map(c=>'<div class="'+(c.current?'on':'')+'"><span>'+(c.current?'● ':'')+esc(c.seatLabel)+' 자리</span><span>'+c.candidateCount+'명</span></div>').join('')||'<div class="muted">경쟁 중인 자리가 없어요</div>';
+    $('cf').innerHTML=(j.confirmedAssignments||[]).slice(-5).reverse().map(c=>'<div style="font-size:18px"><span>✓ '+esc(c.nickname)+'</span><span class="on">'+esc(c.seatLabel)+'</span></div>').join('')}},
+rps:{
+  mount(){scene.innerHTML='<div class="cols" style="grid-template-columns:440px minmax(0,1fr) 300px"><div class="panel" style="display:flex;flex-direction:column;gap:12px"><span class="label" id="ml">이번 대결</span><div id="matches" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px;min-height:0"></div></div><div class="panel" style="display:flex;flex-direction:column;gap:8px"><span class="label">대진표</span><div class="bracket" id="br"></div></div><div style="display:flex;flex-direction:column;gap:14px;min-height:0"><div class="card chalk" style="display:flex;align-items:center;gap:14px"><div class="ring" id="ring"><span id="sec"></span></div><div><div style="font-size:20px;font-weight:900" id="rt"></div><div style="font-size:15px;color:#6B4A22" id="rs"></div></div></div><div class="panel" style="flex:1;display:flex;flex-direction:column;gap:10px;overflow:hidden"><span class="label">경쟁 순서</span><div class="rows" id="ct"></div></div></div></div>'},
+  update(j){const choosing=j.phase==='가위바위보 선택',rounds=j.rpsRounds||[],current=choosing?(j.rpsMatches||[]):(rounds[rounds.length-1]||j.rpsMatches||[]);
+    $('title').textContent=esc(j.rpsSeatLabel||'')+' 자리 · '+(j.preferencePriority||1)+'지망 토너먼트';
+    const hand=(c,show)=>show&&c?'<img src="/assets/seating/'+HAND[c]+'.webp" alt="'+esc(c)+'">':'?';
+    const big=current.filter(m=>!m.bye).length<=1;
+    $('ml').textContent=choosing?'손 모양을 고르는 중':'결과';
+    $('matches').innerHTML=current.filter(m=>!m.bye).map(m=>{const done=!!m.winner,lw=done&&m.winner===m.left,rw=done&&m.winner===m.right;return '<div class="match" style="'+(big?'':'padding:8px')+'"><div class="player '+(lw?'win':done?'lose':'')+'"><div class="hand" style="'+(big?'':'max-width:80px;font-size:34px')+'">'+hand(m.leftChoice,done)+'</div><strong style="'+(big?'':'font-size:19px')+'">'+esc(m.left)+'</strong></div><span class="vs">VS</span><div class="player '+(rw?'win':done?'lose':'')+'"><div class="hand" style="'+(big?'':'max-width:80px;font-size:34px')+'">'+hand(m.rightChoice,done)+'</div><strong style="'+(big?'':'font-size:19px')+'">'+esc(m.right)+'</strong></div></div>'}).join('')||'<div class="muted" style="font-size:20px;text-align:center">부전승으로 다음 판에 올라가요</div>';
+    // 세로 토너먼트: 위에서 아래로 라운드가 내려오고 맨 아래에 우승 자리
+    let br='';rounds.forEach((round,ri)=>{if(ri)br+='<div class="blink"></div>';br+='<div class="bround">'+round.map(m=>{const cur=ri===rounds.length-1&&choosing&&!m.winner;const row=(name,choice)=>{if(!name)return '<div class="bye">부전승</div>';const cls=m.winner?(m.winner===name?'w':'l'):'';return '<div class="'+cls+'">'+esc(name)+'</div>'};return '<div class="bbox '+(cur?'cur':'')+'">'+row(m.left)+(m.bye?'<div class="bye">부전승</div>':row(m.right))+'</div>'}).join('')+'</div>'});
+    br+='<div class="blink"></div><div class="trophy"><small>우승하면</small><strong>'+esc(j.rpsSeatLabel||'')+' 자리</strong></div>';$('br').innerHTML=br;
+    const sec=left(j.rpsEndsAt),pct=choosing?Math.min(1,sec/10):0;$('ring').style.background='conic-gradient(#FF7B54 0deg '+(pct*360)+'deg,#E8D3B5 '+(pct*360)+'deg 360deg)';$('sec').textContent=choosing?sec:'✓';
+    $('rt').textContent=choosing?'초 안에 선택':'이번 판 결과';$('rs').textContent=choosing?'휴대폰에서 손 모양을 골라요':'선생님이 다음 판을 진행해요';
+    $('ct').innerHTML=(j.contests||[]).slice(0,8).map(c=>'<div class="'+(c.current?'on':'')+'"><span>'+(c.current?'● ':'')+esc(c.seatLabel)+' 자리</span><span>'+c.candidateCount+'명</span></div>').join('')}},
+final:{
+  mount(){scene.innerHTML='<div style="height:100%;display:flex;flex-direction:column;gap:10px"><div class="muted" style="text-align:center;font-size:22px;font-weight:800" id="fs"></div><div class="map" id="map" style="flex:1;min-height:0"></div></div>'},
+  update(j){$('title').textContent='최종 자리배치';$('fs').textContent='참여 '+(j.participants||0)+'명 · 모든 자리가 확정되었어요';
+    $('map').innerHTML=seatMap($('map'),j.layout||[],{desk:j.deskPosition,placementMode:j.placementMode,layoutMode:j.layoutMode,maxW:300,maxH:120,maxFont:40,cell:s=>({cls:s.finalName||s.nickname?'final':'open',text:s.finalName||s.nickname||'빈 자리'})})}}
+};
+
+function render(j){state=j;header(j);const v=pickView(j);if(v!==view){if(scenes[view]&&scenes[view].unmount)scenes[view].unmount();view=v;scenes[v].mount()}scenes[v].update(j)}
+async function tick(){try{const r=await fetch(API+'/state',{cache:'no-store'});if(r.ok)render(await r.json())}catch(e){}setTimeout(tick,500)}
+tick();
+})();
+</script>
+</body>
+</html>

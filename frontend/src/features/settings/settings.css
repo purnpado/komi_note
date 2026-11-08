@@ -1,0 +1,134 @@
+.settings-panel {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+.settings-top-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: stretch;
+}
+.settings-primary-card,
+.settings-top-grid .theme-settings {
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 24px;
+  border: 1px solid #ead7c5;
+  border-radius: 12px;
+  background: #fffdf9;
+}
+.settings-primary-card h3 {
+  margin-top: 0;
+}
+.settings-top-grid .theme-settings {
+  margin-top: 0;
+  padding-top: 24px;
+}
+.settings-academic-card {
+  margin-top: 0;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 24px;
+  border: 1px solid #ead7c5;
+  border-radius: 12px;
+  background: #fffdf9;
+}
+.settings-theme-divider {
+  height: 1px;
+  margin: 24px 0 20px;
+  background: #ead7c5;
+}
+.settings-academic-card .theme-settings {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+.settings-panel form,
+.settings-panel .form-grid,
+.settings-panel .settings-section,
+.settings-panel .term-grid {
+  width: 100%;
+  box-sizing: border-box;
+}
+.settings-panel .form-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+.settings-panel input,
+.settings-panel select {
+  box-sizing: border-box;
+}
+.settings-panel h3 {
+  margin-top: 0;
+}
+.settings-section {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid #e7ecef;
+}
+.settings-section h3 {
+  margin: 2px 0 5px;
+}
+.settings-section > div > p:last-child {
+  margin: 0 0 16px;
+  color: #74818e;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.term-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: 15px;
+}
+.term-grid fieldset {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 0;
+  padding: 13px;
+  border: 1px solid #e1e8ed;
+  border-radius: 9px;
+}
+.term-grid legend {
+  padding: 0 5px;
+  color: #526170;
+  font-size: 12px;
+  font-weight: 700;
+}
+.term-grid label {
+  display: block;
+  color: #566574;
+  font-size: 12px;
+  font-weight: 700;
+}
+.term-grid input,
+.settings-section select,
+.settings-section > .form-grid input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 11px;
+  border: 1px solid #dce3ea;
+  border-radius: 8px;
+  background: #fff;
+  color: #364656;
+  font: inherit;
+}
+.setting-help {
+  margin: 13px 0 0;
+  color: #7a8793;
+  font-size: 12px;
+  line-height: 1.6;
+}
+@media (max-width: 680px) {
+  .settings-top-grid {
+    grid-template-columns: 1fr;
+  }
+  .term-grid,
+  .term-grid fieldset {
+    grid-template-columns: 1fr;
+  }
+}

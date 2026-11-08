@@ -1,0 +1,227 @@
+/* 자리배정 프로그램 실행 패널 전용 스타일 */
+
+.layout-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 999px;
+  color: #924412;
+  background: #ffeed8;
+  border: 1px solid #ebd0b3;
+  font-size: 11.5px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.seating-participation {
+  margin-top: 18px;
+  border: 1px solid #ebd8c2;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #ffffff, #fffaf2);
+  box-shadow: 0 10px 28px rgba(134, 83, 34, 0.06);
+  padding: 0 0 24px;
+}
+.seating-participation .panel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 22px 24px 16px;
+  border-bottom: 1px solid #f0e1d2;
+}
+.seating-participation .panel-heading h3 {
+  margin: 5px 0 4px;
+  color: #432b1b;
+  font-size: 18px;
+  font-weight: 900;
+}
+.seating-participation .panel-heading p {
+  margin: 0;
+  color: #886c57;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+/* 스텝 프로세스 바 (Stepper) */
+.seating-process {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 24px;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+.seating-process li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1.5px solid #ebd6c0;
+  border-radius: 999px;
+  color: #8c7159;
+  background: #fffdfa;
+  font-size: 12.5px;
+  font-weight: 800;
+  transition: all 0.16s ease;
+}
+.seating-process li::before {
+  counter-increment: step;
+  content: counter(step);
+  display: grid;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ebd6c0;
+  color: #ffffff;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 900;
+}
+.seating-process li.active {
+  border-color: #d97d2e;
+  color: #8c3f0f;
+  background: #fff2e2;
+  box-shadow: 0 4px 12px rgba(217, 125, 46, 0.18);
+}
+.seating-process li.active::before,
+.seating-process li.done::before {
+  background: linear-gradient(135deg, #e47225, #bd4e10);
+  box-shadow: 0 2px 5px rgba(189, 78, 16, 0.3);
+}
+.seating-process li.done {
+  border-color: #e5c5a2;
+  color: #6e492b;
+}
+
+/* 실행 스테이지 카드 */
+.execution-stage {
+  margin: 0 24px;
+  padding: 22px 24px;
+  border: 1.5px solid #ebd0b1;
+  border-radius: 16px;
+  background: #fff8ee;
+  display: grid;
+  gap: 10px;
+}
+.execution-stage strong {
+  color: #803d10;
+  font-size: 20px;
+  font-weight: 900;
+}
+.execution-stage p {
+  margin: 0;
+  color: #7b624f;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+.execution-wait {
+  color: #944b15 !important;
+  font-weight: 800;
+}
+
+/* 교사가 다음 버튼을 눌러야 할 때 눈에 띄게 안내 */
+.execution-ready {
+  margin: 10px 0 0;
+  padding: 12px 14px;
+  border: 2px solid #3f9b6b;
+  border-radius: 12px;
+  background: #eaf8ef;
+  color: #1f5b3c !important;
+  font-weight: 800;
+}
+
+/* 오류 복구 배너 */
+.seating-recovery {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 16px 18px;
+  border: 1.5px solid #df9a61;
+  border-left: 6px solid #b94d1a;
+  border-radius: 12px;
+  background: #fff0df;
+}
+.seating-recovery strong {
+  color: #8c3814;
+  font-size: 15px;
+}
+.seating-recovery p {
+  margin: 0 !important;
+  color: #713916 !important;
+  font-weight: 700;
+}
+.seating-recovery small {
+  color: #7b5b47;
+  line-height: 1.5;
+}
+.seating-recovery .dialog-actions {
+  justify-content: flex-start;
+  margin: 8px 0;
+}
+
+/* QR 및 세션 접속 요약 바 */
+.seating-session-summary {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 20px;
+  margin: 18px 24px 0;
+  padding: 18px 22px;
+  border: 1.5px solid #ebd2b6;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(144, 91, 40, 0.05);
+}
+.session-qr img {
+  display: block;
+  width: 140px;
+  height: 140px;
+  border-radius: 12px;
+  border: 1px solid #ebd5be;
+  padding: 6px;
+  background: #ffffff;
+}
+.session-address {
+  display: grid;
+  gap: 7px;
+  align-content: center;
+}
+.session-address strong {
+  color: #79431d;
+  font-size: 14px;
+  font-weight: 900;
+}
+.session-address code {
+  overflow-wrap: anywhere;
+  color: #65462c;
+  font-size: 14px;
+  font-weight: 700;
+  background: #fbf4ea;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #ebd7c3;
+}
+.session-address p {
+  margin: 0;
+  color: #886c57;
+  font-size: 13px;
+}
+.session-address .quiet-button {
+  width: max-content;
+}
+.seating-session-summary .dialog-actions {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .seating-session-summary {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+  .session-address {
+    justify-items: center;
+  }
+}

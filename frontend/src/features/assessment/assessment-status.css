@@ -1,0 +1,5 @@
+.assessment-score-table .assessment-status { display:block; margin-top:4px; width:max-content; max-width:150px; border-radius:6px; padding:3px 6px; font-size:11px; font-weight:700; white-space:normal; }
+.assessment-score-table .assessment-status.confirmed { color:#14613a; background:#e3f5e9; }
+.assessment-score-table .assessment-status.pending { color:#5e6268; background:#eef0f2; }
+.assessment-score-table .assessment-status.objection { color:#87391c; background:#ffead9; }
+.assessment-score-table .assessment-status.unknown { color:#725619; background:#fff3cd; }

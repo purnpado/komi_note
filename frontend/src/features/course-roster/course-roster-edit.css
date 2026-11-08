@@ -1,0 +1,11 @@
+.course-roster-detail-actions,.course-student-actions { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.course-roster-feedback { padding:12px; border-radius:9px; background:#e9f6ed; color:#285c3e; }
+.course-roster-history { margin-top:18px; color:#765846; font-size:13px; }
+.course-roster-history summary { cursor:pointer; font-weight:700; }
+.course-roster-history ul { padding-left:20px; line-height:1.7; }
+.course-edit-dialog { width:min(520px,calc(100vw - 32px)); max-height:calc(100vh - 32px); overflow:auto; }
+.course-edit-fields { display:grid; gap:12px; margin-top:18px; }
+.course-edit-fields label,.course-delete-label { display:grid; gap:6px; margin-top:12px; font-size:13px; font-weight:700; }
+.course-edit-fields input,.course-edit-fields select,.course-delete-label input { box-sizing:border-box; width:100%; padding:10px; border:1px solid #d8c5b4; border-radius:8px; font:inherit; background:#fff; color:#352f2b; }
+.course-student-actions button { padding:7px 10px; white-space:nowrap; }
+@media(max-width:680px) { .course-roster-table-wrap table { min-width:480px; } }
