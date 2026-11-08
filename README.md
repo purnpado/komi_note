@@ -111,7 +111,7 @@ node --experimental-strip-types --test src/features/assessment/assessmentState.t
 
 ## 업데이트와 릴리즈
 
-실행 파일은 이 저장소의 [릴리즈](https://github.com/purnpado/komi_note/releases)에서 내려받습니다. 기존 프로그램 폴더의 실행 파일만 교체하고, 같은 폴더의 `data` 폴더(학생 데이터)는 옮기거나 삭제하지 않습니다.
+실행 파일은 이 저장소의 [릴리즈](https://github.com/purnpado/komi_note/releases)에서 내려받습니다. 기존 프로그램 폴더의 실행 파일만 교체하고, 같은 폴더의 `data` 폴더(학생 데이터)는 옮기거나 삭제하지 않습니다. 최신 버전은 **v0.1.2**(2026-11-08, 첫 정식 릴리즈)입니다. 이전 베타(0.1.1)는 이 릴리즈를 자동으로 찾지 못하므로 이번 한 번은 직접 내려받아 교체하고, 그 뒤로는 프로그램 안 업데이트 확인으로 받을 수 있습니다. 맥용 `kkomi-note-mac.zip`은 애드혹 서명이라 처음 열 때 Finder에서 우클릭 → [열기]를 눌러야 합니다.
 
 프로그램은 최신 릴리즈의 `latest.json`을 읽어 새 버전을 확인합니다. `latest.json`의 ed25519 서명이 실행 파일에 내장된 공개키(`internal/system/update_signature.go`)와 맞고, 내려받은 exe의 SHA-256이 일치할 때만 교체합니다. 서명용 개인키는 저장소에 포함하지 않으며, 배포 담당자가 `cmd/sign_update`로 서명합니다. 학생 정보·암호화 보관함·개인 토큰은 전송하거나 포함하지 않습니다.
 
