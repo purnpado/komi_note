@@ -1679,3 +1679,14 @@ html[data-kkomi-theme="classic"] *::-webkit-scrollbar-thumb { border-color: #eaf
 /* 앱 공통 워터마크 및 이용약관 동의 화면 */
 .creator-watermark { display: block; color: #a08a78; font-size: 11px; line-height: 1.5; text-align: center; }.sidebar-bottom .creator-watermark { margin-top: 12px; color: #aaccc0; }.lock-watermark { margin-top: 16px; }.setup-watermark { margin: -4px 0 14px; text-align: left; }
 .agreement-screen { display: grid; min-height: calc(100vh - 41px); padding: 36px 20px; background: radial-gradient(circle at 15% 10%, #ffe7bd 0, transparent 30%), #fff8ef; place-items: center; }.agreement-card { width: min(720px, 100%); padding: 32px; border: 1px solid #ecd3b7; border-radius: 20px; background: #fffdfa; box-shadow: 0 20px 60px #8c56201f; }.agreement-card h1 { margin: 7px 0 14px; color: #3a2e27; font-size: clamp(24px, 4vw, 34px); }.agreement-copy { max-height: 340px; overflow: auto; padding: 14px 16px; border: 1px solid #f0dfca; border-radius: 12px; color: #5d4d42; background: #fff8ee; font-size: 14px; line-height: 1.65; }.agreement-copy p { margin-top: 0; }.agreement-copy ol { display: grid; gap: 9px; padding-left: 20px; margin: 0; }.agreement-check { display: flex; gap: 9px; align-items: flex-start; margin: 18px 0; color: #4d3d32; font-size: 13px; font-weight: 700; line-height: 1.55; }.agreement-check input { margin-top: 3px; accent-color: #d87c35; }.agreement-actions { display: flex; justify-content: flex-end; gap: 8px; }.agreement-card > .creator-watermark { margin-top: 16px; }
+
+/* 숫자 입력칸의 위·아래 화살표(스핀 버튼)를 숨긴다. 숫자는 키보드로 입력한다. */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}

@@ -2,6 +2,7 @@ package attendance
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -152,6 +153,8 @@ func RemoveAttendanceForStudent(days []AttendanceDay, studentID string) []Attend
 }
 
 // ValidateAttendanceDate는 입력된 출결 날짜 형식 및 평일 여부를 검증합니다.
+// 학기 기간은 교사가 입력한 정보로 "확실히 수업이 없는 날"(1학기 시작 전, 1·2학기 사이 방학,
+// 2학기 종료 뒤)만 막습니다. 2학기 기간을 아직 입력하지 않았다면 1학기 뒤 날짜는 막지 않습니다.
 func ValidateAttendanceDate(value string, semesterPeriods [][2]string) (time.Time, error) {
 	date, err := time.Parse("2006-01-02", strings.TrimSpace(value))
 	if err != nil {
@@ -160,32 +163,55 @@ func ValidateAttendanceDate(value string, semesterPeriods [][2]string) (time.Tim
 	if date.Weekday() == time.Saturday || date.Weekday() == time.Sunday {
 		return time.Time{}, errors.New("주말에는 출결을 입력할 수 없습니다")
 	}
-	if isWithinSemesters(date, semesterPeriods) {
-		return date, nil
-	}
-	hasSemesterSetting := false
-	for _, period := range semesterPeriods {
-		if period[0] != "" || period[1] != "" {
-			hasSemesterSetting = true
-			break
-		}
-	}
-	if hasSemesterSetting {
-		return time.Time{}, errors.New("설정한 학기 기간 안에서만 출결을 입력할 수 있습니다")
+	if reason := outsideSemesterReason(date, semesterPeriods); reason != "" {
+		return time.Time{}, errors.New(reason)
 	}
 	return date, nil
 }
 
-func isWithinSemesters(date time.Time, periods [][2]string) bool {
-	for _, period := range periods {
-		if period[0] == "" || period[1] == "" {
-			continue
-		}
-		start, startErr := time.Parse("2006-01-02", period[0])
-		end, endErr := time.Parse("2006-01-02", period[1])
-		if startErr == nil && endErr == nil && !date.Before(start) && !date.After(end) {
-			return true
-		}
+type semesterPeriod struct {
+	start, end time.Time
+	ok         bool
+}
+
+func parseSemesterPeriod(period [2]string) semesterPeriod {
+	start, startErr := time.Parse("2006-01-02", strings.TrimSpace(period[0]))
+	end, endErr := time.Parse("2006-01-02", strings.TrimSpace(period[1]))
+	if startErr != nil || endErr != nil || end.Before(start) {
+		return semesterPeriod{}
 	}
-	return false
+	return semesterPeriod{start: start, end: end, ok: true}
+}
+
+func koreanMonthDay(date time.Time) string {
+	return fmt.Sprintf("%d월 %d일", int(date.Month()), date.Day())
+}
+
+// outsideSemesterReason은 날짜가 학기 밖이라고 확실히 말할 수 있을 때만 안내 문장을 돌려줍니다.
+func outsideSemesterReason(date time.Time, periods [][2]string) string {
+	var first, second semesterPeriod
+	if len(periods) > 0 {
+		first = parseSemesterPeriod(periods[0])
+	}
+	if len(periods) > 1 {
+		second = parseSemesterPeriod(periods[1])
+	}
+	within := func(period semesterPeriod) bool {
+		return period.ok && !date.Before(period.start) && !date.After(period.end)
+	}
+	if within(first) || within(second) {
+		return ""
+	}
+	const hint = " 학기 기간은 환경 설정의 \"학사 일정\"에서 바꿀 수 있습니다."
+	if first.ok && date.Before(first.start) {
+		return "1학기 시작일(" + koreanMonthDay(first.start) + ") 전이라 출결을 입력할 수 없습니다." + hint
+	}
+	if first.ok && second.ok && date.After(first.end) && date.Before(second.start) {
+		return "1학기와 2학기 사이 방학(" + koreanMonthDay(first.end.AddDate(0, 0, 1)) + "~" + koreanMonthDay(second.start.AddDate(0, 0, -1)) + ")이라 출결을 입력할 수 없습니다." + hint
+	}
+	if second.ok && date.After(second.end) {
+		return "2학기 종료일(" + koreanMonthDay(second.end) + ") 뒤라 출결을 입력할 수 없습니다." + hint
+	}
+	// 나머지(2학기 미입력 상태의 1학기 뒤, 1학기 미입력 상태의 2학기 전)는 수업일일 수 있어 막지 않는다.
+	return ""
 }

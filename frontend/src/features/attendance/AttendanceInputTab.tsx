@@ -27,7 +27,7 @@ export function AttendanceInputTab(props: any) {
             </div>
           </section>
           {notice && (
-            <p className="app-toast" role="status">
+            <p className={day ? "app-toast" : "app-toast attendance-blocked"} role={day ? "status" : "alert"}>
               {notice}
             </p>
           )}
