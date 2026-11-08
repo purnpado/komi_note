@@ -110,6 +110,32 @@ node --experimental-strip-types --test src/features/assessment/assessmentState.t
 
 프로그램은 최신 릴리즈의 `latest.json`을 읽어 새 버전을 확인합니다. `latest.json`의 ed25519 서명이 실행 파일에 내장된 공개키(`internal/system/update_signature.go`)와 맞고, 내려받은 exe의 SHA-256이 일치할 때만 교체합니다. 서명용 개인키는 저장소에 포함하지 않으며, 배포 담당자가 `cmd/sign_update`로 서명합니다. 학생 정보·암호화 보관함·개인 토큰은 전송하거나 포함하지 않습니다.
 
+## 직접 수정해서 배포하려면 (포크 안내)
+
+이 프로그램을 쓰기만 할 때는 서명키가 필요 없습니다. 아래 내용은 소스를 고쳐 **자기 이름으로 배포**하려는 개발자를 위한 안내입니다.
+
+업데이트 서명용 개인키는 원 배포자만 가지고 있으며 이 저장소에 없습니다. 그래서 수정본은 자기 키와 자기 릴리즈 주소를 써야 합니다. 그렇지 않으면 업데이트 확인에서 서명이 맞지 않아 업데이트가 거부됩니다.
+
+1. 서명키를 만듭니다. 개인키는 저장소 **밖**에 저장하고 절대 커밋하지 않습니다(`.gitignore`에 `*.key`가 들어 있습니다).
+   ```
+   go run ./cmd/sign_update genkey -out ~/.config/my-app/update-signing.key
+   ```
+   화면에 나온 공개키를 `internal/system/update_signature.go`의 `UpdatePublicKey`에 넣습니다.
+2. 업데이트 주소를 자기 저장소로 바꿉니다.
+   - `internal/system/version.go`의 `UpdateManifestURL` → `https://github.com/<계정>/<저장소>/releases/latest/download/latest.json`
+   - `internal/system/updater.go`의 `updateDownloadPrefix` → `https://github.com/<계정>/<저장소>/releases/download/`
+3. 앱 식별 정보를 바꿉니다. `build/config.yml`의 `companyName`, `productIdentifier`, `copyright`, `build/darwin/Info.plist`, `wails.json`의 작성자를 바꿉니다.
+4. 버전(`internal/system/version.go`의 `AppVersion`)을 올리고 Windows용으로 빌드합니다(위 "실행 파일 만들기").
+5. 릴리즈 정보에 서명합니다.
+   ```
+   go run ./cmd/sign_update sign -key ~/.config/my-app/update-signing.key \
+     -manifest dist/latest.json -exe bin/꼬미노트.exe -version <버전> -now \
+     -notes "변경 내용" -url https://github.com/<계정>/<저장소>/releases/download/v<버전>/kkomi-note.exe
+   ```
+6. GitHub 릴리즈(태그 `v<버전>`)에 실행 파일을 `kkomi-note.exe`라는 이름으로 바꿔 올리고, 함께 `latest.json`을 올립니다. **Pre-release로 표시하지 않습니다.** Pre-release로 표시하면 `latest` 주소에 잡히지 않습니다.
+
+업데이트 기능이 필요 없으면 `internal/system/version.go`의 `UpdateManifestURL`을 빈 문자열(`""`)로 두세요. 그러면 프로그램이 "업데이트 채널이 설정되지 않았습니다"라고만 안내하고, 업데이트를 확인하거나 내려받지 않습니다.
+
 ## 개인정보 보호 원칙
 
 - 실제 학생 데이터와 백업 파일은 Git에 올리지 않습니다.
