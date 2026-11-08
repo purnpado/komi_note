@@ -10,12 +10,14 @@ import {
   OpenSeatingPreferenceSubmission,
   RecoverSeatingSession,
   RevealRandomLadder,
+  RevealSeatingNames,
   SaveSeatingPlan,
   StartRandomArrowAssignment,
   StartSeatingRPSCompetition,
   StartSeatingRoulette,
   StartSeatingSession,
   StopSeatingSession,
+  SwapSeatingSeats,
 } from "../../../wailsjs/go/main/App";
 import { copyText } from "../shared/desktopActions";
 import { makeSeats, seatsForRoster } from "./seatLayout";
@@ -74,6 +76,10 @@ export function useSeatingSession({
   setCurrentRound: (round: number) => void;
 }) {
   const [seatingSession, setSeatingSession] = useState<models.SeatingSessionInfo | null>(null);
+  // 재적보다 적게 입장했을 때 띄우는 "결석·미참여 예외 마감" 확인창
+  const [partialCloseOpen, setPartialCloseOpen] = useState(false);
+  const [revealDialogOpen, setRevealDialogOpen] = useState(false);
+  const [closeSessionOpen, setCloseSessionOpen] = useState(false);
 
   // 실시간 세션 폴링
   useEffect(() => {
@@ -222,16 +228,17 @@ export function useSeatingSession({
     }
   }
 
-  async function closeArrowEntry() {
+  async function closeArrowEntry(allowPartial = false) {
     if (!selectedID) return;
     try {
-      const session = await CloseSeatingEntry(selectedID);
+      const session = await CloseSeatingEntry(selectedID, allowPartial);
+      setPartialCloseOpen(false);
       setSeatingSession(new models.SeatingSessionInfo(session));
       setSessionState("입장 마감");
       setNotice(
         drawMethod === "희망 경쟁배정"
-          ? `학생 ${session.participantCnt}명의 입장을 마감했습니다. 희망 자리 제출을 열어 주세요.`
-          : `학생 ${session.participantCnt}명의 입장을 마감했습니다. 순서를 섞은 뒤 ${drawMethod === "랜덤 사다리 배정" ? "사다리 출발점 선택" : "룰렛배정"}을 시작하세요.`,
+          ? `학생 ${session.participantCnt}명의 입장을 마감했습니다${session.partialClosed ? `(재적 ${session.rosterCnt}명 중 결석·미참여 ${session.rosterCnt - session.participantCnt}명 예외 마감)` : ""}. 희망 자리 제출을 열어 주세요.`
+          : `학생 ${session.participantCnt}명의 입장을 마감했습니다${session.partialClosed ? `(재적 ${session.rosterCnt}명 중 결석·미참여 ${session.rosterCnt - session.participantCnt}명 예외 마감)` : ""}. 순서를 섞은 뒤 ${drawMethod === "랜덤 사다리 배정" ? "사다리 출발점 선택" : "룰렛배정"}을 시작하세요.`,
       );
     } catch (error) {
       setNotice(String(error));
@@ -292,10 +299,48 @@ export function useSeatingSession({
     }
   }
 
+  async function revealSeatingNames(reveal: boolean) {
+    if (!selectedID) return;
+    try {
+      const session = await RevealSeatingNames(selectedID, reveal);
+      setSeatingSession(new models.SeatingSessionInfo(session));
+      setRevealDialogOpen(false);
+      setNotice(
+        reveal
+          ? "전자칠판에 실명 배치도를 공개했습니다. 학생 휴대폰에는 계속 이름이 보이지 않습니다."
+          : "전자칠판의 실명을 다시 가렸습니다. 지금은 좌석 번호와 닉네임만 보입니다.",
+      );
+    } catch (error) {
+      setNotice(String(error));
+    }
+  }
+
+  // 결과에서 두 자리를 맞바꾸고, 저장된 배치안으로 화면을 다시 맞춘다.
+  async function swapSeats(firstSeatID: string, secondSeatID: string) {
+    if (!selectedID) return false;
+    try {
+      const saved = new models.SeatingPlan(await SwapSeatingSeats(selectedID, firstSeatID, secondSeatID));
+      setPlans(plans.map((item) => (item.id === saved.id ? saved : item)));
+      const isCustomLayout = saved.layoutMode === "사용자 지정";
+      setSeats(
+        isCustomLayout
+          ? [...(saved.seats || [])]
+          : makeSeats(saved.rows || 4, saved.columns || 6, saved.seats || []),
+      );
+      const last = saved.changes?.[saved.changes.length - 1];
+      setNotice(last ? `${last.summary} · 보관함에 저장했습니다.` : "자리를 바꿨습니다.");
+      return true;
+    } catch (error) {
+      setNotice(String(error));
+      return false;
+    }
+  }
+
   async function stopArrowSession() {
     if (!selectedID) return;
     try {
       await StopSeatingSession(selectedID);
+      setCloseSessionOpen(false);
       setSeatingSession(null);
       setSessionState("교사 최종 발표 준비");
       setNotice("QR 참여 회차를 닫고 임시 접속 정보를 폐기했습니다.");
@@ -335,11 +380,17 @@ export function useSeatingSession({
         disabled: false,
       }
     : seatingSession.phase === "입장 대기"
-      ? {
-          label: "입장 마감",
-          action: () => void closeArrowEntry(),
-          disabled: false,
-        }
+      ? seatingSession.rosterCnt > 0 && seatingSession.participantCnt < seatingSession.rosterCnt
+        ? {
+            label: `입장 마감 (${seatingSession.participantCnt}/${seatingSession.rosterCnt}명 입장)`,
+            action: () => setPartialCloseOpen(true),
+            disabled: seatingSession.participantCnt === 0,
+          }
+        : {
+            label: "입장 마감",
+            action: () => void closeArrowEntry(false),
+            disabled: false,
+          }
       : seatingSession.drawMethod === "희망 경쟁배정"
         ? seatingSession.phase === "희망 자리 제출 준비" ||
           seatingSession.phase === "다음 차 지망 제출 준비"
@@ -422,6 +473,14 @@ export function useSeatingSession({
     advancePreferenceRound,
     stopArrowSession,
     recoverSeatingSession,
+    partialCloseOpen,
+    setPartialCloseOpen,
+    revealDialogOpen,
+    setRevealDialogOpen,
+    closeSessionOpen,
+    setCloseSessionOpen,
+    revealSeatingNames,
+    swapSeats,
     copyStudentAddress,
   };
 }

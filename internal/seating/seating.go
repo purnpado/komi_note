@@ -44,7 +44,18 @@ type SeatingPlan struct {
 	SessionState           string        `json:"sessionState"`
 	CurrentRound           int           `json:"currentRound"`
 	Seats                  []SeatingSeat `json:"seats"`
+	// Changes는 배정 결과를 교사가 직접 맞바꾼 기록이다(학생 이름 없이 좌석 번호만).
+	Changes []SeatingChange `json:"changes,omitempty"`
 }
+
+// SeatingChange는 결과 자리 바꾸기 한 건의 기록이다. 암호화 보관함에만 저장한다.
+type SeatingChange struct {
+	At      string `json:"at"`
+	Summary string `json:"summary"`
+}
+
+// maxSeatingChanges는 배치안 하나에 남기는 변경 기록의 최대 개수다.
+const maxSeatingChanges = 100
 
 // LadderResult는 한 좌석 경쟁에서만 사용하는 사다리타기 공개 결과입니다.
 type LadderResult struct {
@@ -128,4 +139,3 @@ func NormaliseSeatingPlan(plan SeatingPlan) SeatingPlan {
 	plan.FixedStudentIDs = fixed
 	return plan
 }
-

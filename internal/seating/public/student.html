@@ -9,7 +9,7 @@
   font-family:system-ui,-apple-system,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif}
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%}
-body{min-height:100vh;min-height:100dvh;background:var(--cream);color:var(--ink);transition:background .3s}
+body{min-height:100vh;min-height:100dvh;background:var(--cream);color:var(--ink);transition:background .3s;word-break:keep-all;overflow-wrap:anywhere}
 body.dark{background:var(--bg);color:var(--chalk)}
 main{max-width:520px;margin:0 auto;min-height:100vh;min-height:100dvh;padding:max(20px,env(safe-area-inset-top)) clamp(16px,5vw,26px) max(24px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:clamp(12px,2.4vh,20px)}
 .top{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;font-weight:800}
@@ -51,6 +51,11 @@ input{height:56px;border:2px solid #E0B57D;border-radius:16px;padding:0 16px;fon
 .hand:disabled{opacity:.6}
 .chosen{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.chosen div{border-radius:14px;padding:8px;text-align:center;background:var(--sand);font-size:13px;font-weight:800}.chosen div strong{display:block;font-size:22px}.chosen div.on{background:var(--sun)}
 .foot{margin-top:auto;text-align:center;font-size:14px;color:var(--brown)}.dark .foot{color:var(--muted)}
+.hist{border-radius:18px;padding:12px 14px;background:#fff;border:1px solid #E8D3B5;color:var(--ink)}.dark .hist{background:var(--panel);border:0;color:var(--chalk)}
+.hist summary{cursor:pointer;font-size:15px;font-weight:900}
+.hist ol{margin:8px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:clamp(13px,3.8vw,15px);font-weight:700;line-height:1.35;overflow-wrap:anywhere}
+.hist li.ok{color:#1F7A4D}.dark .hist li.ok{color:var(--mint)}
+.hist li.no{color:#B42318}.dark .hist li.no{color:#FFB4A2}
 .hidden{display:none!important}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -97,7 +102,11 @@ function orderInfo(j,heading){const idx=myOrder(j),cur=j.currentOrderIndex||0,n=
   let dots='';for(let i=0;i<n;i++)dots+='<i class="'+(i===idx?'m':i<cur?'d':'')+'"></i>';
   return '<p class="lead" style="margin-top:12px;font-size:20px;font-weight:800;color:var(--mint)">'+esc(heading||'내 순서는')+'</p><div class="ring" style="background:conic-gradient(#FFD45C 0deg '+(n?360*(idx+1)/n:0)+'deg,#23493F 0deg)"><div><strong>'+(idx+1)+'</strong><span style="font-size:20px;font-weight:800">번째</span></div></div><div class="box rows"><div><span>내 앞에</span><b>'+ahead+'명</b></div><div><span>예상 차례</span><b>'+(ahead?'약 '+Math.max(1,Math.round(ahead*14/60))+'분 뒤':'곧')+'</b></div><div class="dots">'+dots+'</div></div>'}
 
-function result(j){return {dark:true,html:top(j,'배정 완료')+'<p class="lead" style="margin-top:14px;font-size:20px;font-weight:800;color:var(--mint)">내 자리는</p><div class="huge"><strong>'+esc(String(j.mySeatLabel||'').replace('번',''))+'</strong></div><p class="lead" style="font-size:22px;font-weight:900;color:var(--chalk)">번 자리예요</p><div class="box" style="display:flex;flex-direction:column;gap:8px">'+mini(j,j.mySeatId)+'</div><div class="foot">친구들 이름은 선생님 화면에서만 보여요</div>'}}
+// 희망 경쟁 본인 기록: 서버가 이 학생 것만 보내며, 회차를 닫으면 사라진다
+function hist(j,open){const list=j.myHistory||[];if(!list.length)return '';
+  return '<details class="hist"'+(open?' open':'')+'><summary>내 진행 기록 '+list.length+'건</summary><ol>'+list.map(t=>'<li class="'+(/확정$/.test(t)?'ok':/탈락|이미 확정/.test(t)?'no':'')+'">'+esc(t)+'</li>').join('')+'</ol></details>'}
+
+function result(j){return {dark:true,html:top(j,'배정 완료')+'<p class="lead" style="margin-top:14px;font-size:20px;font-weight:800;color:var(--mint)">내 자리는</p><div class="huge"><strong>'+esc(String(j.mySeatLabel||'').replace('번',''))+'</strong></div><p class="lead" style="font-size:22px;font-weight:900;color:var(--chalk)">번 자리예요</p><div class="box" style="display:flex;flex-direction:column;gap:8px">'+mini(j,j.mySeatId)+'</div>'+hist(j,false)+'<div class="foot">친구들 이름은 선생님 화면에서만 보여요</div>'}}
 
 // 단계별 학생 화면
 function screen(j){const p=j.phase,m=j.drawMethod,me=j.nickname;
@@ -122,18 +131,18 @@ function screen(j){const p=j.phase,m=j.drawMethod,me=j.nickname;
   if(p==='희망 자리 제출'){
     if(!j.canSubmitPreferences)return {html:top(j,'희망 자리 고르기')+'<h1 style="margin-top:30px">잠시 기다려요</h1>'};
     const submitted=(j.myPreferences||[]).length>0&&!prefEditing;const limit=j.preferenceLimit||3,seats=(j.layout||[]).filter(s=>s.available);
-    if(submitted){const lbl=id=>(seats.find(s=>s.id===id)||{}).seatNumber||'?';return {key:'sub'+(j.myPreferences||[]).join(','),html:top(j,'희망 자리 고르기')+'<h1 style="margin-top:20px">제출 완료!</h1><p class="lead">선생님이 마감할 때까지 기다려요</p><div class="chosen">'+(j.myPreferences||[]).map((id,i)=>'<div class="on">'+(i+1)+'지망<strong>'+lbl(id)+'번</strong></div>').join('')+'</div><button class="btn" id="reedit" type="button" style="margin-top:auto;background:#fff;color:var(--ink);box-shadow:0 4px 0 #E0B57D;border:2px solid #E0B57D">다시 고르기</button>'}}
+    if(submitted){const lbl=id=>(seats.find(s=>s.id===id)||{}).seatNumber||'?';return {key:'sub'+(j.myPreferences||[]).join(','),html:top(j,'희망 자리 고르기')+'<h1 style="margin-top:20px">제출 완료!</h1><p class="lead">선생님이 마감할 때까지 기다려요</p><div class="chosen">'+(j.myPreferences||[]).map((id,i)=>'<div class="on">'+(i+1)+'지망<strong>'+lbl(id)+'번</strong></div>').join('')+'</div>'+hist(j,false)+'<button class="btn" id="reedit" type="button" style="margin-top:auto;background:#fff;color:var(--ink);box-shadow:0 4px 0 #E0B57D;border:2px solid #E0B57D">다시 고르기</button>'}}
     prefPicks=prefPicks.filter(id=>seats.some(s=>s.id===id)).slice(0,limit);
     const cols=Math.max(...seats.map(s=>s.column||1),1);let b='';(j.layout||[]).forEach(s=>{const k=prefPicks.indexOf(s.id);b+='<button type="button" class="pick'+(k>=0?' on':'')+'" data-seat="'+esc(s.id)+'" style="grid-column:'+(s.column||1)+';grid-row:'+(s.row||1)+'"'+(s.available?'':' disabled')+'>'+(k>=0?'<span style="display:block;font-size:.72em;line-height:1">'+'①②③④⑤'[k]+'</span>':'')+esc(s.seatNumber)+'</button>'});
     let chosen='';for(let i=0;i<limit;i++){const id=prefPicks[i],s=seats.find(x=>x.id===id);chosen+='<div class="'+(s?'on':'')+'">'+(i+1)+'지망<strong>'+(s?s.seatNumber+'번':'-')+'</strong></div>'}
-    return {key:'pref'+prefPicks.join(',')+seats.map(s=>s.id).join(','),html:top(j,'희망 자리 고르기')+'<h1 style="font-size:clamp(26px,7.5vw,34px)">앉고 싶은 자리를<br>순서대로 눌러요</h1><div class="box" style="display:flex;flex-direction:column;gap:8px"><span class="desk" style="background:var(--sand)">교탁 ▲ 앞</span><div class="grid" style="grid-template-columns:repeat('+cols+',1fr);gap:'+(cols>6?4:6)+'px">'+b+'</div></div><div class="chosen" style="grid-template-columns:repeat('+limit+',1fr)">'+chosen+'</div><p class="err" id="actErr"></p><button class="btn" id="submit" type="button"'+(prefPicks.length?'':' disabled')+'>희망 자리 제출</button>'}}
+    return {key:'pref'+prefPicks.join(',')+seats.map(s=>s.id).join(','),html:top(j,'희망 자리 고르기')+'<h1 style="font-size:clamp(26px,7.5vw,34px)">앉고 싶은 자리를<br>순서대로 눌러요</h1><div class="box" style="display:flex;flex-direction:column;gap:8px"><span class="desk" style="background:var(--sand)">교탁 ▲ 앞</span><div class="grid" style="grid-template-columns:repeat('+cols+',1fr);gap:'+(cols>6?4:6)+'px">'+b+'</div></div><div class="chosen" style="grid-template-columns:repeat('+limit+',1fr)">'+chosen+'</div><p class="err" id="actErr"></p><button class="btn" id="submit" type="button"'+(prefPicks.length?'':' disabled')+'>희망 자리 제출</button>'+hist(j,false)}}
   if(p==='가위바위보 선택'){const match=(j.rpsMatches||[]).find(x=>!x.winner&&!x.bye&&(x.left===me||x.right===me));
     if(match){const other=match.left===me?match.right:match.left,mine=j.myRPSChoice||'';
       return {dark:true,key:'rps'+mine,html:top(j,esc(j.rpsSeatLabel||'')+' 자리 경쟁')+'<h1 style="font-size:clamp(28px,8vw,38px)">'+esc(other)+'와<br>가위바위보!</h1><div class="bar"><i id="tbar" style="width:100%;background:var(--sun)"></i></div><p class="lead" id="tleft"></p><div style="display:flex;flex-direction:column;gap:12px;flex:1">'+['가위','바위','보'].map(c=>'<button type="button" class="hand'+(mine===c?' on':'')+'" data-choice="'+c+'"><img src="/assets/seating/'+HAND[c]+'.webp" alt="">'+c+(mine===c?'<span style="margin-left:auto;font-size:16px">선택함</span>':'')+'</button>').join('')+'</div><p class="err" id="actErr"></p><div class="foot">시간 안에 고르지 않으면 탈락해요 · 바꿀 수 있어요</div>'}}
-    if((j.rpsCandidates||[]).includes(me))return {dark:true,html:top(j,esc(j.rpsSeatLabel||'')+' 자리 경쟁')+'<h1 style="margin-top:30px">다음 판을<br>기다려요</h1><p class="lead">전자칠판의 대진표를 확인하세요</p>'};
-    return {dark:true,html:top(j,'희망 자리 고르기')+'<h1 style="margin-top:30px">'+esc(j.rpsSeatLabel||'')+' 자리<br>경쟁 중</h1><p class="lead">전자칠판을 함께 봐요</p>'}}
+    if((j.rpsCandidates||[]).includes(me))return {dark:true,html:top(j,esc(j.rpsSeatLabel||'')+' 자리 경쟁')+'<h1 style="margin-top:30px">다음 판을<br>기다려요</h1><p class="lead">전자칠판의 대진표를 확인하세요</p>'+hist(j,true)};
+    return {dark:true,html:top(j,'희망 자리 고르기')+'<h1 style="margin-top:30px">'+esc(j.rpsSeatLabel||'')+' 자리<br>경쟁 중</h1><p class="lead">전자칠판을 함께 봐요</p>'+hist(j,true)}}
   const text=p==='경쟁률 공개'?'경쟁률을 공개해요':p==='가위바위보 결과'?'가위바위보 결과 공개':/지망 처리 완료/.test(p)?'이번 지망 처리 완료':p==='다음 차 지망 제출 준비'?'다음 희망 자리를 준비해요':'잠시 기다려요';
-  return {dark:true,html:top(j,'희망 자리 고르기')+'<h1 style="margin-top:30px">'+esc(text)+'</h1><p class="lead">전자칠판을 함께 봐요 · 아직 자리가 정해지지 않았어요</p>'}}
+  return {dark:true,html:top(j,'희망 자리 고르기')+'<h1 style="margin-top:30px">'+esc(text)+'</h1><p class="lead">전자칠판을 함께 봐요 · 아직 자리가 정해지지 않았어요</p>'+hist(j,true)}}
 
 function bind(){
   const spin=$('spin');if(spin)spin.onclick=async()=>{if(busy)return;busy=true;spin.disabled=true;try{await post('/arrow')}catch(e){$('actErr').textContent=e.message;spin.disabled=false}finally{busy=false;tick(true)}};

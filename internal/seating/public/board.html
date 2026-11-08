@@ -274,8 +274,8 @@ rps:{
     $('rt').textContent=choosing?'초 안에 선택':'이번 판 결과';$('rs').textContent=choosing?'휴대폰에서 손 모양을 골라요':'선생님이 다음 판을 진행해요';
     $('ct').innerHTML=(j.contests||[]).slice(0,8).map(c=>'<div class="'+(c.current?'on':'')+'"><span>'+(c.current?'● ':'')+esc(c.seatLabel)+' 자리</span><span>'+c.candidateCount+'명</span></div>').join('')}},
 final:{
-  mount(){scene.innerHTML='<div style="height:100%;display:flex;flex-direction:column;gap:10px"><div class="muted" style="text-align:center;font-size:22px;font-weight:800" id="fs"></div><div class="map" id="map" style="flex:1;min-height:0"></div></div>'},
-  update(j){$('title').textContent='최종 자리배치';$('fs').textContent='참여 '+(j.participants||0)+'명 · 모든 자리가 확정되었어요';
+  mount(){scene.innerHTML='<div style="height:100%;display:flex;flex-direction:column;gap:10px"><div style="text-align:center;font-size:26px;font-weight:900;color:var(--chalk)" id="fs" role="status"></div><div class="map" id="map" style="flex:1;min-height:0"></div></div>'},
+  update(j){$('title').textContent=j.namesRevealed?'최종 자리배치':'배정 완료';$('fs').textContent=j.namesRevealed?'참여 '+(j.participants||0)+'명 · 최종 자리배치를 공개합니다':'참여 '+(j.participants||0)+'명 · 모든 자리가 확정되었어요 · 선생님이 확인한 뒤 이름을 공개해요';
     $('map').innerHTML=seatMap($('map'),j.layout||[],{desk:j.deskPosition,placementMode:j.placementMode,layoutMode:j.layoutMode,maxW:300,maxH:120,maxFont:40,cell:s=>({cls:s.finalName||s.nickname?'final':'open',text:s.finalName||s.nickname||'빈 자리'})})}}
 };
 

@@ -12,7 +12,11 @@ export function AnswerAssessmentObjection(arg1:string,arg2:string,arg3:string):P
 
 export function CheckForUpdate():Promise<main.UpdateInfo>;
 
-export function CloseSeatingEntry(arg1:string):Promise<main.SeatingSessionInfo>;
+export function CloseSeatingEntry(arg1:string,arg2:boolean):Promise<main.SeatingSessionInfo>;
+
+export function RevealSeatingNames(arg1:string,arg2:boolean):Promise<main.SeatingSessionInfo>;
+
+export function SwapSeatingSeats(arg1:string,arg2:string,arg3:string):Promise<main.SeatingPlan>;
 
 export function CloseSeatingPreferenceSubmission(arg1:string):Promise<main.SeatingSessionInfo>;
 

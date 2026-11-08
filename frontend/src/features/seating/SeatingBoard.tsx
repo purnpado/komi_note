@@ -47,8 +47,12 @@ function SeatCell({
   onAssignSeat,
   onSeatDragStart,
   onSeatDrop,
+  onSeatClick,
+  selectedSeatID,
 }: SeatCommonProps & {
   readOnly: boolean;
+  onSeatClick?: (seatID: string) => void;
+  selectedSeatID?: string;
   onAssignSeat?: (seatID: string, studentID: string) => void;
   onSeatDragStart?: (
     event: ReactDragEvent<HTMLDivElement>,
@@ -61,10 +65,26 @@ function SeatCell({
 }) {
   const seatNumber = seatNumberByID.get(seat.id) || 0;
   const student = orderedStudents.find((item) => item.id === seat.studentId);
+  const clickable = readOnly && Boolean(onSeatClick);
   return (
     <div
-      className={seat.studentId ? "seating-cell filled" : "seating-cell"}
+      className={`${seat.studentId ? "seating-cell filled" : "seating-cell"}${clickable ? " swappable" : ""}${selectedSeatID === seat.id ? " swap-selected" : ""}`}
       key={seat.id}
+      role={clickable ? "button" : undefined}
+      tabIndex={clickable ? 0 : undefined}
+      aria-pressed={clickable ? selectedSeatID === seat.id : undefined}
+      aria-label={clickable ? `${seatNumber ? `${seatNumber}번` : "여분"} 자리 ${student ? studentLabel(student) : "빈 자리"}` : undefined}
+      onClick={clickable ? () => onSeatClick?.(seat.id) : undefined}
+      onKeyDown={
+        clickable
+          ? (event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                onSeatClick?.(seat.id);
+              }
+            }
+          : undefined
+      }
       draggable={!readOnly && Boolean(seat.studentId)}
       onDragStart={
         !readOnly && onSeatDragStart
@@ -115,6 +135,8 @@ export function SeatingGrid({
   onAssignSeat,
   onSeatDragStart,
   onSeatDrop,
+  onSeatClick,
+  selectedSeatID,
 }: {
   visualSeats: models.SeatingSeat[];
   groupedSeatGroups: models.SeatingSeat[][];
@@ -134,6 +156,8 @@ export function SeatingGrid({
     event: ReactDragEvent<HTMLDivElement>,
     seatID: string,
   ) => void;
+  onSeatClick?: (seatID: string) => void;
+  selectedSeatID?: string;
 }) {
   // 묶음 배치는 한 줄에 놓을 묶음 수가 "열 수 ÷ 묶음 크기"다.
   // 모둠형은 묶음이 이보다 많으므로 자동으로 다음 줄로 넘어가 2차원으로 놓인다.
@@ -175,6 +199,8 @@ export function SeatingGrid({
                   onAssignSeat={onAssignSeat}
                   onSeatDragStart={onSeatDragStart}
                   onSeatDrop={onSeatDrop}
+                  onSeatClick={onSeatClick}
+                  selectedSeatID={selectedSeatID}
                 />
               ))}
             </div>
@@ -190,6 +216,8 @@ export function SeatingGrid({
               onAssignSeat={onAssignSeat}
               onSeatDragStart={onSeatDragStart}
               onSeatDrop={onSeatDrop}
+              onSeatClick={onSeatClick}
+              selectedSeatID={selectedSeatID}
             />
           ))}
     </div>
@@ -209,6 +237,8 @@ export function CustomSeatCanvas({
   onDragStart,
   onDragEnd,
   onPointerMove,
+  onSeatClick,
+  selectedSeatID,
 }: {
   seats: models.SeatingSeat[];
   seatNumberByID: Map<string, number>;
@@ -222,6 +252,8 @@ export function CustomSeatCanvas({
   onDragStart?: (seatID: string) => void;
   onDragEnd?: () => void;
   onPointerMove?: (event: ReactPointerEvent<HTMLDivElement>) => void;
+  onSeatClick?: (seatID: string) => void;
+  selectedSeatID?: string;
 }) {
   return (
     <div
@@ -234,11 +266,27 @@ export function CustomSeatCanvas({
         const seatNumber = seatNumberByID.get(seat.id) || 0;
         const student = orderedStudents.find((item) => item.id === seat.studentId);
         if (readOnly) {
+          const clickable = Boolean(onSeatClick);
           return (
             <div
-              className={seat.studentId ? "custom-seat readonly filled" : "custom-seat readonly"}
+              className={`${seat.studentId ? "custom-seat readonly filled" : "custom-seat readonly"}${clickable ? " swappable" : ""}${selectedSeatID === seat.id ? " swap-selected" : ""}`}
               key={seat.id}
               style={{ left: `${(seat.x || 500) / 10}%`, top: `${(seat.y || 500) / 10}%` }}
+              role={clickable ? "button" : undefined}
+              tabIndex={clickable ? 0 : undefined}
+              aria-pressed={clickable ? selectedSeatID === seat.id : undefined}
+              aria-label={clickable ? `${seatNumber ? `${seatNumber}번` : "여분"} 자리 ${student ? studentLabel(student) : "빈 자리"}` : undefined}
+              onClick={clickable ? () => onSeatClick?.(seat.id) : undefined}
+              onKeyDown={
+                clickable
+                  ? (event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        onSeatClick?.(seat.id);
+                      }
+                    }
+                  : undefined
+              }
             >
               <b>{seatNumber ? `${seatNumber}번` : "여분"}</b>
               <small>{student ? studentLabel(student) : "빈 자리"}</small>

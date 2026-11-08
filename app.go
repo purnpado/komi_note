@@ -151,9 +151,20 @@ func (a *App) AdvanceRandomLadder(planID string) (SeatingSessionInfo, error) {
 	return a.seating.AdvanceRandomLadder(planID)
 }
 
-// CloseSeatingEntry는 QR 학생 입장을 마감합니다.
-func (a *App) CloseSeatingEntry(planID string) (SeatingSessionInfo, error) {
-	return a.seating.CloseEntry(planID)
+// CloseSeatingEntry는 QR 학생 입장을 마감합니다. 재적 인원보다 적게 입장했으면
+// allowPartial(결석·미참여 예외 마감)을 교사가 확인해야 마감됩니다.
+func (a *App) CloseSeatingEntry(planID string, allowPartial bool) (SeatingSessionInfo, error) {
+	return a.seating.CloseEntry(planID, allowPartial)
+}
+
+// RevealSeatingNames는 배정이 끝난 회차의 전자칠판에 실명 배치도를 공개하거나 다시 가립니다.
+func (a *App) RevealSeatingNames(planID string, reveal bool) (SeatingSessionInfo, error) {
+	return a.seating.RevealNames(planID, reveal)
+}
+
+// SwapSeatingSeats는 배정 결과에서 두 자리의 학생을 맞바꾸고 변경 기록을 남깁니다.
+func (a *App) SwapSeatingSeats(planID, firstSeatID, secondSeatID string) (SeatingPlan, error) {
+	return a.seating.SwapSeats(planID, firstSeatID, secondSeatID)
 }
 
 // OpenSeatingPreferenceSubmission은 희망 경쟁 회차의 학생 지망 입력을 엽니다.

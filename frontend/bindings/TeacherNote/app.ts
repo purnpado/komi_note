@@ -44,10 +44,11 @@ export function CheckForUpdate(): $CancellablePromise<$models.UpdateInfo> {
 }
 
 /**
- * CloseSeatingEntry는 QR 학생 입장을 마감합니다.
+ * CloseSeatingEntry는 QR 학생 입장을 마감합니다. 재적 인원보다 적게 입장했으면
+ * allowPartial(결석·미참여 예외 마감)을 교사가 확인해야 마감됩니다.
  */
-export function CloseSeatingEntry(planID: string): $CancellablePromise<$models.SeatingSessionInfo> {
-    return $Call.ByID(143152086, planID);
+export function CloseSeatingEntry(planID: string, allowPartial: boolean): $CancellablePromise<$models.SeatingSessionInfo> {
+    return $Call.ByID(143152086, planID, allowPartial);
 }
 
 /**
@@ -426,6 +427,13 @@ export function RevealRandomLadder(planID: string): $CancellablePromise<$models.
     return $Call.ByID(3842658343, planID);
 }
 
+/**
+ * RevealSeatingNames는 배정이 끝난 회차의 전자칠판에 실명 배치도를 공개하거나 다시 가립니다.
+ */
+export function RevealSeatingNames(planID: string, reveal: boolean): $CancellablePromise<$models.SeatingSessionInfo> {
+    return $Call.ByID(3584009973, planID, reveal);
+}
+
 export function SaveAssessment(item: $models.Assessment): $CancellablePromise<$models.Assessment> {
     return $Call.ByID(309968338, item);
 }
@@ -641,6 +649,13 @@ export function StopSeatingSession(planID: string): $CancellablePromise<void> {
  */
 export function StopSurveySession(surveyID: string): $CancellablePromise<void> {
     return $Call.ByID(3013395513, surveyID);
+}
+
+/**
+ * SwapSeatingSeats는 배정 결과에서 두 자리의 학생을 맞바꾸고 변경 기록을 남깁니다.
+ */
+export function SwapSeatingSeats(planID: string, firstSeatID: string, secondSeatID: string): $CancellablePromise<$models.SeatingPlan> {
+    return $Call.ByID(1742417785, planID, firstSeatID, secondSeatID);
 }
 
 /**

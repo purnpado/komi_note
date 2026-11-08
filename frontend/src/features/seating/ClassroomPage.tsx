@@ -9,7 +9,13 @@ import { SeatingHistoryPanel } from "./SeatingHistoryPanel";
 import { SeatingSetupPanel } from "./SeatingSetupPanel";
 import { SeatingExecutionPanel } from "./SeatingExecutionPanel";
 import { SeatingResultPanel } from "./SeatingResultPanel";
-import { SeatingDeleteDialog, SeatingRecoveryEndDialog } from "./SeatingDialogs";
+import {
+  SeatingCloseSessionDialog,
+  SeatingDeleteDialog,
+  SeatingPartialCloseDialog,
+  SeatingRecoveryEndDialog,
+  SeatingRevealNamesDialog,
+} from "./SeatingDialogs";
 import { escapePrintText, openExternalURL, printSheet } from "../shared/desktopActions";
 import "./seating.css";
 
@@ -72,6 +78,14 @@ export function ClassroomPage({
     stopArrowSession,
     recoverSeatingSession,
     copyStudentAddress,
+    partialCloseOpen,
+    setPartialCloseOpen,
+    revealDialogOpen,
+    setRevealDialogOpen,
+    closeSessionOpen,
+    setCloseSessionOpen,
+    revealSeatingNames,
+    swapSeats,
   } = useSeatingSession({
     selectedID,
     setSelectedID,
@@ -570,7 +584,7 @@ export function ClassroomPage({
           drawMethod={drawMethod}
           seatingSession={seatingSession}
           sessionPhase={sessionPhase}
-          rosterCount={orderedStudents.length}
+          rosterCount={seatingSession?.rosterCnt || orderedStudents.length}
           executionAction={executionAction}
           canUseFixedSeats={canUseFixedSeats}
           onRecover={(action) => void recoverSeatingSession(action)}
@@ -582,7 +596,9 @@ export function ClassroomPage({
               void openExternalURL(seatingSession.boardUrl).catch(() => setNotice(`전자칠판 화면을 열지 못했습니다. 브라우저에 직접 입력해 주세요: ${seatingSession.boardUrl}`));
             }
           }}
-          onCloseSession={() => void stopArrowSession()}
+          onCloseSession={() => setCloseSessionOpen(true)}
+          onRevealNames={() => setRevealDialogOpen(true)}
+          onHideNames={() => void revealSeatingNames(false)}
         />
       )}
       {seatingTab === "확정 및 결과" && (
@@ -600,6 +616,13 @@ export function ClassroomPage({
           isGroupedPlacement={groupedPlacement}
           placementGroupSize={groupSize}
           onPrint={printSeatingResult}
+          canSwap={hasFinalSeatingResult && Boolean(selectedID)}
+          onSwapSeats={swapSeats}
+          changes={selectedPlan?.changes || []}
+          sessionFinished={Boolean(seatingSession?.running) && ["배정 완료", "자리 확인"].includes(seatingSession?.phase || "")}
+          namesRevealed={Boolean(seatingSession?.namesRevealed)}
+          onRevealNames={() => setRevealDialogOpen(true)}
+          onHideNames={() => void revealSeatingNames(false)}
         />
       )}
       <SeatingDeleteDialog
@@ -612,6 +635,24 @@ export function ClassroomPage({
         open={seatingRecoveryEndOpen}
         onOpenChange={setSeatingRecoveryEndOpen}
         onConfirmEnd={() => recoverSeatingSession("회차 종료")}
+      />
+      <SeatingPartialCloseDialog
+        open={partialCloseOpen}
+        onOpenChange={setPartialCloseOpen}
+        participantCount={seatingSession?.participantCnt || 0}
+        rosterCount={seatingSession?.rosterCnt || orderedStudents.length}
+        onConfirm={() => closeArrowEntry(true)}
+      />
+      <SeatingRevealNamesDialog
+        open={revealDialogOpen}
+        onOpenChange={setRevealDialogOpen}
+        onConfirm={() => revealSeatingNames(true)}
+      />
+      <SeatingCloseSessionDialog
+        open={closeSessionOpen}
+        onOpenChange={setCloseSessionOpen}
+        finished={["배정 완료", "자리 확인"].includes(seatingSession?.phase || "")}
+        onConfirm={stopArrowSession}
       />
     </>
   );

@@ -21,6 +21,8 @@ export function SeatingExecutionPanel({
   onCopyAddress,
   onOpenBoard,
   onCloseSession,
+  onRevealNames,
+  onHideNames,
 }: {
   drawMethod: string;
   seatingSession: models.SeatingSessionInfo | null;
@@ -34,6 +36,8 @@ export function SeatingExecutionPanel({
   onCopyAddress: () => void;
   onOpenBoard: () => void;
   onCloseSession: () => void;
+  onRevealNames: () => void;
+  onHideNames: () => void;
 }) {
   const preferenceCompetition = seatingSession?.drawMethod === "희망 경쟁배정";
 	const randomLadder = seatingSession?.drawMethod === "랜덤 사다리 배정" || drawMethod === "랜덤 사다리 배정";
@@ -115,9 +119,23 @@ export function SeatingExecutionPanel({
           <p className="execution-wait">당첨 자리와 닉네임을 전자칠판에 5초간 고정 표시합니다.</p>
         )}
         {["배정 완료", "자리 확인"].includes(seatingSession?.phase || "") && (
-          <button className="primary-button" onClick={onOpenResult}>
-            {seatingSession?.phase === "자리 확인" ? "최종 자리 확인" : "결과 확인으로 이동"}
-          </button>
+          <div className="seating-finish-actions">
+            <p className="execution-ready" role="status">
+              {seatingSession?.namesRevealed
+                ? "✅ 전자칠판에 실명 배치도를 공개했어요."
+                : "✅ 배정이 끝났어요. 전자칠판에는 아직 번호와 닉네임만 보입니다. 결과를 확인·조정한 뒤 실명을 공개하세요."}
+            </p>
+            <div className="dialog-actions">
+              <button className="quiet-button" onClick={onOpenResult}>
+                결과 확인·자리 바꾸기
+              </button>
+              {seatingSession?.namesRevealed ? (
+                <button className="quiet-button" onClick={onHideNames}>실명 다시 가리기</button>
+              ) : (
+                <button className="primary-button" onClick={onRevealNames}>실명 배치도 공개</button>
+              )}
+            </div>
+          </div>
         )}
         {preferenceCompetition && seatingSession?.phase === "경쟁률 공개" && (
           <p className="execution-wait">학생별 실명과 지망 순위는 공개하지 않습니다. 좌석별 게임 경쟁을 진행합니다.</p>
@@ -132,7 +150,13 @@ export function SeatingExecutionPanel({
             <strong>학생 주소</strong>
             <code>{seatingSession.studentUrl}</code>
             <button className="quiet-button" onClick={onCopyAddress}>주소 복사</button>
-            <p>참여 {seatingSession.participantCnt}명 / 재적 {rosterCount}명 · 1초마다 자동 갱신</p>
+            <p>
+              참여 {seatingSession.participantCnt}명 / 재적 {rosterCount}명 · 1초마다 자동 갱신
+              {seatingSession.phase === "입장 대기" && seatingSession.participantCnt < rosterCount && (
+                <> · <b>아직 {rosterCount - seatingSession.participantCnt}명 미입장</b></>
+              )}
+              {seatingSession.partialClosed && <> · 결석·미참여 예외 마감</>}
+            </p>
           </div>
           <div className="dialog-actions">
             {seatingSession.boardUrl && (

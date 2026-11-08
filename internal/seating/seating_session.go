@@ -39,6 +39,11 @@ type SeatingSessionInfo struct {
 	CurrentContestCandidates  []string `json:"currentContestCandidates"`
 	Paused                    bool     `json:"paused"`
 	ErrorMessage              string   `json:"errorMessage"`
+	// RosterCnt는 입장해야 하는 재적 인원, PartialClosed는 결석·미참여 예외 마감 여부다.
+	RosterCnt     int  `json:"rosterCnt"`
+	PartialClosed bool `json:"partialClosed"`
+	// NamesRevealed는 교사가 전자칠판에 실명 배치도를 공개했는지 나타낸다.
+	NamesRevealed bool `json:"namesRevealed"`
 }
 
 type seatingSession struct {
@@ -109,6 +114,13 @@ type seatingSession struct {
 	recoveryStudentID  string
 	recoverySeatID     string
 	loginAttempts      map[string]seatingLoginAttempt
+	// partialClose는 재적 인원보다 적게 입장한 채 교사가 예외 마감했음을 뜻한다.
+	partialClose bool
+	// namesRevealed가 참일 때만 전자칠판 최종 화면에 실명을 보낸다.
+	namesRevealed bool
+	// history는 희망 경쟁에서 학생 본인에게만 보여 주는 익명 진행 기록이다.
+	// 회차 메모리에만 있고 회차를 닫으면 함께 사라진다.
+	history map[string][]string
 }
 
 // ladderRung은 인접한 두 세로줄을 잇는 고정 연결선이다. 공개 뒤에도 바뀌지 않아
@@ -238,15 +250,15 @@ func (s *SeatingServer) Start(planID string) (SeatingSessionInfo, error) {
 	}
 	code := fmt.Sprintf("%X", b[:3])
 	rosterCount := 0
-	if students, listErr := s.store.ListStudents(); listErr == nil {
-		rosterCount = len(students)
+	if list, listErr := s.store.ListStudents(); listErr == nil {
+		rosterCount = len(list)
 	}
 	activeSeats := orderedPlanSeats(plan)
 	if rosterCount > 0 && len(activeSeats) > rosterCount {
 		activeSeats = activeSeats[:rosterCount]
 	}
 	available, seatLabels, seatLayout := seatingLayout(activeSeats)
-	session := &seatingSession{planID: planID, token: base64.RawURLEncoding.EncodeToString(b), boardToken: base64.RawURLEncoding.EncodeToString(boardBytes), shortCode: code, listener: listener, joined: map[string]string{}, rosterCount: rosterCount, phase: "입장 대기", drawMethod: plan.DrawMethod, competitionMethod: plan.CompetitionMethod, available: available, seatLabels: seatLabels, seatLayout: seatLayout, placementMode: plan.PlacementMode, layoutMode: plan.LayoutMode, deskPosition: plan.DeskPosition, assigned: map[string]string{}, fixed: map[string]string{}, preferences: map[string][]string{}, rpsChoices: map[string]string{}, ladderStarts: map[string]int{}, ladderSeatByStudent: map[string]string{}, ladderRungs: []ladderRung{}, ladderChoices: map[string][]int{}, loginAttempts: map[string]seatingLoginAttempt{}}
+	session := &seatingSession{planID: planID, token: base64.RawURLEncoding.EncodeToString(b), boardToken: base64.RawURLEncoding.EncodeToString(boardBytes), shortCode: code, listener: listener, joined: map[string]string{}, rosterCount: rosterCount, phase: "입장 대기", drawMethod: plan.DrawMethod, competitionMethod: plan.CompetitionMethod, available: available, seatLabels: seatLabels, seatLayout: seatLayout, placementMode: plan.PlacementMode, layoutMode: plan.LayoutMode, deskPosition: plan.DeskPosition, assigned: map[string]string{}, fixed: map[string]string{}, preferences: map[string][]string{}, rpsChoices: map[string]string{}, ladderStarts: map[string]int{}, ladderSeatByStudent: map[string]string{}, ladderRungs: []ladderRung{}, ladderChoices: map[string][]int{}, loginAttempts: map[string]seatingLoginAttempt{}, history: map[string][]string{}}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/assets/seating/rps-rock.webp", writeSeatingPublicAsset("image/webp", rpsRockWebP))
 	mux.HandleFunc("/assets/seating/rps-paper.webp", writeSeatingPublicAsset("image/webp", rpsPaperWebP))
@@ -283,7 +295,9 @@ func seatingLayout(activeSeats []SeatingSeat) (map[string]bool, map[string]strin
 }
 
 // CloseEntry는 새 학생 입장을 마감하고 현재 입장 인원을 확정합니다.
-func (s *SeatingServer) CloseEntry(planID string) (SeatingSessionInfo, error) {
+// 재적 인원이 모두 입장해야 마감할 수 있고, 결석·미참여가 있으면 allowPartial로
+// 교사가 예외 마감을 명시적으로 확인해야 합니다.
+func (s *SeatingServer) CloseEntry(planID string, allowPartial bool) (SeatingSessionInfo, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	x := s.sessions[planID]
@@ -296,6 +310,11 @@ func (s *SeatingServer) CloseEntry(planID string) (SeatingSessionInfo, error) {
 	if len(x.joined) == 0 {
 		return SeatingSessionInfo{}, errors.New("입장한 학생이 없어 입장을 마감할 수 없습니다")
 	}
+	missing := x.rosterCount - len(x.joined)
+	if missing > 0 && !allowPartial {
+		return SeatingSessionInfo{}, fmt.Errorf("재적 %d명 중 %d명만 입장했습니다. 모두 입장한 뒤 마감하거나, 결석·미참여 예외 마감을 선택해 주세요", x.rosterCount, len(x.joined))
+	}
+	x.partialClose = missing > 0
 	if x.drawMethod == "희망 경쟁배정" {
 		x.phase = "희망 자리 제출 준비"
 	} else {
@@ -425,6 +444,15 @@ func (s *SeatingServer) preparePreferenceRoundLocked(x *seatingSession, priority
 				occupied[seatID] = true
 			}
 		}
+		// 이번 지망 자리가 이미 다른 학생에게 확정된 경우 본인 기록에 남겨 다음 지망으로 넘어감을 알린다.
+		for studentID, seatIDs := range x.preferences {
+			if assigned[studentID] || len(seatIDs) < priority {
+				continue
+			}
+			if seatID := seatIDs[priority-1]; occupied[seatID] {
+				s.addHistoryLocked(x, studentID, historyPrefix(x, priority, seatID)+" · 이미 확정된 자리 → 다음 지망으로")
+			}
+		}
 		items := BuildSeatingContests(preferences, assigned, occupied, priority)
 		singles, contests := SplitSeatingContests(items)
 		for _, single := range singles {
@@ -435,6 +463,7 @@ func (s *SeatingServer) preparePreferenceRoundLocked(x *seatingSession, priority
 			x.assigned[studentID] = seatID
 			delete(x.available, seatID)
 			s.recordPreferenceConfirmationLocked(x, studentID, seatID, priority)
+			s.addHistoryLocked(x, studentID, historyPrefix(x, priority, seatID)+" · 단독 희망 → 확정")
 		}
 		x.preferencePriority = priority
 		x.contests = contests
@@ -690,6 +719,7 @@ func (s *SeatingServer) advanceRPSLocked(x *seatingSession) {
 		x.assigned[winner] = contest.SeatID
 		delete(x.available, contest.SeatID)
 		s.recordPreferenceConfirmationLocked(x, winner, contest.SeatID, x.preferencePriority)
+		s.recordContestHistoryLocked(x, *contest, winner, "가위바위보")
 		x.contestIndex++
 	} else if len(winners) > 1 {
 		x.rpsResult = winners
@@ -752,6 +782,7 @@ func (s *SeatingServer) advanceLadderLocked(x *seatingSession) {
 	x.assigned[result.WinnerID] = contest.SeatID
 	delete(x.available, contest.SeatID)
 	s.recordPreferenceConfirmationLocked(x, result.WinnerID, contest.SeatID, x.preferencePriority)
+	s.recordContestHistoryLocked(x, *contest, result.WinnerID, "사다리타기")
 	x.contestIndex++
 	x.phase = "사다리 결과"
 	x.resultEndsAt = time.Now().Add(5 * time.Second)
@@ -1018,6 +1049,8 @@ func (s *SeatingServer) Info(planID string) (SeatingSessionInfo, error) {
 			return s.infoLocked(x)
 		}
 		s.finishOrderShuffleLocked(x)
+		// 전자칠판을 열지 않은 채 교사 화면만 보고 있어도 사다리 연출이 끝나면 다음 단계로 넘어간다.
+		s.finishRandomLadderAnimationLocked(x)
 		s.advanceResultLocked(x)
 		s.advanceRPSLocked(x)
 		s.advanceRPSResultLocked(x)
@@ -1076,9 +1109,9 @@ func (s *SeatingServer) infoLocked(x *seatingSession) (SeatingSessionInfo, error
 	} else if x.phase == "사다리 결과 확인" {
 		notice = "도착 좌석을 확인했습니다. 교사가 다음 학생 사다리타기를 시작할 수 있습니다."
 	} else if x.phase == "자리 확인" {
-		notice = "모든 참여 학생의 자리가 확정되었습니다. 전자칠판에서 최종 자리배치도를 확인해 주세요."
+		notice = "모든 참여 학생의 자리가 확정되었습니다. 결과를 확인·조정한 뒤 전자칠판에 실명 배치도를 공개해 주세요."
 	} else if x.phase == "배정 완료" {
-		notice = "제출된 지망의 경쟁이 모두 끝났습니다. 최종 결과를 확인해 주세요."
+		notice = "제출된 지망의 경쟁이 모두 끝났습니다. 결과를 확인·조정한 뒤 전자칠판에 실명 배치도를 공개해 주세요."
 	} else if strings.HasSuffix(x.phase, "지망 처리 완료") {
 		notice = fmt.Sprintf("%d차 배정의 %d지망 처리가 끝났습니다. 확정 결과를 확인한 뒤 다음 지망을 처리해 주세요.", x.preferenceCycle, x.preferencePriority)
 	} else if x.phase == "다음 차 지망 제출 준비" {
@@ -1110,7 +1143,7 @@ func (s *SeatingServer) infoLocked(x *seatingSession) (SeatingSessionInfo, error
 	if x.paused {
 		notice = "교사가 회차를 안전 일시정지했습니다. 교사 재개를 기다려 주세요."
 	}
-	return SeatingSessionInfo{PlanID: x.planID, Running: !x.ended, StudentURL: url, BoardURL: "http://" + address + "/board/" + x.boardToken, QRCodeDataURL: "data:image/png;base64," + base64.StdEncoding.EncodeToString(png), ParticipantCnt: len(x.joined), LadderSelectedCnt: len(x.ladderStarts), Phase: x.phase, CurrentNickname: current, Notice: notice, DrawMethod: x.drawMethod, CompetitionMethod: x.competitionMethod, PreferenceLimit: x.preferenceLimit, SubmittedCnt: len(x.preferences), ContestCnt: len(x.contests), CurrentPreferencePriority: x.preferencePriority, CurrentContestSeat: currentSeat, CurrentContestCandidates: candidates, Paused: x.paused, ErrorMessage: x.errorMessage}, nil
+	return SeatingSessionInfo{PlanID: x.planID, Running: !x.ended, StudentURL: url, BoardURL: "http://" + address + "/board/" + x.boardToken, QRCodeDataURL: "data:image/png;base64," + base64.StdEncoding.EncodeToString(png), ParticipantCnt: len(x.joined), LadderSelectedCnt: len(x.ladderStarts), Phase: x.phase, CurrentNickname: current, Notice: notice, DrawMethod: x.drawMethod, CompetitionMethod: x.competitionMethod, PreferenceLimit: x.preferenceLimit, SubmittedCnt: len(x.preferences), ContestCnt: len(x.contests), CurrentPreferencePriority: x.preferencePriority, CurrentContestSeat: currentSeat, CurrentContestCandidates: candidates, Paused: x.paused, ErrorMessage: x.errorMessage, RosterCnt: x.rosterCount, PartialClosed: x.partialClose, NamesRevealed: x.namesRevealed}, nil
 }
 
 func (s *SeatingServer) fixedSeatsLocked(plan SeatingPlan) map[string]string {
@@ -1315,7 +1348,9 @@ func (s *SeatingServer) stateAPI(x *seatingSession, finalNameAccess ...bool) htt
 			s.openStudentTurnIfNeededLocked(x)
 		}
 		studentID := ""
-		if cookie, err := r.Cookie("kkomi-seat"); err == nil {
+		// 전자칠판 응답은 학생 로그인 쿠키를 무시한다. 같은 브라우저로 학생 화면을 시험해 본 뒤
+		// 전자칠판을 열어도 배치도가 "자리 받은 학생" 화면처럼 비지 않게 한다.
+		if cookie, err := r.Cookie("kkomi-seat"); err == nil && !includeFinalNames {
 			studentID = cookie.Value
 		}
 		seats := make([]map[string]any, 0, len(x.available))
@@ -1360,7 +1395,7 @@ func (s *SeatingServer) stateAPI(x *seatingSession, finalNameAccess ...bool) htt
 			orderNicknames = append(orderNicknames, x.joined[id])
 		}
 		layout := s.layoutSnapshotLocked(x)
-		if (x.phase == "배정 완료" || x.phase == "자리 확인") && includeFinalNames {
+		if (x.phase == "배정 완료" || x.phase == "자리 확인") && includeFinalNames && x.namesRevealed {
 			finalNames := s.finalNamesBySeatLocked(x)
 			for _, seat := range layout {
 				seat["finalName"] = finalNames[seat["id"].(string)]
@@ -1499,7 +1534,7 @@ func (s *SeatingServer) stateAPI(x *seatingSession, finalNameAccess ...bool) htt
 		for _, id := range x.order {
 			finalOrderNicknames = append(finalOrderNicknames, x.joined[id])
 		}
-		system.WriteJSON(w, map[string]any{"running": !x.closed, "seatMap": seatMap, "participants": len(x.joined), "rosterCount": x.rosterCount, "phase": x.phase, "drawMethod": x.drawMethod, "competitionMethod": x.competitionMethod, "deskPosition": x.deskPosition, "nickname": x.joined[studentID], "currentNickname": current, "yourTurn": x.phase == "룰렛 대기" && x.current < len(x.order) && x.order[x.current] == studentID, "availableSeats": seats, "rouletteSeats": s.rouletteSnapshotLocked(x), "layout": layout, "placementMode": x.placementMode, "layoutMode": x.layoutMode, "remainingNicknames": remaining, "joinedNicknames": joined, "orderNicknames": orderNicknames, "finalOrderNicknames": finalOrderNicknames, "currentOrderIndex": currentIndex, "orderShuffling": x.phase == "순서 섞기", "orderEndsAt": x.orderShuffleEndsAt.UTC().Format(time.RFC3339Nano), "turnStartsAt": turnStartsAt, "turnEndsAt": turnEndsAt, "mySeatId": mySeatID, "mySeatLabel": mySeatLabel, "canSubmitPreferences": canSubmitPreferences, "lastShot": x.lastShot, "lastShotSeatId": x.lastShotSeatID, "spinning": x.pendingShot != nil, "spinSeatId": spinSeatID, "spinStartedAt": spinStartedAt, "endsAt": endsAt, "resultHolding": x.phase == "결과 확인" || x.phase == "최종 결과 확인", "completed": x.phase == "배정 완료" || x.phase == "자리 확인", "finalScreen": x.phase == "자리 확인", "preferenceLimit": x.preferenceLimit, "preferenceCycle": x.preferenceCycle, "preferencePriority": x.preferencePriority, "preferenceSubmitted": len(x.preferences), "myPreferences": x.preferences[studentID], "seatDemand": demand, "contests": contests, "confirmedAssignments": confirmed, "rpsEndsAt": x.rpsEndsAt.UTC().Format(time.RFC3339Nano), "rpsMatches": rpsMatches, "rpsRounds": rpsRounds, "rpsSeatLabel": currentSeat, "rpsCandidates": candidates, "myRPSChoice": x.rpsChoices[studentID], "ladderEndsAt": x.ladderEndsAt.UTC().Format(time.RFC3339Nano), "ladderLaneCount": ladderLaneCount, "ladderSeatLabels": ladderSeatLabels, "ladderPaths": ladderPaths, "ladderRungs": x.ladderRungs, "ladderWinningEnd": ladderWinningEnd, "myLadderChoices": x.ladderChoices[studentID], "myLadderStart": myLadderStart, "ladderRevealed": x.ladderRevealed, "ladderAnimating": x.ladderAnimating})
+		system.WriteJSON(w, map[string]any{"running": !x.closed, "seatMap": seatMap, "participants": len(x.joined), "rosterCount": x.rosterCount, "phase": x.phase, "drawMethod": x.drawMethod, "competitionMethod": x.competitionMethod, "deskPosition": x.deskPosition, "nickname": x.joined[studentID], "currentNickname": current, "yourTurn": x.phase == "룰렛 대기" && x.current < len(x.order) && x.order[x.current] == studentID, "availableSeats": seats, "rouletteSeats": s.rouletteSnapshotLocked(x), "layout": layout, "placementMode": x.placementMode, "layoutMode": x.layoutMode, "remainingNicknames": remaining, "joinedNicknames": joined, "orderNicknames": orderNicknames, "finalOrderNicknames": finalOrderNicknames, "currentOrderIndex": currentIndex, "orderShuffling": x.phase == "순서 섞기", "orderEndsAt": x.orderShuffleEndsAt.UTC().Format(time.RFC3339Nano), "turnStartsAt": turnStartsAt, "turnEndsAt": turnEndsAt, "mySeatId": mySeatID, "mySeatLabel": mySeatLabel, "canSubmitPreferences": canSubmitPreferences, "lastShot": x.lastShot, "lastShotSeatId": x.lastShotSeatID, "spinning": x.pendingShot != nil, "spinSeatId": spinSeatID, "spinStartedAt": spinStartedAt, "endsAt": endsAt, "resultHolding": x.phase == "결과 확인" || x.phase == "최종 결과 확인", "completed": x.phase == "배정 완료" || x.phase == "자리 확인", "finalScreen": x.phase == "자리 확인", "preferenceLimit": x.preferenceLimit, "preferenceCycle": x.preferenceCycle, "preferencePriority": x.preferencePriority, "preferenceSubmitted": len(x.preferences), "myPreferences": x.preferences[studentID], "seatDemand": demand, "contests": contests, "confirmedAssignments": confirmed, "rpsEndsAt": x.rpsEndsAt.UTC().Format(time.RFC3339Nano), "rpsMatches": rpsMatches, "rpsRounds": rpsRounds, "rpsSeatLabel": currentSeat, "rpsCandidates": candidates, "myRPSChoice": x.rpsChoices[studentID], "ladderEndsAt": x.ladderEndsAt.UTC().Format(time.RFC3339Nano), "ladderLaneCount": ladderLaneCount, "ladderSeatLabels": ladderSeatLabels, "ladderPaths": ladderPaths, "ladderRungs": x.ladderRungs, "ladderWinningEnd": ladderWinningEnd, "myLadderChoices": x.ladderChoices[studentID], "myLadderStart": myLadderStart, "ladderRevealed": x.ladderRevealed, "ladderAnimating": x.ladderAnimating, "namesRevealed": x.namesRevealed, "partialClosed": x.partialClose, "myHistory": x.history[studentID]})
 	}
 }
 

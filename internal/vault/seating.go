@@ -51,6 +51,10 @@ func (s *VaultStore) SaveSeatingPlan(plan SeatingPlan) (SeatingPlan, error) {
 	updated := false
 	for index := range s.session.SeatingPlans {
 		if s.session.SeatingPlans[index].ID == plan.ID {
+			// 화면에서 설정만 다시 저장할 때 결과 자리 바꾸기 기록이 지워지지 않게 유지한다.
+			if plan.Changes == nil {
+				plan.Changes = s.session.SeatingPlans[index].Changes
+			}
 			s.session.SeatingPlans[index] = plan
 			updated = true
 			break

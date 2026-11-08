@@ -225,3 +225,13 @@
     justify-items: center;
   }
 }
+
+/* 배정이 끝난 뒤 결과 확인·실명 공개 버튼 묶음 */
+.seating-finish-actions {
+  display: grid;
+  gap: 10px;
+}
+.seating-finish-actions .dialog-actions {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}

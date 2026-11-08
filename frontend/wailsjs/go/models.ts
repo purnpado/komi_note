@@ -1018,6 +1018,16 @@ export namespace main {
 	        this.studentId = source["studentId"];
 	    }
 	}
+	export class SeatingChange {
+	    at: string;
+	    summary: string;
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.at = source["at"];
+	        this.summary = source["summary"];
+	    }
+	}
 	export class SeatingPlan {
 	    id: string;
 	    title: string;
@@ -1036,6 +1046,7 @@ export namespace main {
 	    sessionState: string;
 	    currentRound: number;
 	    seats: SeatingSeat[];
+	    changes?: SeatingChange[];
 
 	    static createFrom(source: any = {}) {
 	        return new SeatingPlan(source);
@@ -1060,6 +1071,7 @@ export namespace main {
 	        this.sessionState = source["sessionState"];
 	        this.currentRound = source["currentRound"];
 	        this.seats = this.convertValues(source["seats"], SeatingSeat);
+	        this.changes = source["changes"];
 	    }
 
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -1102,6 +1114,9 @@ export namespace main {
 	    currentContestCandidates: string[];
 	    paused: boolean;
 	    errorMessage: string;
+	    rosterCnt: number;
+	    partialClosed: boolean;
+	    namesRevealed: boolean;
 
 	    static createFrom(source: any = {}) {
 	        return new SeatingSessionInfo(source);
@@ -1129,6 +1144,9 @@ export namespace main {
 	        this.currentContestCandidates = source["currentContestCandidates"];
 	        this.paused = source["paused"];
 	        this.errorMessage = source["errorMessage"];
+	        this.rosterCnt = source["rosterCnt"];
+	        this.partialClosed = source["partialClosed"];
+	        this.namesRevealed = source["namesRevealed"];
 	    }
 	}
 	export class SessionResult {
