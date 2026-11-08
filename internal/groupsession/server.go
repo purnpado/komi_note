@@ -27,12 +27,11 @@ const (
 )
 
 // Participant는 회차에 참여할 학생(빠진 학생 제외)입니다. app.go가 보관함에서 만들어 넘깁니다.
-// BirthDate는 담임 학급 학생 확인용으로 메모리에서만 쓰고 학생·전자칠판에 보내지 않습니다.
+// 학생 확인은 우리 반·수업 반 모두 번호+이름으로 하며 생년월일은 쓰지 않습니다(사용자 결정 2026-11-08).
 type Participant struct {
-	Key       string
-	Number    string
-	Name      string
-	BirthDate string
+	Key    string
+	Number string
+	Name   string
 }
 
 // StartRequest는 교사 화면이 보내는 회차 설정입니다.
@@ -563,9 +562,8 @@ func (s *Server) loginAPI(x *session) http.HandlerFunc {
 			return
 		}
 		var q struct {
-			Number    string `json:"number"`
-			Name      string `json:"name"`
-			BirthDate string `json:"birthDate"`
+			Number string `json:"number"`
+			Name   string `json:"name"`
 		}
 		if json.NewDecoder(http.MaxBytesReader(w, r.Body, 4096)).Decode(&q) != nil {
 			http.Error(w, "입력값을 확인해 주세요", http.StatusBadRequest)
@@ -594,15 +592,7 @@ func (s *Server) loginAPI(x *session) http.HandlerFunc {
 		}
 		var found *participant
 		for _, p := range x.participants {
-			if normaliseName(p.Name) != normaliseName(q.Name) {
-				continue
-			}
-			if x.request.SourceKind == "homeroom" {
-				if digits(p.BirthDate) != "" && digits(p.BirthDate) == digits(q.BirthDate) {
-					found = p
-					break
-				}
-			} else if normaliseNumber(p.Number) != "" && normaliseNumber(p.Number) == normaliseNumber(q.Number) {
+			if normaliseName(p.Name) == normaliseName(q.Name) && normaliseNumber(p.Number) != "" && normaliseNumber(p.Number) == normaliseNumber(q.Number) {
 				found = p
 				break
 			}
@@ -620,11 +610,7 @@ func (s *Server) loginAPI(x *session) http.HandlerFunc {
 				return
 			}
 			x.loginAttempts[ip] = attempt
-			if x.request.SourceKind == "homeroom" {
-				http.Error(w, "이름 또는 생년월일을 확인해 주세요", http.StatusUnauthorized)
-			} else {
-				http.Error(w, "번호 또는 이름을 확인해 주세요", http.StatusUnauthorized)
-			}
+			http.Error(w, "번호 또는 이름을 확인해 주세요", http.StatusUnauthorized)
 			return
 		}
 		delete(x.loginAttempts, ip)

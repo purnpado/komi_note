@@ -52,15 +52,13 @@ function draw(){
   if(state.paused){app.innerHTML=header()+'<h1>잠시 멈춤</h1><p class="lead">선생님이 회차를 잠시 멈췄습니다. 그대로 기다려 주세요.</p>';return}
   if(!state.nickname){
     if(!state.loginOpen){app.innerHTML=header()+'<h1>입장이 마감되었습니다</h1><p class="lead">들어오지 못한 친구는 남은 자리에 배정됩니다.</p>';return}
-    const homeroom=state.kind==='homeroom';
     if(!document.getElementById('login')){
-      app.innerHTML=header()+`<h1>모둠 정하기</h1><p class="lead">${homeroom?'이름과 생년월일':'번호와 이름'}을 입력하면 닉네임이 생겨요. 결과가 나오기 전까지 친구들은 닉네임만 봐요.</p>
+      app.innerHTML=header()+`<h1>모둠 정하기</h1><p class="lead">번호와 이름을 입력하면 닉네임이 생겨요. 결과가 나오기 전까지 친구들은 닉네임만 봐요.</p>
       <form id="login" class="box" style="display:grid;gap:12px">
-      ${homeroom?'':'<label>번호<input id="number" inputmode="numeric" autocomplete="off" required></label>'}
+      <label>번호<input id="number" inputmode="numeric" autocomplete="off" required></label>
       <label>이름<input id="name" autocomplete="off" required></label>
-      ${homeroom?'<label>생년월일<input id="birth" inputmode="numeric" placeholder="예: 20130415" autocomplete="off" required></label>':''}
       <button class="btn" id="go">입장하기</button></form><p class="err" id="err"></p>`;
-      document.getElementById('login').onsubmit=async(e)=>{e.preventDefault();const b=document.getElementById('go');b.disabled=true;try{await post('/login',{number:(document.getElementById('number')||{}).value||'',name:document.getElementById('name').value,birthDate:(document.getElementById('birth')||{}).value||''});await tick()}catch(x){document.getElementById('err').textContent=x.message;b.disabled=false}};
+      document.getElementById('login').onsubmit=async(e)=>{e.preventDefault();const b=document.getElementById('go');b.disabled=true;try{await post('/login',{number:document.getElementById('number').value,name:document.getElementById('name').value});await tick()}catch(x){document.getElementById('err').textContent=x.message;b.disabled=false}};
     }
     return;
   }

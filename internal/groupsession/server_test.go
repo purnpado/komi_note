@@ -238,28 +238,32 @@ func TestSessionFullFlow(t *testing.T) {
 	}
 }
 
-func TestHomeroomLoginUsesBirthDate(t *testing.T) {
+// 우리 반(담임 학급)도 번호+이름으로 들어온다. 생년월일은 받지도 쓰지도 않는다.
+func TestHomeroomLoginUsesNumberAndName(t *testing.T) {
 	server := NewServer()
 	cfg := courseConfig(4)
 	cfg.Request.SourceKind = "homeroom"
 	cfg.Request.GroupNames = []string{"1모둠", "2모둠"}
-	for i := range cfg.Participants {
-		cfg.Participants[i].BirthDate = fmt.Sprintf("2013-0%d-15", i+1)
-	}
 	startForTest(t, server, cfg)
 	defer server.Stop()
 	p := newPhone(t, server.current)
-	if code, _ := p.post("/login", map[string]string{"name": "학생1", "birthDate": "20130215"}); code != http.StatusUnauthorized {
-		t.Fatal("다른 생년월일은 거부")
+	if code, _ := p.post("/login", map[string]string{"number": "2", "name": "학생1"}); code != http.StatusUnauthorized {
+		t.Fatal("번호와 이름이 다르면 거부")
 	}
-	if code, _ := p.post("/login", map[string]string{"name": "학생1", "birthDate": "2013.01.15"}); code != 200 {
-		t.Fatal("생년월일 형식 차이는 허용")
+	if code, _ := p.post("/login", map[string]string{"name": "학생1", "birthDate": "20130115"}); code != http.StatusUnauthorized {
+		t.Fatal("번호 없이 생년월일로는 들어올 수 없음")
+	}
+	if code, _ := p.post("/login", map[string]string{"number": "01", "name": "학생 1"}); code != 200 {
+		t.Fatal("우리 반도 번호+이름으로 입장(01·띄어쓰기 허용)")
 	}
 	for i := 0; i < 5; i++ {
-		_, _ = newPhone(t, server.current).post("/login", map[string]string{"name": "없음", "birthDate": "1"})
+		_, _ = newPhone(t, server.current).post("/login", map[string]string{"number": "9", "name": "없음"})
 	}
-	if code, _ := newPhone(t, server.current).post("/login", map[string]string{"name": "학생2", "birthDate": "20130215"}); code != http.StatusTooManyRequests {
+	if code, _ := newPhone(t, server.current).post("/login", map[string]string{"number": "2", "name": "학생2"}); code != http.StatusTooManyRequests {
 		t.Fatalf("5번 틀리면 잠시 대기 %d", code)
+	}
+	if strings.Contains(studentPageHTML, "생년월일") || strings.Contains(studentPageHTML, "birth") {
+		t.Fatal("학생 화면에 생년월일 입력이 남아 있습니다")
 	}
 }
 

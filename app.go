@@ -588,7 +588,7 @@ func (a *App) StartGroupingSession(request GroupSessionRequest) (GroupSessionInf
 		}
 		for _, student := range list {
 			if !excluded[student.ID] {
-				participants = append(participants, groupsession.Participant{Key: student.ID, Number: strconv.Itoa(student.Number), Name: student.Name, BirthDate: student.BirthDate})
+				participants = append(participants, groupsession.Participant{Key: student.ID, Number: strconv.Itoa(student.Number), Name: student.Name})
 			}
 		}
 	case "course":
