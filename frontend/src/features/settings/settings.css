@@ -132,3 +132,9 @@
     grid-template-columns: 1fr;
   }
 }
+
+.settings-feedback-panel { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; margin-top:16px; }
+.settings-feedback-panel > div:first-child { flex:1 1 320px; }
+.settings-feedback-panel h3 { margin:2px 0 6px; }
+.settings-feedback-panel p { margin:0; }
+.settings-feedback-actions { display:flex; flex-wrap:wrap; gap:8px; }

@@ -2,6 +2,7 @@ import React, { FormEvent, useEffect, useState } from "react";
 import { main as models } from "../../../wailsjs/go/models";
 import { HasPin, SetPin, RemovePin } from "../../../wailsjs/go/main/App";
 import { HelpGuide } from "../shared/HelpGuide";
+import { FeedbackPanel } from "./FeedbackPanel";
 import "./settings.css";
 
 const teachingGradeOptions = ["1학년", "2학년", "3학년"];
@@ -668,6 +669,7 @@ export function SettingsFeaturePage({
           </button>
         </form>
       </section>
+      <FeedbackPanel />
     </>
   );
 }
