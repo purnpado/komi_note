@@ -126,3 +126,42 @@ func TestAllocateTogetherInFinalFill(t *testing.T) {
 		}
 	}
 }
+
+// 함께 넣기는 학생 지망보다 우선한다: 짝이 서로 다른 모둠을 지망해도 같은 모둠에 들어간다.
+func TestAllocateTogetherBeatsPreferences(t *testing.T) {
+	list := students(12)
+	for i := 0; i < 50; i++ {
+		prefs := map[string][]int{}
+		for j, s := range list {
+			prefs[s] = []int{j % 3, (j + 1) % 3}
+		}
+		prefs["s01"] = []int{0, 1}
+		prefs["s02"] = []int{2, 1} // 짝과 다른 1지망
+		input := AllocateInput{Students: list, Capacities: Capacities(12, 3), PrefIndex: prefs,
+			Together: []Pair{{A: "s01", B: "s02"}}, Separate: []Pair{{A: "s01", B: "s03"}}, Rounds: 2}
+		assigned, rounds := Allocate(input)
+		check(t, input, assigned)
+		if assigned["s01"] != assigned["s02"] {
+			t.Fatalf("함께 넣을 학생이 갈라짐: %v", assigned)
+		}
+		if assigned["s01"] == assigned["s03"] {
+			t.Fatalf("넣지 않을 학생이 같은 모둠: %v", assigned)
+		}
+		recorded := map[string]int{}
+		for _, round := range rounds {
+			for g, group := range round.Groups {
+				for _, s := range group.Accepted {
+					if _, dup := recorded[s]; dup {
+						t.Fatalf("%s가 라운드 기록에 두 번 있습니다", s)
+					}
+					recorded[s] = g
+				}
+			}
+		}
+		for s, g := range assigned {
+			if recorded[s] != g {
+				t.Fatalf("라운드 기록과 결과가 다릅니다: %s %d/%d", s, recorded[s], g)
+			}
+		}
+	}
+}

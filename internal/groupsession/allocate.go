@@ -91,6 +91,13 @@ func Allocate(input AllocateInput) (map[string]int, []Round) {
 	}
 	remaining := func(group int) int { return input.Capacities[group] - len(members[group]) }
 
+	// 함께 넣을 학생 묶음: 묶음 중 한 명이 뽑히면 짝도 같은 모둠에 들어간다(교사 조건이 지망보다 우선, 사용자 결정 2026-11-08).
+	unitOf := map[string][]string{}
+	for _, unit := range togetherUnits(input.Students, input.Together) {
+		for _, student := range unit {
+			unitOf[student] = unit
+		}
+	}
 	rounds := []Round{}
 	inRoster := map[string]bool{}
 	for _, student := range input.Students {
@@ -120,11 +127,39 @@ func Allocate(input AllocateInput) (map[string]int, []Round) {
 				if remaining(group) <= 0 {
 					break
 				}
-				if conflicts(student, group) > 0 {
+				if _, done := assigned[student]; done { // 앞 모둠에서 짝을 따라 이미 들어감
 					continue
 				}
-				place(student, group)
-				round.Groups[group].Accepted = append(round.Groups[group].Accepted, student)
+				unit := []string{}
+				for _, member := range unitOf[student] {
+					if _, done := assigned[member]; !done {
+						unit = append(unit, member)
+					}
+				}
+				if len(unit) == 0 {
+					unit = []string{student}
+				}
+				if len(unit) > remaining(group) { // 묶음이 다 들어갈 자리가 없으면 다음 기회에 함께
+					continue
+				}
+				blocked := false
+				for i, member := range unit {
+					if conflicts(member, group) > 0 {
+						blocked = true
+					}
+					for _, other := range unit[i+1:] {
+						if separate[pairKey(member, other)] {
+							blocked = true
+						}
+					}
+				}
+				if blocked {
+					continue
+				}
+				for _, member := range unit {
+					place(member, group)
+					round.Groups[group].Accepted = append(round.Groups[group].Accepted, member)
+				}
 			}
 		}
 		rounds = append(rounds, round)
@@ -236,18 +271,111 @@ func Allocate(input AllocateInput) (map[string]int, []Round) {
 		final.Groups[group].Accepted = append(final.Groups[group].Accepted, student)
 	}
 	rounds = append(rounds, final)
-	repairSeparate(assigned, members, rounds, separate)
+	repairTogether(assigned, members, rounds, separate, input.Together, unitOf)
+	repairSeparate(assigned, members, rounds, separate, unitOf)
 	for group := range rounds[len(rounds)-1].Groups {
 		sort.Strings(rounds[len(rounds)-1].Groups[group].Accepted)
 	}
 	return assigned, rounds
 }
 
+// repairTogether는 앞 라운드가 자리를 채워 '함께 넣을 학생'이 갈라졌을 때, 한 명을 짝의 모둠 학생(묶음이 아닌 학생)과
+// 맞바꿔 다시 모읍니다. '넣지 않기' 조건을 새로 어기는 맞바꿈은 하지 않습니다. 옮긴 학생은 라운드 기록에서 "남은 자리"로 옮깁니다.
+func repairTogether(assigned map[string]int, members [][]string, rounds []Round, separate map[[2]string]bool, together []Pair, unitOf map[string][]string) {
+	if len(together) == 0 {
+		return
+	}
+	roundOf := map[string]int{}
+	for r, round := range rounds {
+		for _, group := range round.Groups {
+			for _, student := range group.Accepted {
+				roundOf[student] = r
+			}
+		}
+	}
+	last := len(rounds) - 1
+	removeFrom := func(list []string, value string) []string {
+		result := list[:0]
+		for _, item := range list {
+			if item != value {
+				result = append(result, item)
+			}
+		}
+		return result
+	}
+	conflictsIn := func(student string, group int, except string) bool {
+		for _, other := range members[group] {
+			if other != student && other != except && separate[pairKey(student, other)] {
+				return true
+			}
+		}
+		return false
+	}
+	moveRecord := func(student string, group int) {
+		r := roundOf[student]
+		for g := range rounds[r].Groups {
+			rounds[r].Groups[g].Accepted = removeFrom(rounds[r].Groups[g].Accepted, student)
+		}
+		rounds[last].Groups[group].Accepted = append(rounds[last].Groups[group].Accepted, student)
+		roundOf[student] = last
+	}
+	for pass := 0; pass < 100; pass++ {
+		fixed := false
+		for _, pair := range together {
+			ga, okA := assigned[pair.A]
+			gb, okB := assigned[pair.B]
+			if !okA || !okB || ga == gb {
+				continue
+			}
+			// 늦게 들어온 쪽(라운드가 뒤인 학생)을 짝의 모둠으로 옮긴다. 안 되면 반대로 시도한다.
+			type move struct {
+				student  string
+				from, to int
+			}
+			tries := []move{{pair.B, gb, ga}, {pair.A, ga, gb}}
+			if roundOf[pair.A] > roundOf[pair.B] {
+				tries[0], tries[1] = tries[1], tries[0]
+			}
+			for _, try := range tries {
+				mover, from, to := try.student, try.from, try.to
+				if conflictsIn(mover, to, "") {
+					continue
+				}
+				best, bestRank := "", -1
+				for _, candidate := range members[to] {
+					if len(unitOf[candidate]) > 1 || conflictsIn(mover, to, candidate) || conflictsIn(candidate, from, mover) {
+						continue
+					}
+					if roundOf[candidate] > bestRank {
+						best, bestRank = candidate, roundOf[candidate]
+					}
+				}
+				if best == "" {
+					continue
+				}
+				members[from] = removeFrom(members[from], mover)
+				members[to] = removeFrom(members[to], best)
+				members[from] = append(members[from], best)
+				members[to] = append(members[to], mover)
+				assigned[mover], assigned[best] = to, from
+				moveRecord(mover, to)
+				moveRecord(best, from)
+				fixed = true
+				break
+			}
+		}
+		if !fixed {
+			return
+		}
+	}
+}
+
 // repairSeparate는 앞 라운드가 다른 모둠을 채워 '넣지 않을 학생'끼리 남은 자리에서 만날 수밖에 없을 때,
 // 그 학생을 다른 모둠 학생과 맞바꿔 조건을 지킵니다. 맞바꿀 학생은 남은 자리로 들어온 학생,
 // 그다음 늦은 지망으로 들어온 학생을 먼저 고릅니다. 옮긴 두 학생은 라운드 기록에서 "남은 자리"로 옮겨
 // 전자칠판 공개가 실제 결과와 어긋나지 않게 합니다.
-func repairSeparate(assigned map[string]int, members [][]string, rounds []Round, separate map[[2]string]bool) {
+func repairSeparate(assigned map[string]int, members [][]string, rounds []Round, separate map[[2]string]bool, unitOf map[string][]string) {
+	inUnit := func(student string) bool { return len(unitOf[student]) > 1 }
 	if len(separate) == 0 {
 		return
 	}
@@ -294,8 +422,12 @@ func repairSeparate(assigned map[string]int, members [][]string, rounds []Round,
 					a, b := members[g][i], members[g][j]
 					if separate[pairKey(a, b)] {
 						mover, group = a, g
-						if roundOf[b] > roundOf[a] {
+						if inUnit(a) || (!inUnit(b) && roundOf[b] > roundOf[a]) {
 							mover = b
+						}
+						if inUnit(mover) {
+							mover = "" // 둘 다 묶음 학생이면 옮기지 않고 교사 화면 경고에 맡긴다
+							continue
 						}
 						break
 					}
@@ -314,6 +446,9 @@ func repairSeparate(assigned map[string]int, members [][]string, rounds []Round,
 				continue
 			}
 			for _, candidate := range members[h] {
+				if inUnit(candidate) {
+					continue
+				}
 				if conflictsIn(mover, h, candidate) || conflictsIn(candidate, group, mover) {
 					continue
 				}
