@@ -70,6 +70,12 @@ export type CourseRosterPreview = vault$0.CourseRosterPreview;
 
 export type CourseRosterStudent = vault$0.CourseRosterStudent;
 
+export type GroupPlan = vault$0.GroupPlan;
+
+export type GroupRules = vault$0.GroupRules;
+
+export type GroupingBook = vault$0.GroupingBook;
+
 /**
  * ParticipationSafetyState는 자동 잠금 판단에 필요한 공개 최소 상태입니다.
  * 회차 제목·학생 정보·QR 토큰은 포함하지 않습니다.

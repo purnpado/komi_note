@@ -30,6 +30,8 @@ export function DeleteAssessmentObjection(arg1:string,arg2:string):Promise<main.
 
 export function DeleteAttendanceTemplate(arg1:string):Promise<void>;
 
+export function DeleteGroupPlan(arg1:string):Promise<void>;
+
 export function DeleteCleaningPlan(arg1:string):Promise<void>;
 
 export function DeleteConsultation(arg1:string):Promise<number>;
@@ -77,6 +79,8 @@ export function IsWindowMaximised():Promise<boolean>;
 export function ListAcademicChanges():Promise<Array<main.AcademicChange>>;
 
 export function ListAllConsultations():Promise<Array<main.Consultation>>;
+
+export function GetGroupingBook():Promise<main.GroupingBook>;
 
 export function GetTimetableBook():Promise<main.TimetableBook>;
 
@@ -147,6 +151,10 @@ export function SaveAttendanceTemplate(arg1:string,arg2:string,arg3:Array<string
 export function SaveAttendanceTemplateCustomValues(arg1:string,arg2:Record<string, string>):Promise<main.AttendanceTemplate>;
 
 export function SaveAttendanceTemplateMappings(arg1:string,arg2:Array<main.AttendanceFieldPoint>):Promise<main.AttendanceTemplate>;
+
+export function SaveGroupPlan(arg1:main.GroupPlan):Promise<main.GroupPlan>;
+
+export function SaveGroupRules(arg1:main.GroupRules):Promise<main.GroupRules>;
 
 export function SaveTimetableBook(arg1:main.TimetableBook):Promise<main.TimetableBook>;
 

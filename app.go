@@ -85,6 +85,9 @@ type AssessmentObjection = assessment.AssessmentObjection
 type AssessmentHistory = assessment.AssessmentHistory
 type CourseRoster = vault.CourseRoster
 type TimetableBook = vault.TimetableBook
+type GroupingBook = vault.GroupingBook
+type GroupPlan = vault.GroupPlan
+type GroupRules = vault.GroupRules
 type CourseRosterStudent = vault.CourseRosterStudent
 type CourseRosterPreview = vault.CourseRosterPreview
 type AssessmentImportPreview = vault.AssessmentImportPreview
@@ -531,6 +534,26 @@ func (a *App) GetTimetableBook() (TimetableBook, error) {
 // SaveTimetableBook은 시간표 전체를 암호화해 저장합니다.
 func (a *App) SaveTimetableBook(book TimetableBook) (TimetableBook, error) {
 	return a.vault.SaveTimetableBook(book)
+}
+
+// GetGroupingBook은 모둠 편성 이력과 반별 편성 조건을 반환합니다.
+func (a *App) GetGroupingBook() (GroupingBook, error) {
+	return a.vault.GetGroupingBook()
+}
+
+// SaveGroupPlan은 모둠 편성 결과를 암호화해 저장합니다.
+func (a *App) SaveGroupPlan(plan GroupPlan) (GroupPlan, error) {
+	return a.vault.SaveGroupPlan(plan)
+}
+
+// DeleteGroupPlan은 모둠 편성 이력 하나를 삭제합니다.
+func (a *App) DeleteGroupPlan(id string) error {
+	return a.vault.DeleteGroupPlan(id)
+}
+
+// SaveGroupRules는 반별 교사 전용 편성 조건을 암호화해 저장합니다.
+func (a *App) SaveGroupRules(rules GroupRules) (GroupRules, error) {
+	return a.vault.SaveGroupRules(rules)
 }
 
 // GetAttendance는 선택 날짜의 재학생 출결을 반환합니다.

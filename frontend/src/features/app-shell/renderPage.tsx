@@ -4,6 +4,7 @@ import { DashboardPage } from "../dashboard/DashboardPage";
 import { SettingsFeaturePage } from "../settings/SettingsPage";
 import { CleaningPage } from "../cleaning/CleaningPage";
 import { TimetablePage } from "../timetable/TimetablePage";
+import { GroupingPage } from "../grouping/GroupingPage";
 import { SubmissionDocumentsPage } from "../submissions/SubmissionDocumentsPage";
 import { StudentsPage } from "../students/StudentsPage";
 import { StudentStatsPage } from "../students/StudentStatsPage";
@@ -101,12 +102,7 @@ export function renderPage(
   if (active === "시간표")
     return <TimetablePage config={config} isHomeroomTeacher={isHomeroomTeacher} />;
   if (active === "모둠 편성")
-    return (
-      <FeatureGuidePage
-        title="모둠 편성"
-        description="수업 명렬을 기준으로 모둠을 만들고 학생 참여형 선택 기능으로 확장합니다."
-      />
-    );
+    return <GroupingPage students={students} isHomeroomTeacher={isHomeroomTeacher} config={config} />;
   if (active === "메모 · 할 일")
     return (
       <FeatureGuidePage

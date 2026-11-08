@@ -9,6 +9,9 @@ import * as assessment$0 from "../assessment/models.js";
 import * as attendance$0 from "../attendance/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as grouping$0 from "../grouping/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as students$0 from "../students/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
@@ -143,6 +146,21 @@ export interface CourseRosterStudent {
     "name": string;
     "status"?: string;
 }
+
+/**
+ * GroupPlan은 한 번의 모둠 편성 결과입니다.
+ */
+export type GroupPlan = grouping$0.Plan;
+
+/**
+ * GroupRules는 반별 교사 전용 편성 조건입니다.
+ */
+export type GroupRules = grouping$0.Rules;
+
+/**
+ * GroupingBook은 모둠 편성 이력과 반별 편성 조건 전체입니다.
+ */
+export type GroupingBook = grouping$0.Book;
 
 /**
  * RestoreResult는 되살리기 뒤 교사에게 안내할 내용을 담는다.

@@ -116,6 +116,13 @@ export function DeleteConsultation(id: string): $CancellablePromise<number> {
 }
 
 /**
+ * DeleteGroupPlan은 모둠 편성 이력 하나를 삭제합니다.
+ */
+export function DeleteGroupPlan(id: string): $CancellablePromise<void> {
+    return $Call.ByID(4262480354, id);
+}
+
+/**
  * DeleteSeatingPlan은 자리 배치 이력을 삭제합니다.
  */
 export function DeleteSeatingPlan(id: string): $CancellablePromise<void> {
@@ -185,6 +192,13 @@ export function GetAttendance(date: string): $CancellablePromise<$models.Attenda
 
 export function GetAttendanceDocumentPeriod(studentID: string, date: string): $CancellablePromise<$models.AttendanceDocumentPeriod> {
     return $Call.ByID(2804333184, studentID, date);
+}
+
+/**
+ * GetGroupingBook은 모둠 편성 이력과 반별 편성 조건을 반환합니다.
+ */
+export function GetGroupingBook(): $CancellablePromise<$models.GroupingBook> {
+    return $Call.ByID(1495993871);
 }
 
 /**
@@ -532,6 +546,20 @@ export function SaveCleaningPlan(plan: $models.CleaningPlan): $CancellablePromis
  */
 export function SaveConsultation(item: $models.Consultation): $CancellablePromise<$models.Consultation> {
     return $Call.ByID(1082116653, item);
+}
+
+/**
+ * SaveGroupPlan은 모둠 편성 결과를 암호화해 저장합니다.
+ */
+export function SaveGroupPlan(plan: $models.GroupPlan): $CancellablePromise<$models.GroupPlan> {
+    return $Call.ByID(830551692, plan);
+}
+
+/**
+ * SaveGroupRules는 반별 교사 전용 편성 조건을 암호화해 저장합니다.
+ */
+export function SaveGroupRules(rules: $models.GroupRules): $CancellablePromise<$models.GroupRules> {
+    return $Call.ByID(3098718522, rules);
 }
 
 /**

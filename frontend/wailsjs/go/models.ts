@@ -1604,4 +1604,102 @@ export namespace main {
 	    }
 	}
 
+	// 모둠 편성: 번호·이름과 학생을 가리키는 값만 담는다(성적·연락처 없음).
+	export class GroupMember {
+	    key: string;
+	    number: string;
+	    name: string;
+	    role: string;
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.key = source["key"] || "";
+	        this.number = source["number"] || "";
+	        this.name = source["name"] || "";
+	        this.role = source["role"] || "";
+	    }
+	}
+	export class Group {
+	    name: string;
+	    members: GroupMember[];
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"] || "";
+	        this.members = (source["members"] || []).map((item: any) => new GroupMember(item));
+	    }
+	}
+	export class GroupPlan {
+	    id: string;
+	    title: string;
+	    sourceKind: string;
+	    sourceId: string;
+	    sourceLabel: string;
+	    roles: string[];
+	    groups: Group[];
+	    excluded: GroupMember[];
+	    createdAt: string;
+	    updatedAt: string;
+
+	    static createFrom(source: any = {}) {
+	        return new GroupPlan(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"] || "";
+	        this.title = source["title"] || "";
+	        this.sourceKind = source["sourceKind"] || "";
+	        this.sourceId = source["sourceId"] || "";
+	        this.sourceLabel = source["sourceLabel"] || "";
+	        this.roles = [...(source["roles"] || [])];
+	        this.groups = (source["groups"] || []).map((item: any) => new Group(item));
+	        this.excluded = (source["excluded"] || []).map((item: any) => new GroupMember(item));
+	        this.createdAt = source["createdAt"] || "";
+	        this.updatedAt = source["updatedAt"] || "";
+	    }
+	}
+	export class GroupPair {
+	    a: string;
+	    b: string;
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.a = source["a"] || "";
+	        this.b = source["b"] || "";
+	    }
+	}
+	export class GroupRules {
+	    sourceKind: string;
+	    sourceId: string;
+	    separate: GroupPair[];
+	    together: GroupPair[];
+	    avoidRepeat: boolean;
+	    rolesTemplate: string;
+
+	    static createFrom(source: any = {}) {
+	        return new GroupRules(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.sourceKind = source["sourceKind"] || "";
+	        this.sourceId = source["sourceId"] || "";
+	        this.separate = (source["separate"] || []).map((item: any) => new GroupPair(item));
+	        this.together = (source["together"] || []).map((item: any) => new GroupPair(item));
+	        this.avoidRepeat = Boolean(source["avoidRepeat"]);
+	        this.rolesTemplate = source["rolesTemplate"] || "";
+	    }
+	}
+	export class GroupingBook {
+	    plans: GroupPlan[];
+	    rules: GroupRules[];
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.plans = (source["plans"] || []).map((item: any) => new GroupPlan(item));
+	        this.rules = (source["rules"] || []).map((item: any) => new GroupRules(item));
+	    }
+	}
+
 }
