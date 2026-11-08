@@ -39,6 +39,16 @@ import {
   type TabKey,
   type TargetKind,
 } from "./recordsState";
+import {
+  AiReviewDialog,
+  BulkArchiveDialog,
+  PhraseInsertDialog,
+  PhraseLibrary,
+  PhraseSaveDialog,
+  copyToClipboard,
+  type BulkCandidate,
+} from "./PhraseParts";
+import { aiPrompt } from "./recordsState";
 import "./records-page.css";
 
 type Pupil = { key: string; label: string; name: string; number: string; note?: string };
@@ -62,23 +72,6 @@ function sameText(draft: string, stored: string) {
 
 function trimNumber(value: string | number) {
   return String(value).trim().replace(/^0+(?=\d)/, "");
-}
-
-async function copyText(text: string) {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
-    const area = document.createElement("textarea");
-    area.value = text;
-    area.style.position = "fixed";
-    area.style.opacity = "0";
-    document.body.appendChild(area);
-    area.select();
-    const ok = document.execCommand("copy");
-    area.remove();
-    return ok;
-  }
 }
 
 export function RecordsPage({
@@ -108,6 +101,8 @@ export function RecordsPage({
   const [listDialog, setListDialog] = useState<models.RecordActivityList | null>(null);
   const [limitsOpen, setLimitsOpen] = useState(false);
   const [cleanupOpen, setCleanupOpen] = useState(false);
+  const [view, setView] = useState<"write" | "phrases">("write");
+  const [bulkYear, setBulkYear] = useState<string | null>(null);
 
   async function reload() {
     try {
@@ -251,6 +246,52 @@ export function RecordsPage({
     setBook((current) => (current ? new models.RecordBook({ ...current, entries: current.entries.filter((entry) => entry.id !== id) }) : current));
   }
 
+  function onPhraseSaved(saved: models.RecordPhrase) {
+    setBook((current) => {
+      if (!current) return current;
+      const phrases = current.phrases.filter((phrase) => phrase.id !== saved.id);
+      phrases.push(saved);
+      return new models.RecordBook({ ...current, phrases });
+    });
+  }
+
+  function onPhraseRemoved(id: string) {
+    setBook((current) => (current ? new models.RecordBook({ ...current, phrases: current.phrases.filter((phrase) => phrase.id !== id) }) : current));
+  }
+
+  // 학년말 한꺼번에 보관할 후보: 그 학년도의 검토 완료 문장(학생 이름은 대화상자에서 ○○로 바꿈)
+  function bulkCandidates(forYear: string): BulkCandidate[] {
+    if (!book) return [];
+    return book.entries
+      .filter((entry) => entry.schoolYear === forYear && entry.reviewed && entry.text.trim())
+      .map((entry) => {
+        const student = entry.targetKind === "homeroom" ? students.find((item) => item.id === entry.studentKey) : undefined;
+        const studentName = student ? student.name : entry.studentKey.split("|")[1] || "";
+        const where =
+          entry.targetKind === "homeroom"
+            ? "우리 반"
+            : entry.targetKind === "course"
+              ? `수업 반 ${(() => { const roster = rosters.find((item) => item.id === entry.targetId); return roster ? rosterLabel(roster) : ""; })()}`
+              : book.lists.find((list) => list.id === entry.targetId)?.name || "활동 명단";
+        const [code, keyName = ""] = entry.studentKey.split("|");
+        const parts = code.split("-");
+        const who = student
+          ? `${student.number}번 ${student.name}`
+          : parts.length === 3
+            ? `${parts[0]}-${parts[1]} ${parts[2]}번 ${keyName}`
+            : `${code}번 ${keyName}`;
+        return { id: entry.id, label: `${areaLabels[entry.area as Area] || entry.area}${entry.subject ? `(${entry.subject})` : ""} · ${where} · ${who}`, area: entry.area, subject: entry.subject, text: entry.text, studentName };
+      });
+  }
+
+  const everyName = useMemo(() => {
+    const names = new Set<string>();
+    students.forEach((student) => names.add(student.name));
+    rosters.forEach((roster) => roster.students.forEach((student) => names.add(student.name)));
+    (book?.lists || []).forEach((list) => list.members.forEach((member) => names.add(member.name)));
+    return [...names];
+  }, [students, rosters, book?.lists]);
+
   function moveSelection(step: number) {
     const index = selectable.findIndex((pupil) => pupil.key === selectedKey);
     const next = selectable[index + step];
@@ -314,9 +355,10 @@ export function RecordsPage({
           <button
             key={item.key}
             role="tab"
-            aria-selected={item.key === tab.key}
-            className={item.key === tab.key ? "active" : ""}
+            aria-selected={view === "write" && item.key === tab.key}
+            className={view === "write" && item.key === tab.key ? "active" : ""}
             onClick={() => {
+              setView("write");
               setTabKey(item.key);
               setSelectedKey("");
             }}
@@ -325,7 +367,27 @@ export function RecordsPage({
             <span>{item.description}</span>
           </button>
         ))}
+        <button role="tab" aria-selected={view === "phrases"} className={view === "phrases" ? "active records-tab-phrases" : "records-tab-phrases"} onClick={() => setView("phrases")}>
+          <strong>문장 보관함</strong>
+          <span>학생 정보 없이 모은 문장 {book?.phrases.length || 0}개 · 태그로 찾기</span>
+        </button>
       </div>
+
+      {notice && <p className="records-notice" role="status">{notice}</p>}
+
+      {view === "phrases" && book ? (
+        <section className="panel records-phrase-panel" role="tabpanel" aria-label="문장 보관함">
+          <div className="records-phrase-head">
+            <div>
+              <h3>문장 보관함</h3>
+              <p className="records-muted">학생과 연결하지 않은 문장만 모읍니다. 학년도 기록을 정리하거나 학생이 전출해도 남습니다. 태그는 이 컴퓨터 안의 규칙으로 추천합니다.</p>
+            </div>
+            <button className="quiet-button" onClick={() => setBulkYear(year)}>{year}학년도 검토 완료 문장 한꺼번에 보관</button>
+          </div>
+          <PhraseLibrary phrases={book.phrases} names={everyName} mode="manage" onChanged={onPhraseSaved} onRemoved={onPhraseRemoved} />
+        </section>
+      ) : (
+      <>
 
       <section className="panel records-toolbar" role="tabpanel" aria-label={tab.label}>
         {tab.key === "creative" && (
@@ -392,8 +454,6 @@ export function RecordsPage({
         )}
       </section>
 
-      {notice && <p className="records-notice" role="status">{notice}</p>}
-
       {!book ? (
         <p className="records-muted">불러오는 중…</p>
       ) : !target ? (
@@ -448,6 +508,12 @@ export function RecordsPage({
               moveTargets={pupils.filter((pupil) => !slotEntries.has(pupil.key))}
               limit={limit}
               names={allNames}
+              everyName={everyName}
+              phrases={book.phrases}
+              onPhraseSaved={(saved) => {
+                onPhraseSaved(saved);
+                setNotice("문장 보관함에 저장했습니다. '문장 보관함' 탭에서 찾을 수 있습니다.");
+              }}
               onSaved={onSaved}
               onDeleted={onDeleted}
               onMove={(next) => setSelectedKey(next)}
@@ -461,6 +527,8 @@ export function RecordsPage({
             <section className="panel records-empty"><p>왼쪽에서 학생을 골라 주세요.</p></section>
           )}
         </div>
+      )}
+      </>
       )}
 
       {listDialog && (
@@ -502,9 +570,27 @@ export function RecordsPage({
         <YearCleanupDialog
           book={book}
           onClose={() => setCleanupOpen(false)}
+          onBulk={(forYear) => {
+            setCleanupOpen(false);
+            setBulkYear(forYear);
+          }}
           onDone={async (deletedYear, removed) => {
             setCleanupOpen(false);
             setNotice(`${deletedYear}학년도 기록 ${removed}건과 활동 명단을 지웠습니다.`);
+            await reload();
+          }}
+        />
+      )}
+      {bulkYear && book && (
+        <BulkArchiveDialog
+          year={bulkYear}
+          candidates={bulkCandidates(bulkYear)}
+          existingTexts={new Set(book.phrases.map((phrase) => phrase.text))}
+          names={everyName}
+          onClose={() => setBulkYear(null)}
+          onDone={async (added, skipped) => {
+            setBulkYear(null);
+            setNotice(`문장 보관함에 ${added}개를 넣었습니다.${skipped ? ` 이미 있던 ${skipped}개는 건너뛰었습니다.` : ""}`);
             await reload();
           }}
         />
@@ -538,6 +624,9 @@ function EntryEditor({
   moveTargets,
   limit,
   names,
+  everyName,
+  phrases,
+  onPhraseSaved,
   onSaved,
   onDeleted,
   onMove,
@@ -554,6 +643,9 @@ function EntryEditor({
   moveTargets: { key: string; label: string }[];
   limit: number;
   names: string[];
+  everyName: string[];
+  phrases: models.RecordPhrase[];
+  onPhraseSaved: (phrase: models.RecordPhrase) => void;
   onSaved: (entry: models.RecordEntry) => void;
   onDeleted: (id: string) => void;
   onMove: (key: string) => void;
@@ -569,6 +661,10 @@ function EntryEditor({
   const [saveError, setSaveError] = useState("");
   const [copied, setCopied] = useState("");
   const [moveKey, setMoveKey] = useState("");
+  const [aiOpen, setAiOpen] = useState(false);
+  const [phraseDraft, setPhraseDraft] = useState<models.RecordPhrase | null>(null);
+  const [insertOpen, setInsertOpen] = useState(false);
+  const [undoText, setUndoText] = useState<string | null>(null);
   const latest = useRef<models.RecordEntry | undefined>(entry);
   const textRef = useRef(text);
   const queue = useRef<Promise<void>>(Promise.resolve());
@@ -698,9 +794,25 @@ function EntryEditor({
   async function copy() {
     const value = textRef.current.trim();
     if (!value) return;
-    const ok = await copyText(value);
+    const ok = await copyToClipboard(value);
     setCopied(ok ? "복사했습니다. 나이스에 붙여 넣은 뒤 다른 내용을 복사해 두세요." : "복사하지 못했습니다. 문장을 직접 선택해 복사해 주세요.");
     window.setTimeout(() => setCopied(""), 4000);
+  }
+
+  const hasName = warnings.some((warning) => warning.kind === "name");
+
+  async function copyForAi() {
+    const value = textRef.current.trim();
+    if (!value || hasName) return;
+    const ok = await copyToClipboard(aiPrompt(value));
+    setCopied(ok ? "검토 요청 문구와 함께 복사했습니다. 쓰시는 AI에 붙여 넣고, 답을 복사해 'AI 답 붙여 넣기'를 누르세요. AI 서비스에 붙여 넣은 문장은 그 회사 서버로 전송됩니다." : "복사하지 못했습니다.");
+    window.setTimeout(() => setCopied(""), 8000);
+  }
+
+  // replaceText는 AI 적용·되돌리기·보관 문장 넣기처럼 문장을 통째로 바꾸고 바로 저장한다
+  function replaceText(next: string) {
+    changeText(next);
+    void saveText();
   }
 
   const memos = current?.memos || [];
@@ -818,14 +930,63 @@ function EntryEditor({
             {reviewed ? "✓ 검토 완료" : "검토 완료 표시"}
           </button>
           <span className="records-status-label">{statusLabels[status]}</span>
+        </div>
+        <div className="records-text-actions records-text-tools">
+          <button className="quiet-button" onClick={() => void copyForAi()} disabled={!text.trim() || hasName} title={hasName ? "학생 이름을 먼저 지워 주세요" : "오탈자 검토 요청 문구와 함께 복사"}>AI 검토용 복사</button>
+          <button className="quiet-button" onClick={() => setAiOpen(true)} disabled={!text.trim()}>AI 답 붙여 넣기</button>
+          <HelpTip>프로그램은 외부로 아무것도 보내지 않습니다. 'AI 검토용 복사'로 쓰시는 AI(ChatGPT·Gemini·Claude 등)에 붙여 넣고, 답을 'AI 답 붙여 넣기'에 넣으면 바뀐 글자를 비교해 보여 줍니다. 학생 이름이 있으면 복사하지 않습니다.</HelpTip>
+          <span className="records-tool-gap" />
+          <button className="quiet-button" onClick={() => setInsertOpen(true)}>보관함에서 찾기</button>
+          <button className="quiet-button" onClick={() => setPhraseDraft(new models.RecordPhrase({ text: textRef.current, area: slot.area, subject: slot.subject }))} disabled={!text.trim()}>보관함에 저장</button>
           {current && (
             <button className="text-button danger-text" onClick={() => void removeEntry()}>이 기록 지우기</button>
           )}
         </div>
         {copied && <p className="records-notice" role="status">{copied}</p>}
+        {undoText !== null && (
+          <p className="records-notice" role="status">
+            AI가 고친 문장을 적용했습니다.{" "}
+            <button className="text-button" onClick={() => { replaceText(undoText); setUndoText(null); }}>적용 전으로 되돌리기</button>
+          </p>
+        )}
       </div>
 
       {reference}
+      {aiOpen && (
+        <AiReviewDialog
+          original={textRef.current}
+          onClose={() => setAiOpen(false)}
+          onApply={(next) => {
+            setUndoText(textRef.current);
+            replaceText(next);
+            setAiOpen(false);
+          }}
+        />
+      )}
+      {phraseDraft && (
+        <PhraseSaveDialog
+          phrase={phraseDraft}
+          names={[...new Set([pupil.name, ...everyName])]}
+          onClose={() => setPhraseDraft(null)}
+          onSaved={(saved) => {
+            setPhraseDraft(null);
+            onPhraseSaved(saved);
+          }}
+        />
+      )}
+      {insertOpen && (
+        <PhraseInsertDialog
+          phrases={phrases}
+          names={everyName}
+          area={slot.area}
+          onClose={() => setInsertOpen(false)}
+          onInsert={(phrase) => {
+            const currentText = textRef.current.trimEnd();
+            replaceText(currentText ? `${currentText} ${phrase}` : phrase);
+            setInsertOpen(false);
+          }}
+        />
+      )}
     </section>
   );
 }
@@ -1101,7 +1262,7 @@ function LimitsDialog({ limits, onClose, onSaved }: { limits: Record<string, num
   );
 }
 
-function YearCleanupDialog({ book, onClose, onDone }: { book: models.RecordBook; onClose: () => void; onDone: (year: string, removed: number) => Promise<void> }) {
+function YearCleanupDialog({ book, onClose, onBulk, onDone }: { book: models.RecordBook; onClose: () => void; onBulk: (year: string) => void; onDone: (year: string, removed: number) => Promise<void> }) {
   const summary = useMemo(() => {
     const map = new Map<string, { entries: number; lists: number }>();
     book.entries.forEach((entry) => {
@@ -1154,6 +1315,10 @@ function YearCleanupDialog({ book, onClose, onDone }: { book: models.RecordBook;
                   </li>
                 ))}
               </ul>
+              <div className="records-bulk-hint">
+                <p>지우기 전에 잘 쓴 문장을 학생 정보 없이 문장 보관함으로 옮겨 둘 수 있습니다.</p>
+                <button className="quiet-button" disabled={!year} onClick={() => onBulk(year)}>{year}학년도 검토 완료 문장 보관함으로 옮기기</button>
+              </div>
               <label className="records-field">
                 확인 문구: 학년도 기록 삭제
                 <input value={confirmation} onChange={(event) => setConfirmation(event.target.value)} />

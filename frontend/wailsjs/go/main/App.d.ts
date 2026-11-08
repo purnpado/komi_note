@@ -291,3 +291,9 @@ export function DeleteRecordList(arg1:string,arg2:string):Promise<void>;
 export function SaveRecordLimits(arg1:Record<string, number>):Promise<Record<string, number>>;
 
 export function DeleteRecordYear(arg1:string,arg2:string):Promise<number>;
+
+export function SaveRecordPhrase(arg1:main.RecordPhrase):Promise<main.RecordPhrase>;
+
+export function SaveRecordPhrases(arg1:Array<main.RecordPhrase>):Promise<main.RecordPhraseBulkResult>;
+
+export function DeleteRecordPhrase(arg1:string):Promise<void>;

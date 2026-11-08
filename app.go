@@ -94,6 +94,13 @@ type GroupRules = vault.GroupRules
 type RecordBook = vault.RecordBook
 type RecordEntry = vault.RecordEntry
 type RecordActivityList = vault.RecordActivityList
+type RecordPhrase = vault.RecordPhrase
+
+// RecordPhraseBulkResult는 문장을 한꺼번에 보관한 결과입니다.
+type RecordPhraseBulkResult struct {
+	Added   int `json:"added"`
+	Skipped int `json:"skipped"`
+}
 
 // GroupSessionInfo는 학생 참여형 모둠 편성(지망 배정) QR 회차 상태입니다.
 type GroupSessionInfo = groupsession.Info
@@ -598,6 +605,22 @@ func (a *App) SaveRecordLimits(limits map[string]int) (map[string]int, error) {
 // DeleteRecordYear는 한 학년도의 학교생활기록과 활동 명단을 한꺼번에 지웁니다.
 func (a *App) DeleteRecordYear(schoolYear, confirmation string) (int, error) {
 	return a.vault.DeleteRecordYear(schoolYear, confirmation)
+}
+
+// SaveRecordPhrase는 학생 정보 없이 특기사항 문장을 문장 보관함에 저장합니다.
+func (a *App) SaveRecordPhrase(phrase RecordPhrase) (RecordPhrase, error) {
+	return a.vault.SaveRecordPhrase(phrase)
+}
+
+// SaveRecordPhrases는 학년말에 고른 문장들을 문장 보관함에 한꺼번에 저장합니다.
+func (a *App) SaveRecordPhrases(phrases []RecordPhrase) (RecordPhraseBulkResult, error) {
+	added, skipped, err := a.vault.SaveRecordPhrases(phrases)
+	return RecordPhraseBulkResult{Added: added, Skipped: skipped}, err
+}
+
+// DeleteRecordPhrase는 문장 보관함의 문장 하나를 지웁니다.
+func (a *App) DeleteRecordPhrase(id string) error {
+	return a.vault.DeleteRecordPhrase(id)
 }
 
 // GetGroupingBook은 모둠 편성 이력과 반별 편성 조건을 반환합니다.

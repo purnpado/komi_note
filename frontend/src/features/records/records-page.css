@@ -122,3 +122,50 @@
   .records-one { grid-template-columns: repeat(3, 1fr); }
   .records-one input:nth-child(4) { grid-column: span 2; }
 }
+
+/* AI 검토·문장 보관함 */
+.records-tab-phrases { border-style: dashed !important; }
+.records-tab-phrases.active { border-style: solid !important; }
+.records-text-tools { margin-top: 6px; padding-top: 10px; border-top: 1px dashed #ecdccb; }
+.records-tool-gap { flex: 1 1 auto; }
+.records-dialog-wide { width: min(820px, calc(100vw - 32px)); }
+.records-diff-box { display: grid; gap: 8px; padding: 12px 14px; border: 1px solid #efdfcf; border-radius: 12px; background: #fffdfa; }
+.records-diff { margin: 0; color: #3d2a1f; font-size: 15px; line-height: 1.8; white-space: pre-wrap; word-break: break-all; }
+.records-diff ins, .records-legend:is(ins) { padding: 0 2px; border-radius: 4px; color: #155e40; background: #c9f0db; text-decoration: none; font-weight: 700; }
+.records-diff del, .records-legend:is(del) { padding: 0 2px; border-radius: 4px; color: #9a2a1c; background: #fbd3cc; text-decoration: line-through; }
+.records-ok { margin: 0; color: #1f6e4c; font-size: 13px; font-weight: 700; }
+.records-name-hits { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.records-name-hits li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 11px; border: 1px solid #f0b9ad; border-radius: 10px; color: #9a3524; background: #fff1ee; font-size: 13px; }
+.records-tag-picker { display: grid; gap: 8px; }
+.records-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.records-tags button { padding: 5px 11px; border: 1px solid #e0cdbb; border-radius: 999px; color: #6b4c38; background: #fffefb; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.records-tags button small { color: #a08876; font-weight: 600; }
+.records-tags button.picked { border-color: #2f7f9a; color: #fff; background: #2f7f9a; }
+.records-tags button.picked small { color: #d9eef5; }
+.records-tag-add { display: flex; gap: 6px; }
+.records-tag-add input { min-height: 34px; flex: 0 1 200px; box-sizing: border-box; border: 1px solid #e0cdbb; border-radius: 9px; padding: 6px 10px; font: inherit; font-size: 13px; }
+.records-phrase-panel { display: grid; gap: 14px; }
+.records-phrase-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.records-phrase-head h3 { margin: 0; color: #3d3026; font-size: 20px; }
+.records-library { display: grid; gap: 10px; }
+.records-library-search { display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: 10px; }
+.records-phrases { display: grid; gap: 8px; max-height: 60vh; overflow: auto; margin: 0; padding: 0; list-style: none; }
+.records-phrases li { display: grid; gap: 8px; padding: 12px 14px; border: 1px solid #efdfcf; border-radius: 12px; background: #fffdfa; }
+.records-phrases li p { margin: 0; color: #3d2a1f; font-size: 15px; line-height: 1.65; white-space: pre-wrap; }
+.records-phrase-meta { display: flex; flex-wrap: wrap; gap: 5px; }
+.records-chip { padding: 2px 9px; border-radius: 999px; color: #7a3f17; background: #fff1d9; font-size: 12px; font-weight: 700; }
+.records-chip.tag { color: #215f74; background: #e4f3f8; }
+.records-phrase-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.records-bulk-toolbar { justify-content: flex-start; align-items: center; gap: 12px; color: #5f4535; font-size: 13px; font-weight: 700; }
+.records-bulk { display: grid; gap: 8px; max-height: 52vh; overflow: auto; margin: 0; padding: 0; list-style: none; }
+.records-bulk li { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid #efdfcf; border-radius: 11px; background: #fffdfa; opacity: 0.6; }
+.records-bulk li.picked { opacity: 1; border-color: #e7bd92; }
+.records-bulk textarea { width: 100%; box-sizing: border-box; border: 1px solid #e0cdbb; border-radius: 9px; padding: 7px 10px; font: inherit; font-size: 14px; line-height: 1.55; resize: vertical; }
+.records-bulk small { color: #a06a3a; font-weight: 600; }
+.records-bulk-hint { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid #c9dcf0; border-radius: 11px; background: #eef5fc; color: #2f5f8a; font-size: 13px; }
+.records-bulk-hint p { margin: 0; }
+.records-bulk-hint button { justify-self: start; }
+@media (max-width: 900px) {
+  .records-library-search { grid-template-columns: 1fr; }
+  .records-tool-gap { display: none; }
+}

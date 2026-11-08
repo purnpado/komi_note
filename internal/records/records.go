@@ -115,11 +115,23 @@ type ActivityList struct {
 	UpdatedAt  string   `json:"updatedAt"`
 }
 
+// Phrase는 문장 보관함의 문장 하나입니다. 학생 ID·이름·번호·반은 저장하지 않습니다.
+type Phrase struct {
+	ID        string   `json:"id"`
+	Text      string   `json:"text"`
+	Area      string   `json:"area"`
+	Subject   string   `json:"subject"`
+	Tags      []string `json:"tags"`
+	CreatedAt string   `json:"createdAt"`
+	UpdatedAt string   `json:"updatedAt"`
+}
+
 // Book은 학교생활기록 전체입니다.
 type Book struct {
 	Entries []Entry        `json:"entries"`
 	Lists   []ActivityList `json:"lists"`
 	Limits  map[string]int `json:"limits"`
+	Phrases []Phrase       `json:"phrases"`
 }
 
 // SameSlot은 두 기록이 같은 학생·같은 영역 칸인지 확인합니다.
@@ -296,4 +308,67 @@ func NormaliseLimits(limits map[string]int) (map[string]int, error) {
 		result[area] = value
 	}
 	return result, nil
+}
+
+const (
+	maxPhrases   = 5000
+	maxTags      = 20
+	maxTagRunes  = 20
+	nameMinRunes = 3
+)
+
+// NormalisePhrase는 보관할 문장을 정리하고 검사합니다. names에 든 학생 이름(3글자 이상)이
+// 문장에 있으면 거부합니다(2글자 이름은 일반 낱말과 겹칠 수 있어 화면에서 확인합니다).
+func NormalisePhrase(phrase Phrase, names []string) (Phrase, error) {
+	phrase.ID = clean(phrase.ID)
+	phrase.Text = cleanText(phrase.Text)
+	phrase.Area = clean(phrase.Area)
+	phrase.Subject = clean(phrase.Subject)
+	if phrase.Text == "" {
+		return Phrase{}, errors.New("보관할 문장을 입력해 주세요")
+	}
+	if tooLong(phrase.Text, maxTextRunes) {
+		return Phrase{}, fmt.Errorf("보관할 문장은 %d자 이하로 입력해 주세요", maxTextRunes)
+	}
+	if phrase.Area != "" {
+		if _, ok := areaNames[phrase.Area]; !ok {
+			return Phrase{}, errors.New("기록 영역을 확인할 수 없습니다")
+		}
+	}
+	if tooLong(phrase.Subject, maxSubjectRunes) {
+		return Phrase{}, fmt.Errorf("과목 이름은 %d자 이하로 입력해 주세요", maxSubjectRunes)
+	}
+	for _, name := range names {
+		name = clean(name)
+		if utf8.RuneCountInString(name) >= nameMinRunes && strings.Contains(phrase.Text, name) {
+			return Phrase{}, fmt.Errorf("문장에 학생 이름(%s)이 들어 있습니다. ○○로 바꾸거나 고친 뒤 보관해 주세요", name)
+		}
+	}
+	tags := make([]string, 0, len(phrase.Tags))
+	seen := map[string]bool{}
+	for _, tag := range phrase.Tags {
+		tag = strings.TrimSpace(strings.TrimLeft(strings.TrimSpace(tag), "#"))
+		tag = strings.Join(strings.Fields(tag), "")
+		if tag == "" || seen[tag] {
+			continue
+		}
+		if tooLong(tag, maxTagRunes) {
+			return Phrase{}, fmt.Errorf("태그는 %d자 이하로 입력해 주세요", maxTagRunes)
+		}
+		seen[tag] = true
+		tags = append(tags, tag)
+	}
+	if len(tags) > maxTags {
+		return Phrase{}, fmt.Errorf("태그는 한 문장에 %d개까지 붙일 수 있습니다", maxTags)
+	}
+	phrase.Tags = tags
+	return phrase, nil
+}
+
+// CheckPhraseCount는 보관 문장 수 한도를 넘는지 확인합니다.
+func CheckPhraseCount(count int) error {
+	if count > maxPhrases {
+		return fmt.Errorf("문장 보관함에는 %d개까지 보관할 수 있습니다", maxPhrases)
+	}
+	return nil
 }

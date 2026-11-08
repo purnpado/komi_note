@@ -20,6 +20,7 @@ export interface Book {
     "entries": Entry[] | null;
     "lists": ActivityList[] | null;
     "limits": { [_ in string]?: number } | null;
+    "phrases": Phrase[] | null;
 }
 
 /**
@@ -57,4 +58,17 @@ export interface Memo {
     "id": string;
     "text": string;
     "createdAt": string;
+}
+
+/**
+ * Phrase는 문장 보관함의 문장 하나입니다. 학생 ID·이름·번호·반은 저장하지 않습니다.
+ */
+export interface Phrase {
+    "id": string;
+    "text": string;
+    "area": string;
+    "subject": string;
+    "tags": string[] | null;
+    "createdAt": string;
+    "updatedAt": string;
 }

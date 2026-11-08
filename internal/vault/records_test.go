@@ -236,3 +236,71 @@ func TestRecordLimitsYearDeleteAndBackup(t *testing.T) {
 		t.Fatalf("학년도 삭제 뒤 %+v", book.Entries)
 	}
 }
+
+func TestRecordPhrasesStoreWithoutStudentInfo(t *testing.T) {
+	dir := t.TempDir()
+	store := newTestVault(t, dir)
+	student, err := store.AddStudent(Student{Number: 1, Name: "홍길동", BirthDate: "2013-01-01", TransferInDate: "2026-03-02"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.SaveRecordEntry(RecordEntry{SchoolYear: "2026", Area: records.AreaBehavior, TargetKind: records.TargetHomeroom, StudentKey: student.ID, Text: "성실함."}); err != nil {
+		t.Fatal(err)
+	}
+	// 3글자 학생 이름이 든 문장은 거부
+	if _, err := store.SaveRecordPhrase(RecordPhrase{Text: "홍길동은 배려심이 깊음.", Area: records.AreaBehavior}); err == nil || !strings.Contains(err.Error(), "학생 이름") {
+		t.Fatalf("이름 거부를 기대했지만 %v", err)
+	}
+	saved, err := store.SaveRecordPhrase(RecordPhrase{Text: "○○은 배려심이 깊음.", Area: records.AreaBehavior, Tags: []string{"#배려", "배려", " 협 업 "}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(saved.Tags) != 2 || saved.Tags[0] != "배려" || saved.Tags[1] != "협업" {
+		t.Fatalf("태그 정리 %+v", saved.Tags)
+	}
+	if _, err := store.SaveRecordPhrase(RecordPhrase{Text: "○○은 배려심이 깊음."}); err == nil {
+		t.Fatal("같은 문장은 거부해야 합니다")
+	}
+	stale := saved
+	saved.Tags = []string{"배려", "공감"}
+	if _, err := store.SaveRecordPhrase(saved); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.SaveRecordPhrase(stale); err == nil {
+		t.Fatal("동시 수정은 거부해야 합니다")
+	}
+	// 한꺼번에: 같은 문장은 건너뛰고, 하나라도 이름이 있으면 모두 거부
+	if _, _, err := store.SaveRecordPhrases([]RecordPhrase{{Text: "탐구함."}, {Text: "홍길동이 발표함."}}); err == nil {
+		t.Fatal("이름이 든 문장이 섞이면 모두 거부해야 합니다")
+	}
+	added, skipped, err := store.SaveRecordPhrases([]RecordPhrase{{Text: "탐구함.", Tags: []string{"탐구"}}, {Text: "○○은 배려심이 깊음."}, {Text: "탐구함."}})
+	if err != nil || added != 1 || skipped != 2 {
+		t.Fatalf("한꺼번에 %d %d %v", added, skipped, err)
+	}
+	// 학적변동·학년도 정리에도 보관 문장은 남는다
+	if _, err := store.ProcessAcademicChange(student.ID, "전출", "2026-10-08", "학적변동 처리"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.DeleteRecordYear("2026", "학년도 기록 삭제"); err != nil {
+		t.Fatal(err)
+	}
+	reopened := &VaultStore{filePath: store.filePath}
+	if _, err := reopened.Unlock(testMaster); err != nil {
+		t.Fatal(err)
+	}
+	book, _ := reopened.GetRecordBook()
+	if len(book.Phrases) != 2 || len(book.Entries) != 0 {
+		t.Fatalf("다시 연 보관함 %+v", book)
+	}
+	raw, _ := os.ReadFile(store.filePath)
+	if strings.Contains(string(raw), "배려심") {
+		t.Fatal("보관 문장이 암호화되지 않았습니다")
+	}
+	if err := reopened.DeleteRecordPhrase(book.Phrases[0].ID); err != nil {
+		t.Fatal(err)
+	}
+	after, _ := reopened.GetRecordBook()
+	if len(after.Phrases) != 1 {
+		t.Fatalf("삭제 뒤 %+v", after.Phrases)
+	}
+}

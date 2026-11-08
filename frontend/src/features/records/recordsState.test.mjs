@@ -79,3 +79,53 @@ test("학년도 목록은 설정 학년도와 기록 학년도를 합쳐 최신 
   assert.deepEqual(recordYears("2026", ["2025", "2026", "x"]), ["2026", "2025"]);
   assert.equal(recordYears("", []).length, 1);
 });
+
+import { aiPrompt, changeRatio, cleanAiAnswer, diffText, filterPhrases, findNames, replaceName, suggestTags, tagCounts } from "./recordsState.ts";
+
+test("태그 추천: 영역·과목·낱말은 미리 고르고 연도는 후보로만", () => {
+  const tags = suggestTags("2026년 모둠 실험에서 원인을 스스로 찾아 발표함.", "subject", "과학");
+  const picked = tags.filter((item) => item.picked).map((item) => item.tag);
+  assert.deepEqual(picked, ["교과세특", "과학", "협업", "탐구", "자기주도", "의사소통", "문제해결"]);
+  assert.deepEqual(tags.find((item) => item.tag === "2026년"), { tag: "2026년", picked: false });
+  assert.deepEqual(suggestTags("성실함.", "behavior", "").map((item) => item.tag), ["행동특성및종합의견", "성실"]);
+});
+
+test("이름 찾기와 ○○로 바꾸기", () => {
+  const hits = findNames("홍길동은 길동이와 홍길동 모둠에서", ["홍길동", "길동", "김", " "]);
+  assert.deepEqual(hits, [{ name: "홍길동", count: 2 }]);
+  assert.equal(replaceName("홍길동은 홍길동답게", "홍길동"), "○○은 ○○답게");
+  assert.deepEqual(findNames("탐구함.", ["홍길동"]), []);
+});
+
+test("AI 요청 문구와 답 정리", () => {
+  assert.match(aiPrompt("  문장.  "), /내용·표현·길이는 바꾸지 말고[\s\S]*\n\n문장\.$/);
+  assert.equal(cleanAiAnswer("```\n고친 문장: \"실험을 완성함.\"\n```"), "실험을 완성함.");
+  assert.equal(cleanAiAnswer("“탐구함.”"), "탐구함.");
+  assert.equal(cleanAiAnswer("그냥 문장."), "그냥 문장.");
+});
+
+test("글자 비교: 띄어쓰기·마침표 고침을 찾고 바뀐 비율을 센다", () => {
+  const parts = diffText("참여 하며 완성함", "참여하며 완성함.");
+  assert.deepEqual(parts, [
+    { kind: "same", text: "참여" },
+    { kind: "del", text: " " },
+    { kind: "same", text: "하며 완성함" },
+    { kind: "add", text: "." },
+  ]);
+  assert.ok(changeRatio(parts) < 0.3);
+  assert.ok(changeRatio(diffText("가나다라", "마바사아")) >= 1);
+  assert.deepEqual(diffText("", "새"), [{ kind: "add", text: "새" }]);
+});
+
+test("보관 문장 찾기와 태그 개수", () => {
+  const phrases = [
+    { text: "모둠 실험을 이끎.", area: "subject", subject: "과학", tags: ["협업", "리더십"] },
+    { text: "꾸준히 봉사함.", area: "behavior", subject: "", tags: ["성실", "협업"] },
+  ];
+  assert.equal(filterPhrases(phrases, "실험", "", []).length, 1);
+  assert.equal(filterPhrases(phrases, "#협업", "", []).length, 2);
+  assert.equal(filterPhrases(phrases, "", "behavior", []).length, 1);
+  assert.equal(filterPhrases(phrases, "", "", ["협업", "리더십"]).length, 1);
+  assert.equal(filterPhrases(phrases, "과학", "", []).length, 1);
+  assert.deepEqual(tagCounts(phrases)[0], ["협업", 2]);
+});

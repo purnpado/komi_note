@@ -20,6 +20,7 @@ export type {
     RecordActivityList,
     RecordBook,
     RecordEntry,
+    RecordPhrase,
     RestoreResult,
     RosterImportResult,
     RosterPreview,

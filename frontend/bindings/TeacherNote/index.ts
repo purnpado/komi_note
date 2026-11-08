@@ -32,6 +32,8 @@ export type {
     RecordActivityList,
     RecordBook,
     RecordEntry,
+    RecordPhrase,
+    RecordPhraseBulkResult,
     RestoreResult,
     RosterImportResult,
     RosterPreview,

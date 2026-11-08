@@ -181,6 +181,11 @@ export type RecordBook = records$0.Book;
 export type RecordEntry = records$0.Entry;
 
 /**
+ * RecordPhrase는 학생 정보 없이 보관하는 특기사항 문장입니다.
+ */
+export type RecordPhrase = records$0.Phrase;
+
+/**
  * RestoreResult는 되살리기 뒤 교사에게 안내할 내용을 담는다.
  */
 export interface RestoreResult {

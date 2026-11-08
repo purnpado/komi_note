@@ -208,3 +208,142 @@ export function recordYears(configYear: string, others: string[]) {
   if (years.size === 0) years.add(String(new Date().getFullYear()));
   return [...years].sort((a, b) => b.localeCompare(a));
 }
+
+// ── 문장 보관함·AI 검토 도우미 ──
+
+// 태그 사전: 태그 → 문장에서 찾을 낱말. 이 컴퓨터 안에서만 쓰는 규칙이다(외부 AI 없음).
+const tagDictionary: { tag: string; words: string[] }[] = [
+  { tag: "협업", words: ["협력", "협업", "모둠", "함께", "공동", "팀"] },
+  { tag: "배려", words: ["배려", "도와", "돕", "양보", "챙기", "챙김"] },
+  { tag: "리더십", words: ["이끌", "주도", "리더", "대표", "회장", "조율"] },
+  { tag: "탐구", words: ["탐구", "실험", "조사", "분석", "가설", "관찰"] },
+  { tag: "자기주도", words: ["스스로", "자발적", "자기주도", "주체적", "계획을 세"] },
+  { tag: "진로", words: ["진로", "직업", "꿈", "희망 분야", "전공"] },
+  { tag: "의사소통", words: ["발표", "토론", "토의", "설명", "경청", "의견"] },
+  { tag: "성실", words: ["성실", "꾸준", "책임감", "맡은", "빠짐없이"] },
+  { tag: "문제해결", words: ["해결", "원인", "개선", "보완", "극복"] },
+  { tag: "창의", words: ["창의", "독창", "아이디어", "새로운"] },
+  { tag: "나눔봉사", words: ["봉사", "나눔", "기부"] },
+  { tag: "글쓰기", words: ["보고서", "글쓰기", "서술", "에세이", "논술"] },
+  { tag: "독서", words: ["독서", "책을 읽", "도서", "읽고"] },
+  { tag: "디지털", words: ["코딩", "프로그래밍", "디지털", "소프트웨어", "데이터"] },
+  { tag: "예술체육", words: ["그림", "음악", "공연", "운동", "경기", "작품"] },
+  { tag: "공동체", words: ["학급", "공동체", "규칙", "질서", "환경 정화"] },
+];
+
+export type TagSuggestion = { tag: string; picked: boolean };
+
+// suggestTags는 영역·과목·문장 낱말로 태그 후보를 고른다. 낱말로 찾은 태그와 영역은 미리 골라 두고,
+// 문장 속 연도(예: 2026년)는 후보로만 보여 준다.
+export function suggestTags(text: string, area: string, subject: string): TagSuggestion[] {
+  const result: TagSuggestion[] = [];
+  const add = (tag: string, picked: boolean) => {
+    const clean = tag.replace(/^#/, "").replace(/\s+/g, "");
+    if (clean && !result.some((item) => item.tag === clean)) result.push({ tag: clean, picked });
+  };
+  if (area && area in areaLabels) add(areaLabels[area as Area].replace(/[·\s]/g, ""), true);
+  if (subject.trim()) add(subject.trim(), true);
+  for (const item of tagDictionary) {
+    if (item.words.some((word) => text.includes(word))) add(item.tag, true);
+  }
+  for (const year of new Set(text.match(/20\d{2}/g) || [])) add(`${year}년`, false);
+  return result;
+}
+
+export type NameHit = { name: string; count: number };
+
+// findNames는 문장에 들어 있는 학생 이름(2글자 이상)을 찾는다.
+export function findNames(text: string, names: string[]): NameHit[] {
+  const hits: NameHit[] = [];
+  for (const name of [...new Set(names.map((item) => item.trim()))].filter((item) => item.length >= 2).sort((a, b) => b.length - a.length)) {
+    const count = text.split(name).length - 1;
+    if (count > 0 && !hits.some((hit) => hit.name.includes(name))) hits.push({ name, count });
+  }
+  return hits;
+}
+
+// replaceName은 문장 속 이름을 ○○로 바꾼다.
+export function replaceName(text: string, name: string) {
+  return name ? text.split(name).join("○○") : text;
+}
+
+export const aiPromptIntro =
+  "다음은 학교생활기록부 특기사항 문장입니다. 오탈자, 띄어쓰기, 문장 부호만 고쳐 주세요. 내용·표현·길이는 바꾸지 말고, 설명 없이 고친 문장만 답해 주세요.";
+
+export function aiPrompt(text: string) {
+  return `${aiPromptIntro}\n\n${text.trim()}`;
+}
+
+// cleanAiAnswer는 AI 답에서 코드 블록 표시·앞뒤 따옴표·"수정:" 같은 머리말을 걷어 낸다.
+export function cleanAiAnswer(answer: string) {
+  let value = answer.replace(/\r\n?/g, "\n").trim();
+  value = value.replace(/^```[a-z]*\n?/i, "").replace(/\n?```$/, "").trim();
+  value = value.replace(/^(고친 문장|수정(된)? 문장|수정|교정(된)? 문장|교정)\s*[:：]\s*/, "").trim();
+  if (/^["“'‘].*["”'’]$/s.test(value)) value = value.slice(1, -1).trim();
+  return value;
+}
+
+export type DiffPart = { kind: "same" | "add" | "del"; text: string };
+
+// diffText는 두 문장을 글자 단위로 비교한다(최장 공통 부분열). 학생부 문장 길이(수천 자 이하)에 맞춘 방식이다.
+export function diffText(before: string, after: string): DiffPart[] {
+  const a = Array.from(before);
+  const b = Array.from(after);
+  const n = a.length;
+  const m = b.length;
+  const table = new Uint16Array((n + 1) * (m + 1));
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = m - 1; j >= 0; j--) {
+      table[i * (m + 1) + j] = a[i] === b[j] ? table[(i + 1) * (m + 1) + j + 1] + 1 : Math.max(table[(i + 1) * (m + 1) + j], table[i * (m + 1) + j + 1]);
+    }
+  }
+  const parts: DiffPart[] = [];
+  const push = (kind: DiffPart["kind"], char: string) => {
+    const last = parts[parts.length - 1];
+    if (last && last.kind === kind) last.text += char;
+    else parts.push({ kind, text: char });
+  };
+  let i = 0;
+  let j = 0;
+  while (i < n && j < m) {
+    if (a[i] === b[j]) {
+      push("same", a[i]);
+      i++;
+      j++;
+    } else if (table[(i + 1) * (m + 1) + j] >= table[i * (m + 1) + j + 1]) {
+      push("del", a[i++]);
+    } else {
+      push("add", b[j++]);
+    }
+  }
+  while (i < n) push("del", a[i++]);
+  while (j < m) push("add", b[j++]);
+  return parts;
+}
+
+// changeRatio는 바뀐 글자 비율이다(AI가 내용까지 많이 바꿨는지 알려 줄 때 쓴다).
+export function changeRatio(parts: DiffPart[]) {
+  const total = parts.reduce((sum, part) => sum + (part.kind === "add" ? 0 : Array.from(part.text).length), 0);
+  const changed = parts.reduce((sum, part) => sum + (part.kind === "same" ? 0 : Array.from(part.text).length), 0);
+  return total === 0 ? 0 : changed / total;
+}
+
+export type PhraseLike = { text: string; area: string; subject: string; tags: string[] };
+
+// filterPhrases는 낱말(문장·태그)·영역·태그로 보관 문장을 찾는다.
+export function filterPhrases<T extends PhraseLike>(phrases: T[], query: string, area: string, tags: string[]) {
+  const words = query.trim().replace(/#/g, "").split(/\s+/).filter(Boolean);
+  return phrases.filter(
+    (phrase) =>
+      (!area || phrase.area === area) &&
+      tags.every((tag) => phrase.tags.includes(tag)) &&
+      words.every((word) => phrase.text.includes(word) || phrase.tags.some((tag) => tag.includes(word)) || phrase.subject.includes(word)),
+  );
+}
+
+// tagCounts는 보관 문장의 태그별 개수(많은 순)다.
+export function tagCounts(phrases: PhraseLike[]) {
+  const map = new Map<string, number>();
+  phrases.forEach((phrase) => phrase.tags.forEach((tag) => map.set(tag, (map.get(tag) || 0) + 1)));
+  return [...map.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ko"));
+}

@@ -158,6 +158,13 @@ export function DeleteRecordList(id: string, confirmation: string): $Cancellable
 }
 
 /**
+ * DeleteRecordPhrase는 문장 보관함의 문장 하나를 지웁니다.
+ */
+export function DeleteRecordPhrase(id: string): $CancellablePromise<void> {
+    return $Call.ByID(1822189978, id);
+}
+
+/**
  * DeleteRecordYear는 한 학년도의 학교생활기록과 활동 명단을 한꺼번에 지웁니다.
  */
 export function DeleteRecordYear(schoolYear: string, confirmation: string): $CancellablePromise<number> {
@@ -700,6 +707,20 @@ export function SaveRecordLimits(limits: { [_ in string]?: number } | null): $Ca
  */
 export function SaveRecordList(list: $models.RecordActivityList): $CancellablePromise<$models.RecordActivityList> {
     return $Call.ByID(168063185, list);
+}
+
+/**
+ * SaveRecordPhrase는 학생 정보 없이 특기사항 문장을 문장 보관함에 저장합니다.
+ */
+export function SaveRecordPhrase(phrase: $models.RecordPhrase): $CancellablePromise<$models.RecordPhrase> {
+    return $Call.ByID(3303273336, phrase);
+}
+
+/**
+ * SaveRecordPhrases는 학년말에 고른 문장들을 문장 보관함에 한꺼번에 저장합니다.
+ */
+export function SaveRecordPhrases(phrases: $models.RecordPhrase[] | null): $CancellablePromise<$models.RecordPhraseBulkResult> {
+    return $Call.ByID(4258765393, phrases);
 }
 
 /**

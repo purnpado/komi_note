@@ -6,5 +6,6 @@ export type {
     Book,
     Entry,
     Member,
-    Memo
+    Memo,
+    Phrase
 } from "./models.js";

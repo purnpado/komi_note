@@ -104,6 +104,16 @@ export type RecordBook = vault$0.RecordBook;
 
 export type RecordEntry = vault$0.RecordEntry;
 
+export type RecordPhrase = vault$0.RecordPhrase;
+
+/**
+ * RecordPhraseBulkResult는 문장을 한꺼번에 보관한 결과입니다.
+ */
+export interface RecordPhraseBulkResult {
+    "added": number;
+    "skipped": number;
+}
+
 /**
  * RestoreResult는 백업 되살리기 뒤 안내할 내용입니다.
  */

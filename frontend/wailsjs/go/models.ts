@@ -1983,16 +1983,53 @@ export namespace main {
 	        this.updatedAt = source["updatedAt"] || "";
 	    }
 	}
+	// 문장 보관함의 문장. 학생 ID·이름·번호·반은 담지 않는다.
+	export class RecordPhrase {
+	    id: string;
+	    text: string;
+	    area: string;
+	    subject: string;
+	    tags: string[];
+	    createdAt: string;
+	    updatedAt: string;
+
+	    static createFrom(source: any = {}) {
+	        return new RecordPhrase(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"] || "";
+	        this.text = source["text"] || "";
+	        this.area = source["area"] || "";
+	        this.subject = source["subject"] || "";
+	        this.tags = [...(source["tags"] || [])];
+	        this.createdAt = source["createdAt"] || "";
+	        this.updatedAt = source["updatedAt"] || "";
+	    }
+	}
+	export class RecordPhraseBulkResult {
+	    added: number;
+	    skipped: number;
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.added = Number(source["added"] || 0);
+	        this.skipped = Number(source["skipped"] || 0);
+	    }
+	}
 	export class RecordBook {
 	    entries: RecordEntry[];
 	    lists: RecordActivityList[];
 	    limits: Record<string, number>;
+	    phrases: RecordPhrase[];
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.entries = (source["entries"] || []).map((item: any) => new RecordEntry(item));
 	        this.lists = (source["lists"] || []).map((item: any) => new RecordActivityList(item));
 	        this.limits = { ...(source["limits"] || {}) };
+	        this.phrases = (source["phrases"] || []).map((item: any) => new RecordPhrase(item));
 	    }
 	}
 
