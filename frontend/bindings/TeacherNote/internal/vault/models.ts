@@ -35,6 +35,15 @@ import * as timetable$0 from "../timetable/models.js";
 export type AcademicChange = students$0.AcademicChange;
 
 /**
+ * AddAssessmentStudentResult는 전입생 추가 결과와 수업 명렬 반영 안내다.
+ */
+export interface AddAssessmentStudentResult {
+    "assessment": Assessment;
+    "rosterMessage": string;
+    "rosterChanged": boolean;
+}
+
+/**
  * AppState는 잠금 화면에서 사용 가능한 최소 상태입니다.
  */
 export interface AppState {
@@ -246,6 +255,12 @@ export interface RestoreResult {
      */
     "recoveryMismatch": boolean;
     "studentCount": number;
+
+    /**
+     * AttachmentsRestored·AttachmentsFailed는 되살린 학생 사진·영수증 사진 수와 실패 수다.
+     */
+    "attachmentsRestored": number;
+    "attachmentsFailed": number;
 }
 
 /**

@@ -15,6 +15,13 @@ import { Call as $Call, CancellablePromise as $CancellablePromise } from "@wails
 import * as $models from "./models.js";
 
 /**
+ * AddAssessmentStudent는 학기 중 전입생을 평가와 같은 반 수업 명렬에 추가합니다. skippedDomains는 전입 전에 끝난 영역입니다.
+ */
+export function AddAssessmentStudent(assessmentID: string, $number: string, name: string, transferIn: string, skippedDomains: string[] | null): $CancellablePromise<$models.AddAssessmentStudentResult> {
+    return $Call.ByID(346205981, assessmentID, $number, name, transferIn, skippedDomains);
+}
+
+/**
  * AddBudgetReceipt는 영수증 사진(화면에서 고른 파일의 base64)을 암호화해 붙입니다.
  */
 export function AddBudgetReceipt(entryID: string, fileName: string, dataBase64: string): $CancellablePromise<$models.BudgetEntry> {

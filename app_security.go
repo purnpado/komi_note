@@ -88,7 +88,8 @@ func (a *App) SelectBackupFile() (string, error) {
 
 // RestoreEncryptedBackup은 백업 당시 마스터 비밀번호로 백업 파일을 열어 보관함을 되살립니다.
 func (a *App) RestoreEncryptedBackup(path, password string) (RestoreResult, error) {
-	return a.vault.RestoreBackup(path, password)
+	result, err := a.vault.RestoreBackup(path, password)
+	return notifyAfter(eventSettingsChanged, "되살리기", nil, result, err)
 }
 
 // ChangeMasterPassword는 지금 비밀번호를 확인한 뒤 마스터 비밀번호를 바꿉니다.
@@ -168,7 +169,8 @@ func (a *App) LockVault() {
 
 // UpdateSettings는 잠금 해제한 사용자의 기본 설정을 저장합니다.
 func (a *App) UpdateSettings(config ClassConfig) (SessionResult, error) {
-	return a.vault.UpdateConfig(config)
+	result, err := a.vault.UpdateConfig(config)
+	return notifyAfter(eventSettingsChanged, "수정", nil, result, err)
 }
 
 // ResetMasterPassword는 외부 복구 파일과 복구용 암호로 마스터 비밀번호를 재설정합니다.

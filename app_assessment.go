@@ -138,3 +138,18 @@ func (a *App) OpenAssessmentBoard(assessmentID, domainID string) (AssessmentSess
 	}
 	return info, nil
 }
+
+type AddAssessmentStudentResult = vault.AddAssessmentStudentResult
+
+// AddAssessmentStudent는 학기 중 전입생을 평가와 같은 반 수업 명렬에 추가합니다. skippedDomains는 전입 전에 끝난 영역입니다.
+func (a *App) AddAssessmentStudent(assessmentID, number, name, transferIn string, skippedDomains []string) (AddAssessmentStudentResult, error) {
+	result, err := a.vault.AddAssessmentStudent(assessmentID, number, name, transferIn, skippedDomains)
+	if err != nil {
+		return result, err
+	}
+	a.assessmentEvents.Publish(AssessmentEvent{Type: "학생추가", AssessmentID: assessmentID})
+	if result.RosterChanged {
+		notifyChange(eventCourseRosterChanged, changeAdded, "")
+	}
+	return result, nil
+}

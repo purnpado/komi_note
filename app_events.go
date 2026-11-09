@@ -21,6 +21,12 @@ const (
 	eventTimetableChanged    = "timetable:변경"
 	eventBudgetChanged       = "budget:변경"
 	eventReminderChanged     = "reminder:변경"
+	// 기존 기능(2026-11-09 P2): 학생 정보·학적변동·사진, 상담, 출결, 제출서류, 환경 설정
+	eventStudentsChanged     = "students:변경"
+	eventConsultationChanged = "consultation:변경"
+	eventAttendanceChanged   = "attendance:변경"
+	eventSubmissionsChanged  = "submissions:변경"
+	eventSettingsChanged     = "settings:변경"
 )
 
 // 변경 종류

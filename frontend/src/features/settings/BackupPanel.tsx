@@ -1,3 +1,4 @@
+import { KnowNote, settingsNotes } from "../shared/KnowNote";
 import { useState } from "react";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import {
@@ -55,7 +56,7 @@ export function BackupPanel() {
       setRestorePassword("");
       setRestorePath("");
       show(
-        `백업을 되살렸습니다(학생 ${result.studentCount}명). 화면을 새 자료로 다시 불러옵니다. 간편 PIN은 다시 등록해 주세요.` +
+        `백업을 되살렸습니다(학생 ${result.studentCount}명${result.attachmentsRestored ? `, 사진·영수증 ${result.attachmentsRestored}장` : ""}${result.attachmentsFailed ? `, 되살리지 못한 사진 ${result.attachmentsFailed}장` : ""}). 화면을 새 자료로 다시 불러옵니다. 간편 PIN은 다시 등록해 주세요.` +
           (result.recoveryMismatch ? " 지금 가진 복구 파일과 맞지 않을 수 있으니 아래에서 새 복구 파일을 만들어 두세요." : ""),
         true,
       );
@@ -100,8 +101,9 @@ export function BackupPanel() {
           <h3 id="settings-backup-title">암호화 백업 · 되살리기</h3>
           <p>
             컴퓨터 고장·교체에 대비해 보관함 전체를 암호화된 파일로 저장합니다. 백업 파일은 그때의 마스터 비밀번호로만
-            열리며, 간편 PIN 정보는 들어가지 않습니다. 학기 중 정기적으로 USB 등에 저장해 두세요.
+            열리며, 학생 사진·영수증 사진도 암호화된 채로 함께 들어갑니다. 간편 PIN 정보는 들어가지 않습니다. 학기 중 정기적으로 USB 등에 저장해 두세요.
           </p>
+          <KnowNote items={[...settingsNotes.backup]} />
         </div>
         <button type="button" className="primary-button" onClick={() => void exportBackup()} disabled={busy}>
           암호화 백업 저장

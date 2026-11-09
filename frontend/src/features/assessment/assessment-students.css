@@ -1,0 +1,13 @@
+/* 전입생 추가·표시 */
+.assessment-transfer-badge { margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: #e8f1fb; color: #24548c; font-size: 11px; font-style: normal; font-weight: 800; }
+.assessment-skipped { color: #8a7160; font-size: 12px; font-style: italic; text-align: center; background: repeating-linear-gradient(135deg, #faf6f1 0 8px, #f4ece2 8px 16px); }
+.assessment-add-student { width: min(560px, calc(100vw - 32px)); }
+.assessment-add-help { margin: 0 0 10px; color: #806b5b; font-size: 13px; line-height: 1.55; }
+.assessment-add-form { display: grid; gap: 12px; }
+.assessment-add-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.assessment-add-row .dialog-label { flex: 1 1 120px; }
+.assessment-add-row input { width: 100%; }
+.assessment-add-domains { display: flex; flex-wrap: wrap; gap: 12px; margin: 0; padding: 10px 12px; border: 1px solid #ead3bd; border-radius: 10px; }
+.assessment-add-domains legend { padding: 0 4px; color: #6f5644; font-size: 12px; font-weight: 800; }
+.assessment-add-domains .inline-check { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; }
+.assessment-add-form .form-error { margin: 0; color: #b23b16; font-weight: 700; }

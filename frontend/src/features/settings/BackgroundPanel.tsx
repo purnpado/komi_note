@@ -1,3 +1,4 @@
+import { KnowNote, settingsNotes } from "../shared/KnowNote";
 import { useEffect, useState } from "react";
 import { GetBackgroundSettings, SaveBackgroundSettings, SendTestNotification } from "../../../bindings/TeacherNote/app";
 import type { BackgroundInfo } from "../../../bindings/TeacherNote/models";
@@ -49,6 +50,7 @@ export function BackgroundPanel() {
           <p className="eyebrow">알림 · 백그라운드</p>
           <h3 id="settings-background-title">Windows 알림 · 트레이 · 자동 시작</h3>
           <p>일정·할 일 미리 알림을 Windows 알림으로 받습니다. 모두 처음에는 꺼져 있습니다. 알림·트레이 설정은 켜기/끄기와 시각만 이 컴퓨터의 data 폴더에 저장되며 일정 내용은 들어가지 않습니다.</p>
+          <KnowNote items={[...settingsNotes.background]} />
         </div>
       </div>
       {!info.desktopSupported && <p className="settings-extra-note">지금은 화면 검사용 서버 모드라 Windows 알림·트레이가 동작하지 않습니다. 알림은 상단 ‘확인할 알림’에만 쌓입니다.</p>}

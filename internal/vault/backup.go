@@ -38,7 +38,8 @@ func (s *VaultStore) ExportBackup(path string) error {
 	if err != nil {
 		return err
 	}
-	if err := writeJSONSecure(path, backupFileOf(file)); err != nil {
+	backup := backupFile{vaultFile: backupFileOf(file), Attachments: s.collectAttachmentsLocked()}
+	if err := writeJSONSecure(path, backup); err != nil {
 		return fmt.Errorf("백업 파일을 저장하지 못했습니다: %w", err)
 	}
 	return nil
@@ -46,32 +47,39 @@ func (s *VaultStore) ExportBackup(path string) error {
 
 // readBackupWithPassword는 백업 파일을 백업 당시 마스터 비밀번호로 열어 키와 자료를 돌려준다.
 func readBackupWithPassword(path, password string) (vaultFile, []byte, vaultData, error) {
-	var file vaultFile
-	if err := readJSON(path, &file); err != nil {
+	file, _, key, data, err := readBackupFileWithPassword(path, password)
+	return file, key, data, err
+}
+
+// readBackupFileWithPassword는 사진·영수증 암호문까지 함께 읽는다.
+func readBackupFileWithPassword(path, password string) (vaultFile, map[string]encryptedBlob, []byte, vaultData, error) {
+	var backup backupFile
+	if err := readJSON(path, &backup); err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			return vaultFile{}, nil, vaultData{}, errors.New("백업 파일을 찾지 못했습니다")
+			return vaultFile{}, nil, nil, vaultData{}, errors.New("백업 파일을 찾지 못했습니다")
 		}
-		return vaultFile{}, nil, vaultData{}, errors.New("꼬미노트 백업 파일 형식이 아닙니다")
+		return vaultFile{}, nil, nil, vaultData{}, errors.New("꼬미노트 백업 파일 형식이 아닙니다")
 	}
+	file := backup.vaultFile
 	if file.PasswordSalt == "" || file.PasswordWrappedKey.Ciphertext == "" || file.Data.Ciphertext == "" {
-		return vaultFile{}, nil, vaultData{}, errors.New("꼬미노트 백업 파일 형식이 아닙니다")
+		return vaultFile{}, nil, nil, vaultData{}, errors.New("꼬미노트 백업 파일 형식이 아닙니다")
 	}
 	salt, err := decode(file.PasswordSalt)
 	if err != nil {
-		return vaultFile{}, nil, vaultData{}, errors.New("꼬미노트 백업 파일 형식이 아닙니다")
+		return vaultFile{}, nil, nil, vaultData{}, errors.New("꼬미노트 백업 파일 형식이 아닙니다")
 	}
 	passwordKey := deriveKey(strings.TrimSpace(password), salt)
 	vaultKey, err := open(passwordKey, file.PasswordWrappedKey, "master-key-v1")
 	zeroBytes(passwordKey)
 	if err != nil {
-		return vaultFile{}, nil, vaultData{}, errors.New("백업할 때의 마스터 비밀번호가 올바르지 않습니다")
+		return vaultFile{}, nil, nil, vaultData{}, errors.New("백업할 때의 마스터 비밀번호가 올바르지 않습니다")
 	}
 	data, err := decryptVaultData(vaultKey, file.Data)
 	if err != nil {
 		zeroBytes(vaultKey)
-		return vaultFile{}, nil, vaultData{}, errors.New("백업 파일이 손상되어 열 수 없습니다")
+		return vaultFile{}, nil, nil, vaultData{}, errors.New("백업 파일이 손상되어 열 수 없습니다")
 	}
-	return file, vaultKey, data, nil
+	return file, backup.Attachments, vaultKey, data, nil
 }
 
 // RestoreResult는 되살리기 뒤 교사에게 안내할 내용을 담는다.
@@ -80,6 +88,9 @@ type RestoreResult struct {
 	// RecoveryMismatch가 참이면 지금 가진 복구 파일로는 되살린 보관함을 열 수 없으므로 새로 만들어야 한다.
 	RecoveryMismatch bool `json:"recoveryMismatch"`
 	StudentCount     int  `json:"studentCount"`
+	// AttachmentsRestored·AttachmentsFailed는 되살린 학생 사진·영수증 사진 수와 실패 수다.
+	AttachmentsRestored int `json:"attachmentsRestored"`
+	AttachmentsFailed   int `json:"attachmentsFailed"`
 }
 
 // RestoreBackup은 백업 파일로 보관함을 되살린다.
@@ -96,7 +107,7 @@ func (s *VaultStore) RestoreBackup(path, password string) (RestoreResult, error)
 	if vaultExists && (s.session == nil || len(s.sessionKey) == 0) {
 		return RestoreResult{}, errors.New("먼저 지금 보관함을 연 뒤 되살릴 수 있습니다")
 	}
-	file, vaultKey, data, err := readBackupWithPassword(path, password)
+	file, attachments, vaultKey, data, err := readBackupFileWithPassword(path, password)
 	if err != nil {
 		return RestoreResult{}, err
 	}
@@ -109,7 +120,8 @@ func (s *VaultStore) RestoreBackup(path, password string) (RestoreResult, error)
 	s.resetPinAttemptsLocked()
 	s.sessionKey = vaultKey
 	s.session = &data
-	return RestoreResult{Config: data.Config, RecoveryMismatch: !sameKey, StudentCount: len(data.Students)}, nil
+	restored, failed := s.restoreAttachments(attachments)
+	return RestoreResult{Config: data.Config, RecoveryMismatch: !sameKey, StudentCount: len(data.Students), AttachmentsRestored: restored, AttachmentsFailed: failed}, nil
 }
 
 // ChangeMasterPassword는 열린 보관함의 마스터 비밀번호만 바꾼다.

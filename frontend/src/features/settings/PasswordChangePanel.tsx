@@ -1,3 +1,4 @@
+import { KnowNote, settingsNotes } from "../shared/KnowNote";
 import { FormEvent, useState } from "react";
 import { ChangeMasterPassword } from "../../../wailsjs/go/main/App";
 import { errorMessage } from "../shared/format";
@@ -53,6 +54,7 @@ export function PasswordChangePanel() {
           <p className="eyebrow">보안</p>
           <h3 id="settings-password-title">마스터 비밀번호 변경</h3>
           <p>지금 비밀번호를 확인한 뒤 새 비밀번호로 바꿉니다. 간편 PIN과 복구 파일은 그대로 쓸 수 있습니다.</p>
+          <KnowNote items={[...settingsNotes.password]} />
         </div>
         {!open && (
           <button type="button" className="quiet-button" onClick={() => { setOpen(true); setNotice(""); setDone(false); }}>

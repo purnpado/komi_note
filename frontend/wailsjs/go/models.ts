@@ -321,6 +321,8 @@ export namespace main {
 	    number: string;
 	    name: string;
 	    status: string;
+	    transferIn?: string;
+	    skippedDomains?: string[];
 
 	    static createFrom(source: any = {}) {
 	        return new AssessmentStudent(source);
@@ -332,6 +334,8 @@ export namespace main {
 	        this.number = source["number"];
 	        this.name = source["name"];
 	        this.status = source["status"];
+	        this.transferIn = source["transferIn"];
+	        this.skippedDomains = source["skippedDomains"];
 	    }
 	}
 	export class Assessment {
@@ -1049,12 +1053,16 @@ export namespace main {
 	    config: ClassConfig;
 	    recoveryMismatch: boolean;
 	    studentCount: number;
+	    attachmentsRestored?: number;
+	    attachmentsFailed?: number;
 
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.config = new ClassConfig(source["config"] || {});
 	        this.recoveryMismatch = source["recoveryMismatch"];
 	        this.studentCount = source["studentCount"];
+	        this.attachmentsRestored = source["attachmentsRestored"];
+	        this.attachmentsFailed = source["attachmentsFailed"];
 	    }
 	}
 	export class SeatingChange {

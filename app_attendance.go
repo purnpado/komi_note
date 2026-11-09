@@ -21,7 +21,8 @@ func (a *App) GetAttendance(date string) (AttendanceDay, error) {
 
 // SaveAttendance는 선택 날짜의 재학생 출결을 암호화 보관함에 저장합니다.
 func (a *App) SaveAttendance(day AttendanceDay) (AttendanceDay, error) {
-	return a.vault.SaveAttendance(day)
+	result, err := a.vault.SaveAttendance(day)
+	return notifyAfter(eventAttendanceChanged, "수정", nil, result, err)
 }
 
 // ListStudentAttendance는 학생 상세정보의 출결 누계와 기록을 반환합니다.

@@ -109,7 +109,7 @@ export function EntryDialog({ open, ledger, entry, type, onOpenChange, onSaved, 
                     </span>
                   ))}
                   {receipts.length < 3 && <label className="quiet-button budget-attach">사진 붙이기<input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={(e) => void attach(e)} /></label>}
-                  <p className="budget-hint">JPG·PNG·WEBP, 5MB 이하. 이 컴퓨터에 암호화해 보관하며 암호화 백업 파일에는 들어가지 않습니다(프로그램 폴더의 data를 함께 옮기세요).</p>
+                  <p className="budget-hint">JPG·PNG·WEBP, 5MB 이하. 이 컴퓨터에 암호화해 보관하며 암호화 백업 파일에도 함께 들어갑니다.</p>
                 </>
               )}
             </fieldset>

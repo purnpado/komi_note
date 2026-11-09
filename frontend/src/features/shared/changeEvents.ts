@@ -9,6 +9,11 @@ export const changeEvents = {
   timetable: "timetable:변경",
   budget: "budget:변경",
   reminder: "reminder:변경",
+  students: "students:변경",
+  consultation: "consultation:변경",
+  attendance: "attendance:변경",
+  submissions: "submissions:변경",
+  settings: "settings:변경",
 } as const;
 
 export type ChangeEventName = (typeof changeEvents)[keyof typeof changeEvents];

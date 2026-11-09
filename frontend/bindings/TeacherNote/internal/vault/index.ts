@@ -3,6 +3,7 @@
 
 export type {
     AcademicChange,
+    AddAssessmentStudentResult,
     AppState,
     Assessment,
     AssessmentImportPreview,

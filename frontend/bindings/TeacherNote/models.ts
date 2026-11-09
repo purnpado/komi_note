@@ -37,6 +37,8 @@ import * as vault$0 from "./internal/vault/models.js";
 
 export type AcademicChange = vault$0.AcademicChange;
 
+export type AddAssessmentStudentResult = vault$0.AddAssessmentStudentResult;
+
 export type AppState = vault$0.AppState;
 
 export type Assessment = assessment$0.Assessment;

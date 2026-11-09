@@ -1,0 +1,8 @@
+/* 접을 수 있는 '알아 둘 점' */
+.know-note { margin: 10px 0 0; padding: 8px 12px; border: 1px solid #f0d9b8; border-radius: 10px; background: #fffaf1; color: #5f4a3b; font-size: 13px; }
+.know-note summary { cursor: pointer; color: #8a5a2b; font-weight: 800; }
+.know-note summary:focus-visible { outline: 3px solid #f4c796; outline-offset: 2px; border-radius: 6px; }
+.know-note ul { margin: 8px 0 2px; padding-left: 20px; line-height: 1.6; }
+.know-note li + li { margin-top: 4px; }
+.theme-classic .know-note { border-color: #cfe5db; background: #f5fbf8; }
+.theme-classic .know-note summary { color: #1f6150; }

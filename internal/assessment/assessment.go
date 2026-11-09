@@ -34,11 +34,14 @@ type Assessment struct {
 }
 
 // AssessmentStudent에는 수업에 필요한 최소 식별값만 둡니다.
+// 학기 중 전입생은 Status "전입", TransferIn(전입일), SkippedDomains(전입 전에 끝난 영역 번호)를 둔다.
 type AssessmentStudent struct {
-	ID     string `json:"id"`
-	Number string `json:"number"`
-	Name   string `json:"name"`
-	Status string `json:"status"`
+	ID             string   `json:"id"`
+	Number         string   `json:"number"`
+	Name           string   `json:"name"`
+	Status         string   `json:"status"`
+	TransferIn     string   `json:"transferIn,omitempty"`
+	SkippedDomains []string `json:"skippedDomains,omitempty"`
 }
 
 type AssessmentDomain struct {

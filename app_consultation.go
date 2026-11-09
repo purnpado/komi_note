@@ -14,15 +14,18 @@ func (a *App) ListAllConsultations() ([]Consultation, error) {
 
 // SaveConsultation은 학생 상담 기록을 암호화 보관함에 저장합니다.
 func (a *App) SaveConsultation(item Consultation) (Consultation, error) {
-	return a.vault.SaveConsultation(item)
+	result, err := a.vault.SaveConsultation(item)
+	return notifyAfter(eventConsultationChanged, "수정", func(v Consultation) string { return v.ID }, result, err)
 }
 
 // SetConsultationFollowUpDone은 후속 기록 없이 상담 후속 확인을 완료로 표시하거나 취소합니다.
 func (a *App) SetConsultationFollowUpDone(id string, done bool) (Consultation, error) {
-	return a.vault.SetConsultationFollowUpDone(id, done)
+	result, err := a.vault.SetConsultationFollowUpDone(id, done)
+	return notifyAfter(eventConsultationChanged, "완료", func(v Consultation) string { return v.ID }, result, err)
 }
 
 // DeleteConsultation은 선택한 상담 기록과 연결된 후속 기록을 삭제합니다.
 func (a *App) DeleteConsultation(id string) (int, error) {
-	return a.vault.DeleteConsultation(id)
+	result, err := a.vault.DeleteConsultation(id)
+	return notifyAfter(eventConsultationChanged, "삭제", nil, result, err)
 }

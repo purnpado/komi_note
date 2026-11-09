@@ -8,6 +8,8 @@ export function AdvanceRandomLadder(arg1:string):Promise<main.SeatingSessionInfo
 
 export function AdvanceSeatingPreferenceRound(arg1:string):Promise<main.SeatingSessionInfo>;
 
+export function AddAssessmentStudent(arg1:string,arg2:string,arg3:string,arg4:string,arg5:Array<string>):Promise<{assessment: main.Assessment; rosterMessage: string; rosterChanged: boolean}>;
+
 export function AnswerAssessmentObjection(arg1:string,arg2:string,arg3:string):Promise<main.Assessment>;
 
 export function CheckForUpdate():Promise<main.UpdateInfo>;

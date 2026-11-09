@@ -1,3 +1,5 @@
+import { changeEvents } from "../shared/changeEvents";
+import { useVaultChanges } from "../shared/useVaultChanges";
 import { useEffect, useMemo, useState } from "react";
 import {
   GetAttendance,
@@ -86,6 +88,9 @@ export function DashboardPage({
   const [assessmentCount, setAssessmentCount] = useState(0);
   const [courseCount, setCourseCount] = useState(0);
   const [surveyCount, setSurveyCount] = useState(0);
+  // 다른 화면에서 출결·상담·제출서류·학생이 바뀌었다는 알림이 오면 다시 읽는다.
+  const [version, setVersion] = useState(0);
+  useVaultChanges([changeEvents.attendance, changeEvents.consultation, changeEvents.submissions, changeEvents.students, changeEvents.survey, changeEvents.courseRoster], () => setVersion((v) => v + 1));
 
   useEffect(() => {
     let active = true;
@@ -102,7 +107,7 @@ export function DashboardPage({
     return () => {
       active = false;
     };
-  }, [isHomeroomTeacher, today, weekend]);
+  }, [isHomeroomTeacher, today, weekend, version]);
 
   const studentByID = useMemo(() => new Map(students.map((student) => [student.id, student])), [students]);
   const males = students.filter((student) => ["남", "남자", "남성"].includes(student.gender)).length;
