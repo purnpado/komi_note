@@ -74,7 +74,7 @@ export function StudentsPage({
   } = useStudentsPage({ students, reloadStudents, openStudent, displayGender });
   return (
     <div className="students-page">
-      <section className="page-intro">
+      <section className="page-intro page-head">
         <div>
           <StudentRosterIcon />
           <p className="eyebrow">학생 개인정보는 암호화되어 저장됩니다</p>

@@ -93,7 +93,7 @@ export function BudgetPage({ config, isHomeroomTeacher }: Props) {
 
   return (
     <>
-      <section className="page-intro">
+      <section className="page-intro page-head">
         <div>
           <p className="eyebrow">업무용 · 예산 장부</p>
           <h2>예산 관리</h2>

@@ -42,12 +42,12 @@
 .budget-table tbody tr:hover, .budget-table tbody tr:focus-visible { background: #fff8ef; outline: none; }
 .budget-table .num { text-align: right; font-weight: 800; }
 .budget-table .budget-title { white-space: normal; }
-.budget-table .budget-title small { display: block; color: #8a7160; font-size: 11px; }
+.budget-table .budget-title small { display: block; color: #846c5c; font-size: 12px; }
 .budget-table tfoot td { background: #fffaf3; color: #6f5644; font-weight: 700; }
-.budget-type { padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 800; }
+.budget-type { padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 800; }
 .budget-type.b-income { background: #e5f5ee; }
 .budget-type.b-expense { background: #fdeee5; }
-.budget-none { color: #b8a596; font-size: 12px; }
+.budget-none { color: #846c59; font-size: 12px; }
 
 .budget-dialog { width: min(560px, calc(100vw - 32px)); }
 .budget-form { display: grid; gap: 10px; }
@@ -65,7 +65,7 @@
 .budget-receipt-chip .icon-button { min-width: 24px; min-height: 24px; border: 0; background: transparent; cursor: pointer; }
 .budget-attach { position: relative; overflow: hidden; cursor: pointer; }
 .budget-attach input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-.budget-hint { flex-basis: 100%; margin: 0; color: #8a7160; font-size: 11px; line-height: 1.5; }
+.budget-hint { flex-basis: 100%; margin: 0; color: #846c5c; font-size: 12px; line-height: 1.5; }
 .budget-form .form-error { margin: 0; color: #b23b16; font-weight: 700; }
 .budget-delete { margin-right: auto; }
 .receipt-viewer { width: min(720px, calc(100vw - 32px)); }
@@ -84,4 +84,4 @@
   .budget-toolbar-end { margin-left: 0; }
 }
 .budget-table .budget-title { min-width: 160px; }
-.page-intro > .outline-button { min-height: 42px; padding: 10px 16px; border: 1px solid #dfc7b1; border-radius: 10px; background: #fffdfa; color: #75553e; font: inherit; font-weight: 800; cursor: pointer; }
+.page-intro > .outline-button { min-height: 42px; padding: 10px 16px; }

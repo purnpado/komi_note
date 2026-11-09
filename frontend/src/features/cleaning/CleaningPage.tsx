@@ -1,9 +1,12 @@
 import "./cleaning.css";
+import { useState } from "react";
 import { main as models } from "../../../wailsjs/go/models";
 import { HelpGuide } from "../shared/HelpGuide";
 import { useCleaningPage, makeZone } from "./useCleaningPage";
 
 export function CleaningPage({ students }: { students: models.Student[] }) {
+  // C1(2026-11-10): 오른쪽 학생 배정 현황 칸을 접으면 가운데 편성 칸이 넓어진다
+  const [studentsOpen, setStudentsOpen] = useState(true);
   const {
     plans,
     selectedID,
@@ -36,20 +39,20 @@ export function CleaningPage({ students }: { students: models.Student[] }) {
 
   return (
     <section className="cleaning-page">
-      <header className="cleaning-hero">
+      <header className="cleaning-hero page-head">
         <div>
           <p className="eyebrow">학급 운영 · 청소구역</p>
           <h1>청소구역 편성표</h1>
           <p>교사가 직접 배치하고, 중복과 이전 담당 이력은 경고로만 확인합니다.</p>
         </div>
         <div className="cleaning-actions">
-          <button className="secondary-button" type="button" onClick={resetPlan}>
+          <button className="quiet-button" type="button" onClick={resetPlan}>
             새 편성표
           </button>
           <button className="accent-button" type="button" onClick={() => void savePlan()}>
             저장
           </button>
-          <button className="secondary-button" type="button" onClick={printPlan}>
+          <button className="quiet-button" type="button" onClick={printPlan}>
             인쇄
           </button>
         </div>
@@ -77,7 +80,7 @@ export function CleaningPage({ students }: { students: models.Student[] }) {
         note="학생 이름과 배정 이력은 이 컴퓨터의 암호화 보관함에만 저장됩니다. 실제 학생 정보가 포함된 인쇄물은 교실 밖 공유에 주의하세요."
       />
       {notice && <p className="form-notice">{notice}</p>}
-      <div className="cleaning-layout">
+      <div className={studentsOpen ? "cleaning-layout" : "cleaning-layout students-collapsed"}>
         <aside className="cleaning-history">
           <h2>편성 이력</h2>
           <button type="button" className="history-new" onClick={resetPlan}>
@@ -266,34 +269,49 @@ export function CleaningPage({ students }: { students: models.Student[] }) {
             </button>
           </section>
         </main>
-        <aside className="cleaning-students">
-          <h2>학생 배정 현황</h2>
-          <p>
-            {studentsByNumber.length}명 중 {studentsByNumber.length - unassigned.length}명 배정
-          </p>
-          {studentsByNumber.map((student) => {
-            const studentAssignments = byStudent.get(student.id) || [];
-            const unvisited = unvisitedCountByStudent.get(student.id) || 0;
-            return (
-              <div
-                key={student.id}
-                className={duplicateIDs.has(student.id) ? "student-assignment warning-box" : "student-assignment"}
-              >
-                <strong>
-                  {student.number}. {student.name}
-                </strong>
-                <span>
-                  {studentAssignments.length
-                    ? studentAssignments
-                        .map((assignment) => zones.find((zone) => zone.id === assignment.zoneId)?.name || "삭제된 구역")
-                        .join(" · ")
-                    : "미배정"}
-                  {unvisited > 0 && <em> · 미경험 {unvisited}구역</em>}
-                </span>
-              </div>
-            );
-          })}
-        </aside>
+        {!studentsOpen ? (
+          <aside className="cleaning-students collapsed">
+            <button type="button" className="quiet-button" aria-expanded={false} onClick={() => setStudentsOpen(true)}>
+              학생 배정 현황 펼치기
+            </button>
+          </aside>
+        ) : (
+          <aside className="cleaning-students">
+            <div className="cleaning-students-head">
+              <h2>학생 배정 현황</h2>
+              <button type="button" className="text-button" aria-expanded={true} onClick={() => setStudentsOpen(false)}>
+                접기
+              </button>
+            </div>
+            <p>
+              {studentsByNumber.length}명 중 {studentsByNumber.length - unassigned.length}명 배정
+            </p>
+            {studentsByNumber.map((student) => {
+              const studentAssignments = byStudent.get(student.id) || [];
+              const unvisited = unvisitedCountByStudent.get(student.id) || 0;
+              return (
+                <div
+                  key={student.id}
+                  className={duplicateIDs.has(student.id) ? "student-assignment warning-box" : "student-assignment"}
+                >
+                  <strong>
+                    {student.number}. {student.name}
+                  </strong>
+                  <span>
+                    {studentAssignments.length
+                      ? studentAssignments
+                          .map(
+                            (assignment) => zones.find((zone) => zone.id === assignment.zoneId)?.name || "삭제된 구역",
+                          )
+                          .join(" · ")
+                      : "미배정"}
+                    {unvisited > 0 && <em> · 미경험 {unvisited}구역</em>}
+                  </span>
+                </div>
+              );
+            })}
+          </aside>
+        )}
       </div>
     </section>
   );

@@ -51,7 +51,7 @@ export function CourseRosterPage() {
 
   return (
     <div className="course-roster-page">
-      <header className="course-roster-heading">
+      <header className="course-roster-heading page-head">
         <div>
           <p className="course-roster-eyebrow">수업용 · 암호화 보관</p>
           <h2>수업 명렬</h2>

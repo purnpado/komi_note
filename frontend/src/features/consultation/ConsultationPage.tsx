@@ -75,7 +75,7 @@ export function ConsultationPage({
   } = hookView;
   return (
     <>
-      <section className="page-intro">
+      <section className="page-intro page-head">
         <div>
           <p className="eyebrow">학생별 누적 기록</p>
           <h2>상담 기록</h2>

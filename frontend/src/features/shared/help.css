@@ -67,7 +67,7 @@
   height: 22px;
   border-radius: 50%;
   color: #fff9f0;
-  background: #d88439;
+  background: #b8561a; /* B8: 흰 글자 대비 4.5:1 이상 */
   font-size: 12px;
 }
 .help-guide-steps div {
@@ -80,7 +80,7 @@
 }
 .help-guide-steps span {
   color: #806f62;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.5;
 }
 .help-guide-note {

@@ -124,7 +124,7 @@ export function ClassroomPage({
   } = useClassroomPage({ students, formatRecordedAt });
   return (
     <>
-      <section className="page-intro">
+      <section className="page-intro page-head">
         <div>
           <p className="eyebrow">학급 운영 · 자리배정</p>
           <h2>자리배정</h2>

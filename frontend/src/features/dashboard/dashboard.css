@@ -57,7 +57,7 @@
   margin-top: 3px;
 }
 .yellow {
-  color: #ac7814;
+  color: #956811;
   background: #fff5d7;
 }
 @media (max-width: 680px) {
@@ -100,15 +100,15 @@
 
 .attention-row small {
   margin-top: 3px;
-  color: #84909e;
+  color: #657180;
 }
 
 .attention-row > span {
   padding: 4px 6px;
   border-radius: 4px;
-  color: #a26b1f;
+  color: #99651d;
   background: #fff3da;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .quick-panel {
@@ -153,8 +153,8 @@
 }
 
 .quick small {
-  color: #8290a0;
-  font-size: 11px;
+  color: #637182;
+  font-size: 12px;
 }
 
 .quick > span {
@@ -238,7 +238,7 @@
 }
 .dashboard-timetable-setup p:last-child {
   margin: 0;
-  color: #7d8996;
+  color: #66727f;
   font-size: 13px;
 }
 .dashboard-lesson-list {
@@ -267,7 +267,7 @@
 }
 .dashboard-lesson-list li.lesson-cancelled strong {
   text-decoration: line-through;
-  color: #9aa3ad;
+  color: #67727f;
 }
 .dashboard-lesson-period b,
 .dashboard-lesson-period small {
@@ -277,8 +277,8 @@
   font-size: 15px;
 }
 .dashboard-lesson-period small {
-  color: #8995a2;
-  font-size: 11px;
+  color: #64717f;
+  font-size: 12px;
 }
 .dashboard-lesson-body {
   min-width: 0;
@@ -291,14 +291,14 @@
   font-size: 15px;
 }
 .dashboard-lesson-body em {
-  color: #3e7f69;
+  color: #3c7c66;
   font-style: normal;
 }
 .dashboard-lesson-body small {
   display: block;
   overflow: hidden;
   margin-top: 2px;
-  color: #8390a0;
+  color: #647182;
   font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -308,7 +308,7 @@
   border-radius: 7px;
   color: #176b53;
   background: #dcf2e8;
-  font-size: 11px;
+  font-size: 12px;
 }
 .dashboard-lesson-links {
   display: flex;
@@ -317,7 +317,7 @@
 .dashboard-timetable .timetable-change-kind {
   padding: 2px 7px;
   border-radius: 7px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   text-decoration: none;
 }
@@ -343,7 +343,7 @@
   border-top: 1px solid #edf1f5;
 }
 .dashboard-class-today > span {
-  color: #6b7886;
+  color: #667380;
   font-size: 12px;
   font-weight: 800;
 }
@@ -364,18 +364,18 @@
 }
 .dashboard-class-today li small {
   margin-right: 4px;
-  color: #8a96a3;
-  font-size: 10px;
+  color: #657281;
+  font-size: 12px;
 }
 .dashboard-class-today li.lesson-changed {
   background: #e6f0fa;
 }
 .dashboard-class-today li.lesson-cancelled {
-  color: #9aa3ad;
+  color: #67727f;
   text-decoration: line-through;
 }
 .dashboard-class-today em {
-  color: #8a96a3;
+  color: #657281;
   font-size: 13px;
   font-style: normal;
 }
@@ -400,17 +400,17 @@
   white-space: nowrap;
 }
 .dashboard-week-table thead th {
-  color: #6b7886;
+  color: #667380;
   font-weight: 800;
 }
 .dashboard-week-table thead th small {
-  color: #9aa5b1;
-  font-size: 10px;
+  color: #647281;
+  font-size: 12px;
   font-weight: 600;
 }
 .dashboard-week-table tbody th {
   width: 30px;
-  color: #8a96a3;
+  color: #657281;
   font-size: 12px;
 }
 .dashboard-week-table .today {

@@ -60,7 +60,7 @@ export function RecordsPage({
 
   return (
     <section className="records-page">
-      <section className="page-intro records-hero">
+      <section className="page-intro records-hero page-head">
         <div>
           <p className="eyebrow">학생부 기재 전 교사 검토가 필요합니다</p>
           <h2>학교생활기록</h2>

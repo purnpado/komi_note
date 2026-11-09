@@ -2,7 +2,7 @@
 .course-roster-heading { display:flex; justify-content:space-between; align-items:flex-end; gap:16px; }
 .course-roster-heading h2 { margin:3px 0 7px; font-size:30px; }
 .course-roster-heading p,.course-roster-detail p { margin:0; color:#806a5a; }
-.course-roster-eyebrow { color:#a76438!important; font-size:12px; font-weight:800; }
+.course-roster-eyebrow { color:#9f5f35!important; font-size:12px; font-weight:800; }
 .course-roster-count { border-radius:999px; padding:9px 13px; background:#fff0d8; color:#784725; font-weight:700; white-space:nowrap; }
 .course-roster-guide,.course-roster-nav,.course-roster-detail,.course-roster-empty { border:1px solid #ecd8c4; border-radius:16px; background:#fffdf9; box-shadow:0 5px 18px #63411b0a; }
 .course-roster-guide { padding:15px 18px; }.course-roster-guide summary { cursor:pointer; color:#694029; font-weight:800; }.course-roster-guide p { margin:10px 0 0; color:#725c4e; line-height:1.6; }

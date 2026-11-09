@@ -121,8 +121,8 @@
   display: block;
 }
 .card-value small {
-  color: #84919f;
-  font-size: 11px;
+  color: #657281;
+  font-size: 12px;
 }
 .card-value-label {
   display: flex;
@@ -135,7 +135,7 @@
   border-radius: 99px;
   color: #177056;
   background: #d5f0e3;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
 }
 .card-value.copyable strong {
@@ -148,10 +148,10 @@
 }
 .privacy-label {
   color: #26745e;
-  font-size: 11px;
+  font-size: 12px;
 }
 .future-links .panel {
-  color: #6d7d89;
+  color: #64737e;
 }
 .future-links h3 {
   color: #344655;
@@ -283,5 +283,5 @@
   color: #162c40;
 }
 .theme-classic .student-editor label {
-  color: #718090;
+  color: #63717f;
 }

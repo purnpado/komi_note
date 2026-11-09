@@ -20,7 +20,7 @@ export function SurveyHubPage({ formatRecordedAt }: SurveyHubPageProps) {
   const [scope, setScope] = useState<SurveyScope>("담임용");
   return (
     <>
-      <section className="page-intro">
+      <section className="page-intro page-head">
         <div>
           <p className="eyebrow">업무용 · 설문 통합 관리</p>
           <h2>설문 조사</h2>

@@ -1,13 +1,13 @@
 /* 확인할 알림 · 알림 설정 전용 스타일 */
 .reminder-bell { position: relative; min-width: 44px; }
-.reminder-bell b { position: absolute; top: -6px; right: -6px; display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: #c4421c; color: #fff; font-size: 11px; font-weight: 800; }
+.reminder-bell b { position: absolute; top: -6px; right: -6px; display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: #c4421c; color: #fff; font-size: 12px; font-weight: 800; }
 .reminder-dialog { width: min(520px, calc(100vw - 32px)); }
 .reminder-help { margin: 0 0 10px; color: #806b5b; font-size: 12px; }
 .reminder-list { display: grid; gap: 6px; max-height: 50vh; margin: 0; padding: 0; overflow: auto; list-style: none; }
 .reminder-list li { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid #f0e2d2; border-left: 4px solid #d4772f; border-radius: 10px; background: #fffdf9; }
 .reminder-list li.missed { border-left-color: #a58a74; }
 .reminder-main { display: grid; flex: 1; gap: 2px; padding: 0; border: 0; background: transparent; color: #3e2d22; font: inherit; text-align: left; cursor: pointer; }
-.reminder-main small { color: #8a7160; font-size: 12px; }
+.reminder-main small { color: #846c5c; font-size: 12px; }
 .reminder-actions { display: flex; gap: 2px; white-space: nowrap; }
 .reminder-dialog .form-error { color: #b23b16; font-weight: 700; }
 

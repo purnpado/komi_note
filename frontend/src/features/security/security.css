@@ -66,7 +66,7 @@
   margin: 0 0 10px;
 }
 .unlock-card > p {
-  color: #697586;
+  color: #657080;
   margin: 0 0 35px;
 }
 .unlock-card label {
@@ -128,7 +128,7 @@
   letter-spacing: -1px;
 }
 .setup-copy {
-  color: #6e7d89;
+  color: #65737e;
   margin: 0 0 26px;
   line-height: 1.65;
 }
@@ -142,7 +142,7 @@
   font-size: 16px;
 }
 .setup-section p {
-  color: #788694;
+  color: #64727f;
   margin: 0 0 14px;
   font-size: 13px;
   line-height: 1.55;
@@ -230,3 +230,13 @@
   margin: -4px 0 14px;
   text-align: left;
 }
+
+/* C3(2026-11-10 화면 점검): 최초 설정 단계 표시와 이전·다음 버튼 */
+.setup-steps { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 16px; padding: 0; list-style: none; }
+.setup-steps li { display: flex; align-items: center; gap: 7px; padding: 7px 12px 7px 8px; border: 1px solid #dfe7e3; border-radius: 999px; color: #5f6f69; background: #fff; font-size: 13px; font-weight: 700; }
+.setup-steps li b { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; color: #4a5a54; background: #eef3f1; font-size: 12px; }
+.setup-steps li.current { border-color: #16715d; color: #16715d; background: #edf7f3; }
+.setup-steps li.current b { color: #fff; background: #16715d; }
+.setup-steps li.done b { color: #fff; background: #5f9c8a; }
+.setup-step-actions { display: flex; gap: 10px; margin-top: 25px; }
+.setup-step-actions .setup-submit { flex: 1; margin-top: 0; }

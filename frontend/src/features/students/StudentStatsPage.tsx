@@ -87,7 +87,7 @@ function StudentAgeStatsPanel({ displayGender }: { displayGender: (gender: strin
   }, [stats]);
   return (
     <>
-      <section className="page-intro">
+      <section className="page-intro page-head">
         <div>
           <p className="eyebrow">잠금 해제 상태에서만 표시됩니다</p>
           <h2>학생 통계 · 만 나이</h2>
@@ -224,7 +224,7 @@ function StudentSurveyStatsPanel() {
   ).length;
   return (
     <>
-      <section className="page-intro">
+      <section className="page-intro page-head">
         <div>
           <p className="eyebrow">학생 대상 설문 결과</p>
           <h2>학생 통계 · 설문 조사</h2>

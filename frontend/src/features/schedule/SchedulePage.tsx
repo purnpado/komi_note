@@ -72,7 +72,7 @@ export function SchedulePage({ navigate }: { navigate: (page: PageKey) => void }
 
   return (
     <>
-      <section className="page-intro">
+      <section className="page-intro page-head">
         <div>
           <p className="eyebrow">업무용 · 프로그램 안 일정</p>
           <h2>일정</h2>

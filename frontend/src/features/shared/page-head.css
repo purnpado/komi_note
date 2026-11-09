@@ -1,0 +1,55 @@
+/*
+ * B2·B4(2026-11-10 화면 점검): 메뉴 화면의 머리 부분을 하나로 맞춘다.
+ * - 화면 이름은 위 표시줄에만 크게 보인다. 본문의 큰 제목은 화면 읽기 프로그램에만 남긴다.
+ * - 꼬리표(작은 둥근 글씨)는 숨기고, 설명 한 줄 + 오른쪽 버튼으로 둔다.
+ * - 화면마다 달랐던 색 카드·그라데이션 머리는 쓰지 않는다.
+ * 기능 CSS보다 늦게 읽혀도 이기도록 .page-content 아래로 한 단계 강하게 적는다.
+ */
+.page-content .page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 20px;
+  min-height: 0;
+  margin: 0;
+  padding: 2px 0 4px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+.page-content .page-head::before,
+.page-content .page-head::after {
+  content: none;
+  display: none;
+}
+.page-content .page-head .eyebrow,
+.page-content .page-head [class$="-eyebrow"] {
+  display: none;
+}
+.page-content .page-head h1,
+.page-content .page-head h2 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.page-content .page-head > div:first-child,
+.page-content .page-head > div:first-of-type {
+  min-width: 0;
+  flex: 1 1 320px;
+}
+.page-content .page-head p:not([class$="-eyebrow"]):not(.eyebrow) {
+  margin: 0;
+  max-width: 70ch;
+  color: #6e5a4b;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.theme-classic .page-content .page-head p:not([class$="-eyebrow"]):not(.eyebrow) {
+  color: #586b66;
+}

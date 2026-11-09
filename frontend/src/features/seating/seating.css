@@ -49,7 +49,7 @@
   border-radius: 50%;
   background: #ead3bd;
   color: #734e32;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 900;
   line-height: 1;
 }
@@ -135,7 +135,7 @@
   background: #fff0de;
   color: #b75317;
   border: 1px solid #ebd0b6;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 900;
   letter-spacing: 0.02em;
   margin: 0 0 4px;
@@ -180,8 +180,8 @@
   font-weight: 900;
 }
 .seating-history-item small {
-  color: #92755e;
-  font-size: 11.5px;
+  color: #866b56;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -296,7 +296,7 @@
   gap: 8px;
 }
 .fixed-students summary::marker {
-  color: #d97e2f;
+  color: #a75e1f;
 }
 .fixed-students .muted-copy {
   margin: 10px 0 8px;
@@ -379,68 +379,7 @@
   gap: 10px;
   margin: 18px 22px 0;
 }
-.primary-button,
-.accent-button,
-.quiet-button,
-.danger-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  min-height: 42px;
-  padding: 10px 18px;
-  border-radius: 11px;
-  font-size: 13.5px;
-  font-weight: 800;
-  white-space: nowrap;
-  word-break: keep-all;
-  cursor: pointer;
-  transition: transform 0.16s ease, filter 0.16s ease, box-shadow 0.16s ease;
-}
-.accent-button {
-  border: 1px solid #c86821;
-  color: #ffffff;
-  background: linear-gradient(135deg, #e47b2c, #b85213);
-  box-shadow: 0 6px 14px rgba(184, 82, 19, 0.22);
-}
-.accent-button:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.05);
-  box-shadow: 0 8px 18px rgba(184, 82, 19, 0.28);
-}
-/* 주의: 이 파일의 버튼 규칙은 하나로 묶인 CSS라 프로그램 전체 버튼에 적용된다(나중에 공통 버튼 CSS로 옮길 후보).
-   A3(2026-11-09 화면 점검): 흰 글자와 명도 대비 4.5:1 이상이 되도록 주황을 한 단계 진하게, 마우스를 올리면 더 진하게. */
-.primary-button {
-  border: 1px solid #a44a12;
-  color: #ffffff;
-  background: linear-gradient(135deg, #b8561a, #a44a12);
-  box-shadow: 0 6px 14px rgba(164, 74, 18, 0.2);
-}
-.primary-button:hover {
-  transform: translateY(-1px);
-  filter: brightness(0.94);
-}
-.quiet-button {
-  border: 1.5px solid #e1cfbc;
-  color: #654a34;
-  background: #fffcf8;
-}
-.quiet-button:hover {
-  border-color: #d48b48;
-  background: #fff4e8;
-  color: #4d3320;
-}
-/* B5(2026-11-09 화면 점검): 지우는 버튼은 빨간 채운 버튼 대신 빨간 테두리 버튼으로 낮춘다(확인창은 그대로). */
-.danger-button {
-  border: 1px solid #e2b4ae;
-  color: #a1453d;
-  background: #fff5f3;
-  box-shadow: none;
-}
-.danger-button:hover {
-  border-color: #cf8a80;
-  background: #ffe9e5;
-}
+/* 버튼 모양(주·보조·위험)은 features/shared/buttons.css로 옮김(B9, 2026-11-10). 예전에는 여기서 프로그램 전체 버튼을 정했다. */
 
 /* 10. 교탁 및 자리배치판 (Seating Board) */
 .seating-editor {
@@ -476,8 +415,8 @@
 .seating-board .teacher-desk::before,
 .seating-board .teacher-desk::after {
   content: "▲";
-  font-size: 11px;
-  color: #c4761e;
+  font-size: 12px;
+  color: #a16119;
 }
 
 /* 좌석 그리드 */
@@ -544,13 +483,13 @@
   background: #fff3df;
 }
 .seating-cell small {
-  color: #92755e;
+  color: #866b56;
   overflow: hidden;
   font-size: clamp(8px, 0.7vw, 11px);
   font-weight: 800;
 }
 .seating-cell small b {
-  color: #b85b20;
+  color: #af571e;
 }
 .seating-cell select {
   min-width: 0;
@@ -570,13 +509,13 @@
   padding: 3px 5px;
 }
 .seating-grid.compact .seating-cell small {
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.1;
 }
 .seating-grid.compact .seating-cell select,
 .seating-grid.compact .seating-cell strong {
   padding: 2px 3px;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 /* 사용자 지정 캔버스 */
@@ -592,8 +531,8 @@
   font-size: 12.5px;
 }
 .custom-layout-summary span {
-  color: #9b7658;
-  font-size: 11.5px;
+  color: #8b6a4f;
+  font-size: 12px;
 }
 .custom-seat-canvas {
   position: relative;
@@ -723,7 +662,7 @@
   padding-left: 18px;
 }
 .seating-change-log time {
-  color: #92755e;
+  color: #866b56;
   font-size: 0.9em;
   margin-right: 6px;
 }

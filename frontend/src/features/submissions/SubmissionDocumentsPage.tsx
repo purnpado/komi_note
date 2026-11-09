@@ -69,7 +69,7 @@ export function SubmissionDocumentsPage({ students }: { students: models.Student
           </AlertDialog.Content>
         </AlertDialog.Portal>
       </AlertDialog.Root>
-      <section className="page-intro">
+      <section className="page-intro page-head">
         <div>
           <p className="eyebrow">담임용 · 제출 상태 관리</p>
           <h2>제출서류 관리</h2>

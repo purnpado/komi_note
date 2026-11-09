@@ -1,6 +1,6 @@
 .roster-transfer-dialog { width:min(640px,calc(100vw - 32px)); }
 .roster-transfer-dialog .roster-transfer-body { display:grid; gap:14px; margin:18px 24px 0!important; }
-.roster-transfer-eyebrow { margin:0 0 5px!important; color:#b26938!important; font-size:12px!important; font-weight:800; }
+.roster-transfer-eyebrow { margin:0 0 5px!important; color:#a26033!important; font-size:12px!important; font-weight:800; }
 .roster-transfer-steps { display:flex; flex-wrap:wrap; gap:8px; list-style:none; padding:0; margin:0; }
 .roster-transfer-steps li { display:flex; align-items:center; gap:6px; padding:7px 9px; border-radius:999px; color:#776657; background:#f5eee7; font-size:12px; font-weight:700; }
 .roster-transfer-steps li.current { color:#76421c; background:#ffe6c4; }.roster-transfer-steps span { display:grid; width:20px; height:20px; border-radius:50%; background:#fff; place-items:center; }

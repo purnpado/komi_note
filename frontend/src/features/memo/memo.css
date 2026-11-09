@@ -4,13 +4,13 @@
 .memo-toolbar { display: grid; gap: 12px; }
 .memo-filters { display: flex; flex-wrap: wrap; gap: 6px; }
 .memo-filters button { min-height: 38px; padding: 8px 14px; border: 1px solid #ecd7c1; border-radius: 999px; background: #fffdf9; color: #785c47; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
-.memo-filters button small { margin-left: 3px; color: #a58a74; font-weight: 700; }
+.memo-filters button small { margin-left: 3px; color: #856c56; font-weight: 700; }
 .memo-filters button.active { border-color: #d4772f; background: #ffe6c7; color: #8a481f; }
 .memo-search-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .memo-search-row input { flex: 1 1 240px; min-height: 40px; padding: 8px 12px; border: 1px solid #e3c4a3; border-radius: 10px; font: inherit; }
 .memo-tag-row, .memo-card-tags, .memo-tag-suggest { display: flex; flex-wrap: wrap; gap: 5px; }
 .memo-tag { padding: 3px 9px; border: 1px solid #ead3bd; border-radius: 999px; background: #fff8ef; color: #7b5433; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
-.memo-tag small { color: #a58a74; }
+.memo-tag small { color: #856c56; }
 .memo-tag.active { border-color: #d4772f; background: #d4772f; color: #fff; }
 .memo-tag.active small { color: #ffe9d6; }
 .memo-section-title { margin: 0 0 12px; color: #5a4030; font-size: 16px; }
@@ -33,14 +33,14 @@
 .memo-card-open p { display: -webkit-box; margin: 0; overflow: hidden; -webkit-line-clamp: 7; -webkit-box-orient: vertical; white-space: pre-line; font-size: 13px; line-height: 1.55; }
 .memo-pin { justify-self: end; margin-bottom: -18px; font-size: 13px; }
 .memo-card footer { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding-top: 6px; border-top: 1px solid var(--memo-line); }
-.memo-card footer small { opacity: .7; font-size: 11px; }
+.memo-card footer small { opacity: .7; font-size: 12px; }
 .memo-card footer span { display: flex; gap: 2px; }
 .memo-card footer .text-button { padding: 2px 6px; font-size: 12px; }
 .memo-card-open:focus-visible, .todo-main:focus-visible { outline: 3px solid #f4c796; outline-offset: 2px; border-radius: 6px; }
 
 .todo-groups { display: grid; gap: 14px; }
 .todo-group h4 { margin: 0 0 6px; color: #6f4e38; font-size: 14px; }
-.todo-group h4 small { margin-left: 4px; color: #a58a74; }
+.todo-group h4 small { margin-left: 4px; color: #856c56; }
 .todo-group.late h4 { color: #b23b16; }
 .todo-group ul { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
 .todo-row { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto auto; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid #f0e2d2; border-left: 4px solid #ead3bd; border-radius: 10px; background: #fffdf9; }
@@ -50,7 +50,7 @@
 .todo-row.done b { text-decoration: line-through; }
 .todo-check input { width: 20px; height: 20px; accent-color: #d4772f; cursor: pointer; }
 .todo-main { display: grid; gap: 2px; padding: 0; border: 0; background: transparent; color: #3e2d22; font: inherit; text-align: left; cursor: pointer; }
-.todo-main small { overflow: hidden; color: #8a7160; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.todo-main small { overflow: hidden; color: #846c5c; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 .todo-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 5px; font-size: 12px; }
 .todo-meta time { color: #6f5644; font-weight: 700; white-space: nowrap; }
 .todo-meta time.late, .widget-todos time.late { color: #b23b16; }
@@ -72,7 +72,7 @@
 .memo-swatch input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
 .memo-swatch.selected { box-shadow: 0 0 0 3px #d4772f; }
 .memo-swatch:has(input:focus-visible) { outline: 3px solid #f4c796; outline-offset: 2px; }
-.memo-privacy-note { margin: 0; color: #8a7160; font-size: 11px; line-height: 1.5; }
+.memo-privacy-note { margin: 0; color: #846c5c; font-size: 12px; line-height: 1.5; }
 .memo-editor .form-error { margin: 0; color: #b23b16; font-weight: 700; }
 .memo-editor .sr-only, .todo-check .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .memo-editor .inline-check { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; }

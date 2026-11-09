@@ -126,7 +126,6 @@ export function useTimetablePage({
         const next = new models.TimetableBook(loaded);
         setBook(next);
         setView({ year: next.activeSchoolYear, semester: next.activeSemester });
-        if (!next.periods.length) setNotice("먼저 [교시 시간 설정]에서 우리 학교 교시 시각을 넣어 주세요.");
       })
       .catch((error) => active && setNotice(errorMessage(error)));
     ListCourseRosters()
@@ -156,7 +155,7 @@ export function useTimetablePage({
       const saved = new models.TimetableBook(await SaveTimetableBook(next));
       setBook(saved);
       setDialogError("");
-      setNotice(saved.periods.length ? "" : "먼저 [교시 시간 설정]에서 우리 학교 교시 시각을 넣어 주세요.");
+      setNotice(""); // C2(2026-11-10): 교시가 없을 때 안내는 표 안에서만 한 번 보인다
       setFeedback(message);
       return true;
     } catch (error) {

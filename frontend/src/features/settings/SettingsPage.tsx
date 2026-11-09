@@ -54,7 +54,7 @@ export function SettingsFeaturePage({
   } = hookView;
   return (
     <>
-      <section className="page-intro">
+      <section className="page-intro page-head">
         <div>
           <p className="eyebrow">암호화 보관함 설정</p>
           <h2>환경 설정</h2>

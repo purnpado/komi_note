@@ -6,7 +6,7 @@
   color: #286d5e;
 }
 .age-group small {
-  color: #7c8996;
+  color: #65727f;
   font-weight: 400;
 }
 .age-student-card-grid {
@@ -56,8 +56,8 @@
 }
 .age-student-card-title span {
   flex: 0 0 auto;
-  color: #6b7b87;
-  font-size: 11px;
+  color: #64737e;
+  font-size: 12px;
 }
 .age-student-card-title strong {
   overflow: hidden;
@@ -70,12 +70,12 @@
 .age-student-card time {
   display: block;
   margin: 2px 0 0;
-  color: #647683;
-  font-size: 11px;
+  color: #627380;
+  font-size: 12px;
   line-height: 1.3;
 }
 .age-student-card time {
-  color: #87939b;
+  color: #66727a;
 }
 @media (max-width: 560px) {
   .age-student-card-grid {

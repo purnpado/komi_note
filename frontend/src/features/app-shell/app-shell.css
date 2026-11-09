@@ -35,8 +35,8 @@
   font-size: 12px;
 }
 .window-drag small {
-  color: #91b7ac;
-  font-size: 10px;
+  color: #4f796d;
+  font-size: 12px;
 }
 .window-controls {
   display: flex;
@@ -62,7 +62,7 @@
   height: 34px;
   border-radius: 50%;
   color: white;
-  background: #db8c58;
+  background: #b8561a; /* B8: 흰 글자 대비 4.5:1 이상 */
   font-weight: 800;
 }
 @media (max-width: 900px) {

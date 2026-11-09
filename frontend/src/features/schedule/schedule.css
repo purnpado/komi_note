@@ -40,20 +40,20 @@
 .cal-cont { opacity: .85; }
 .cal-chip.todo { border-left-color: #8a7160; background: transparent; color: #6f5644; }
 .cal-chip.change { border-left-color: #2b806a; background: #eef8f3; color: #1f5a4a; }
-.cal-more { padding: 0 6px; color: #8a7160; font-size: 11px; font-weight: 700; }
+.cal-more { padding: 0 6px; color: #846c5c; font-size: 12px; font-weight: 700; }
 
 .schedule-day-detail { padding-top: 4px; }
 .day-list { display: grid; gap: 12px; }
 .day-block header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
 .day-block h4 { margin: 0; color: #5a4030; font-size: 15px; }
-.day-block.today h4 { color: #c0601f; }
+.day-block.today h4 { color: #ae571c; }
 .day-block ul { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
 .day-entry { display: grid; grid-template-columns: 92px minmax(0, 1fr); align-items: center; gap: 10px; width: 100%; padding: 9px 12px; border: 1px solid #f0e2d2; border-left: 4px solid var(--k, #b39276); border-radius: 10px; background: #fffdf9; color: #3e2d22; font: inherit; text-align: left; cursor: pointer; }
 .day-entry.todo { border-left-color: #8a7160; }
 .day-entry.change { border-left-color: #2b806a; }
 .day-time { color: #6f5644; font-size: 13px; font-weight: 800; }
 .day-title { display: grid; gap: 2px; }
-.day-title small { color: #8a7160; font-size: 12px; }
+.day-title small { color: #846c5c; font-size: 12px; }
 
 .event-dialog { width: min(600px, calc(100vw - 32px)); }
 .event-form { display: grid; gap: 10px; }
@@ -69,7 +69,7 @@
 .schedule-widget ul { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
 .schedule-widget li button { display: grid; grid-template-columns: 88px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 10px; width: 100%; padding: 8px 12px; border: 1px solid #f0e2d2; border-left: 4px solid var(--k, #b39276); border-radius: 10px; background: #fffdf9; color: #3e2d22; font: inherit; text-align: left; cursor: pointer; }
 .widget-day { grid-row: span 2; align-self: center; color: #a0581f; font-size: 13px; font-weight: 800; }
-.schedule-widget small { color: #8a7160; font-size: 12px; }
+.schedule-widget small { color: #846c5c; font-size: 12px; }
 
 .theme-classic .schedule-view button.active { background: #ddf3e9; color: #17664f; }
 .theme-classic .month-cell.selected { box-shadow: inset 0 0 0 2px #2b806a; }
@@ -78,7 +78,7 @@
 
 @media (max-width: 760px) {
   .month-cell { min-height: 64px; padding: 3px; }
-  .cal-chip { padding: 1px 3px; font-size: 10px; }
+  .cal-chip { padding: 1px 3px; font-size: 12px; }
   .cal-chip b { display: none; }
   .day-entry, .schedule-widget li button { grid-template-columns: 70px minmax(0, 1fr); }
 }

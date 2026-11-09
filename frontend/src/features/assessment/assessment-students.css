@@ -1,6 +1,6 @@
 /* 전입생 추가·표시 */
-.assessment-transfer-badge { margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: #e8f1fb; color: #24548c; font-size: 11px; font-style: normal; font-weight: 800; }
-.assessment-skipped { color: #8a7160; font-size: 12px; font-style: italic; text-align: center; background: repeating-linear-gradient(135deg, #faf6f1 0 8px, #f4ece2 8px 16px); }
+.assessment-transfer-badge { margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: #e8f1fb; color: #24548c; font-size: 12px; font-style: normal; font-weight: 800; }
+.assessment-skipped { color: #846c5c; font-size: 12px; font-style: italic; text-align: center; background: repeating-linear-gradient(135deg, #faf6f1 0 8px, #f4ece2 8px 16px); }
 .assessment-add-student { width: min(560px, calc(100vw - 32px)); }
 .assessment-add-help { margin: 0 0 10px; color: #806b5b; font-size: 13px; line-height: 1.55; }
 .assessment-add-form { display: grid; gap: 12px; }

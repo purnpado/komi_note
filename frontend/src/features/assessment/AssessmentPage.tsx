@@ -25,7 +25,7 @@ export function AssessmentPage({ config }: Props) {
 
   return (
     <div className="assessment-page">
-      <section className="assessment-hero">
+      <section className="assessment-hero page-head">
         <div>
           <p className="eyebrow">수업용 · 암호화 보관함 저장</p>
           <h2>수행평가 관리</h2>

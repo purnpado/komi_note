@@ -21,8 +21,8 @@
 .class-ops-row strong { font-size: 14px; font-weight: 800; }
 .class-ops-row strong.muted { color: #806b5b; font-weight: 600; }
 .class-ops-row small { grid-column: 2 / 3; color: #806b5b; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.class-ops-link > span[aria-hidden] { grid-row: 1 / span 2; grid-column: 3; color: #b0835b; }
-.class-ops-ended { margin-left: 8px; padding: 1px 7px; border-radius: 999px; background: #fdecea; color: #b4362a; font-size: 11px; font-style: normal; font-weight: 800; }
+.class-ops-link > span[aria-hidden] { grid-row: 1 / span 2; grid-column: 3; color: #8e6745; }
+.class-ops-ended { margin-left: 8px; padding: 1px 7px; border-radius: 999px; background: #fdecea; color: #b4362a; font-size: 12px; font-style: normal; font-weight: 800; }
 .class-ops-birthday .text-button { justify-self: end; }
 .class-ops-names { display: grid; gap: 4px; margin: 6px 0 0; padding: 0 12px 0 101px; list-style: none; }
 .class-ops-names li { display: flex; gap: 10px; align-items: baseline; font-size: 13px; color: #5a4535; }
@@ -33,7 +33,7 @@
 .theme-classic .class-ops-link:hover { border-color: #a9d3c3; background: #f1faf6; }
 .theme-classic .class-ops-link:focus-visible { outline-color: #2b806a; }
 .theme-classic .class-ops-label { color: #2b6f5c; }
-.theme-classic .class-ops-link > span[aria-hidden] { color: #4f9580; }
+.theme-classic .class-ops-link > span[aria-hidden] { color: #417a69; }
 .theme-classic .class-ops-names li.today b { color: #1f7a5f; }
 
 @media (max-width: 600px) {

@@ -43,7 +43,7 @@ export function GroupingPage({
   } = view;
   return (
     <div className="grouping-page">
-      <header className="grouping-hero">
+      <header className="grouping-hero page-head">
         <div>
           <p className="eyebrow">수업용 · 암호화 보관</p>
           <h2>모둠 편성</h2>

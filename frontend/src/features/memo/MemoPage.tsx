@@ -58,7 +58,7 @@ export function MemoPage() {
 
   return (
     <>
-      <section className="page-intro">
+      <section className="page-intro page-head">
         <div>
           <p className="eyebrow">업무용 · 개인 기록</p>
           <h2>메모 · 할 일</h2>

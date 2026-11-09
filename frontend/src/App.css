@@ -21,19 +21,12 @@
 }
 .empty-state {
   padding: 25px 14px;
-  color: #7d8995;
+  color: #66727e;
   text-align: center;
 }
 .page-actions {
   display: flex;
   gap: 8px;
-}
-.danger-button {
-  color: #a34343;
-  border-color: #e5bbbb;
-}
-.danger-button:hover {
-  background: #fff1f1;
 }
 img.window-mark,
 img.brand-mark,
@@ -77,21 +70,10 @@ img.large-mark {
 }
 .lock-title small,
 .brand small {
-  color: #77818c;
+  color: #69727c;
   font-size: 12px;
 }
-.primary-button {
-  border: 0;
-  border-radius: 10px;
-  padding: 13px 17px;
-  color: white;
-  background: #166554;
-  font-weight: 700;
-  box-shadow: 0 5px 10px #0f4c3e22;
-}
-.primary-button:hover {
-  background: #104d41;
-}
+/* 버튼 모양은 features/shared/buttons.css (B9) */
 .unlock-card .primary-button {
   margin-top: 22px;
   width: 100%;
@@ -101,7 +83,7 @@ img.large-mark {
 .hint {
   display: block;
   text-align: center;
-  color: #8a94a3;
+  color: #657081;
   margin-top: 18px;
 }
 .form-notice {
@@ -161,9 +143,9 @@ main {
   letter-spacing: -1px;
 }
 .eyebrow {
-  color: #8491a0;
+  color: #657282;
   font-weight: 700;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.4px;
   margin: 0 0 5px;
 }
@@ -172,16 +154,8 @@ main {
   align-items: center;
   gap: 14px;
 }
-.quiet-button {
-  background: white;
-  border: 1px solid #d9e1e9;
-  color: #536170;
-  padding: 10px 13px;
-  border-radius: 8px;
-  font-size: 13px;
-}
 .local-status {
-  color: #718090;
+  color: #63717f;
   font-size: 12px;
 }
 .local-status i {
@@ -226,11 +200,11 @@ main {
   font-weight: 700;
 }
 .mint {
-  color: #218264;
+  color: #207e61;
   background: #e4f6ed;
 }
 .blue {
-  color: #467bc3;
+  color: #3c71b9;
   background: #eaf1fb;
 }
 .purple {
@@ -248,8 +222,8 @@ main {
   letter-spacing: -0.5px;
 }
 .stat small {
-  color: #8c98a5;
-  font-size: 11px;
+  color: #647280;
+  font-size: 12px;
 }
 .two-column {
   display: grid;
@@ -275,15 +249,8 @@ main {
 }
 .panel-heading p {
   font-size: 12px;
-  color: #8390a0;
+  color: #647182;
   margin: 4px 0 0;
-}
-.text-button {
-  border: 0;
-  background: transparent;
-  color: #2a7664;
-  font-weight: 700;
-  font-size: 12px;
 }
 .avatar {
   display: grid;
@@ -308,24 +275,24 @@ main {
   letter-spacing: -1px;
 }
 .page-intro > div > p:last-child {
-  color: #758292;
+  color: #64707f;
   margin: 0;
   font-size: 14px;
 }
 .table-head {
-  color: #8793a0;
+  color: #657280;
   background: #fafbfd;
   padding: 11px 14px;
-  font-size: 11px;
+  font-size: 12px;
 }
 .status {
-  font-size: 11px;
+  font-size: 12px;
 }
 .status.good {
   color: #26745e;
 }
 .status.warning {
-  color: #a16d1c;
+  color: #98671a;
 }
 .check {
   display: grid;
@@ -350,7 +317,7 @@ main {
   font-size: 12px;
 }
 .muted-copy {
-  color: #768493;
+  color: #657280;
   font-size: 13px;
   line-height: 1.6;
 }
@@ -364,7 +331,7 @@ main {
   background: #f4e8cc;
   border-radius: 12px;
   padding: 5px 8px;
-  font-size: 11px;
+  font-size: 12px;
 }
 @media (max-width: 1200px) {
   .page-content,
@@ -482,7 +449,7 @@ main {
 }
 .dialog-content > p {
   margin: 0;
-  color: #6e7c89;
+  color: #65727e;
   font-size: 13px;
   line-height: 1.65;
 }
@@ -633,26 +600,12 @@ body {
   border-color: #f0e1d2;
 }
 
-.primary-button {
-  color: #fffaf2;
-  background: linear-gradient(135deg, #b8561a, #a44a12);
-  box-shadow: 0 7px 15px #a44a122b;
-}
-
-.primary-button:hover:not(:disabled) {
-  background: linear-gradient(135deg, #a44a12, #9e4610);
-}
-
-.quiet-button,
-.outline-button,
 .topbar .quick-search {
   border-color: #e8c9a8;
   color: #7b4828;
   background: #fffaf3;
 }
 
-.quiet-button:hover:not(:disabled),
-.outline-button:hover:not(:disabled),
 .topbar .quick-search:hover {
   border-color: #df9a59;
   background: #fff0df;
@@ -686,19 +639,11 @@ textarea:focus,
   background: #fff3d9;
 }
 
-.danger-button {
-  color: #a9473d;
-  border-color: #edc0b8;
-}
-
-.danger-button:hover {
-  background: #fff0ed;
-}
 .theme-choice.selected { border: 2px solid #d77c35; box-shadow: 0 6px 16px #a85d2420; }
-.help-guide .eyebrow { margin-bottom: 3px; color: #ad672c; }
+.help-guide .eyebrow { margin-bottom: 3px; color: #a16029; }
 .theme-classic .help-tip-popup, body:has(.theme-classic) .help-tip-popup { background: #174b41; }
 .theme-classic .help-guide { border-color: #c6e0d6; background: linear-gradient(120deg, #f2faf7, #fff 72%); box-shadow: 0 6px 18px #1e574512; }
-.theme-classic .help-guide .eyebrow,.theme-classic .help-guide h3 { color: #1b6e59; }.theme-classic .help-guide-heading p:last-child,.theme-classic .help-guide-steps span { color: #637b72; }.theme-classic .help-guide-toggle { border-color: #b9d7cc; color: #236653; background: #fff; }.theme-classic .help-guide-steps li { border-color: #d9ebe4; background: #fff; }.theme-classic .help-guide-steps b { background: #2c856d; }.theme-classic .help-guide-steps strong { color: #255747; }.theme-classic .help-guide-note { color: #3b725f; }.theme-classic .help-tip { border-color: #83bca8; color: #236a55; background: #f2faf7; }.theme-classic .help-tip > span { background: #174b41; }
+.theme-classic .help-guide .eyebrow,.theme-classic .help-guide h3 { color: #1b6e59; }.theme-classic .help-guide-heading p:last-child,.theme-classic .help-guide-steps span { color: #5e756d; }.theme-classic .help-guide-toggle { border-color: #b9d7cc; color: #236653; background: #fff; }.theme-classic .help-guide-steps li { border-color: #d9ebe4; background: #fff; }.theme-classic .help-guide-steps b { background: #2c856d; }.theme-classic .help-guide-steps strong { color: #255747; }.theme-classic .help-guide-note { color: #3b725f; }.theme-classic .help-tip { border-color: #83bca8; color: #236a55; background: #f2faf7; }.theme-classic .help-tip > span { background: #174b41; }
 
 /* 초록 테마: 치즈냥 테마를 적용하기 전의 업무 화면 색상 */
 html[data-kkomi-theme="classic"] body { color: #233b4b; background: #f4f6f9; }
@@ -714,10 +659,9 @@ html[data-kkomi-theme="classic"] *::-webkit-scrollbar-thumb { border-color: #eaf
 .theme-classic .sidebar-bottom { border-color: #34675d; }
 .theme-classic .topbar { border-bottom-color: #e1e7ec; background: #fff; }
 .theme-classic .topbar h1,.theme-classic .page-heading h2,.theme-classic .panel-heading h3 { color: #162c40; }
-.theme-classic .topbar .eyebrow,.theme-classic .page-heading p,.theme-classic .panel-heading p,.theme-classic .date-picker,.theme-classic .term-grid label,.theme-classic .dialog-label { color: #718090; }
+.theme-classic .topbar .eyebrow,.theme-classic .page-heading p,.theme-classic .panel-heading p,.theme-classic .date-picker,.theme-classic .term-grid label,.theme-classic .dialog-label { color: #63717f; }
 .theme-classic .panel,.theme-classic .dialog-content,.theme-classic .attendance-document-preview,.theme-classic .attendance-form-card { border-color: #e0e7ed; background: #fff; box-shadow: none; }
-.theme-classic .primary-button { color: #fff; background: #16715d; box-shadow: none; }.theme-classic .primary-button:hover:not(:disabled) { background: #115c4c; }
-.theme-classic .quiet-button,.theme-classic .outline-button,.theme-classic .topbar .quick-search { border-color: #d5e0e6; color: #385466; background: #fff; }
+.theme-classic .topbar .quick-search { border-color: #d5e0e6; color: #385466; background: #fff; }
 .theme-classic input,.theme-classic select,.theme-classic textarea { border-color: #d9e2e7; color: #334657; background: #fff; }
 .theme-classic .attendance-calendar-button { border-color: #bdd8cd; color: #235d4d; background: #fff; }
 .theme-classic .attendance-calendar-button:hover { border-color: #8ccbb8; background: #eaf7f1; }
@@ -729,7 +673,7 @@ html[data-kkomi-theme="classic"] *::-webkit-scrollbar-thumb { border-color: #eaf
 }
 
 /* 앱 공통 워터마크 및 이용약관 동의 화면 */
-.creator-watermark { display: block; color: #a08a78; font-size: 11px; line-height: 1.5; text-align: center; }.sidebar-bottom .creator-watermark { margin-top: 12px; color: #aaccc0; }.agreement-card > .creator-watermark { margin-top: 16px; }
+.creator-watermark { display: block; color: #806b5a; font-size: 12px; line-height: 1.5; text-align: center; }.sidebar-bottom .creator-watermark { margin-top: 12px; color: #aaccc0; }.agreement-card > .creator-watermark { margin-top: 16px; }
 
 /* 숫자 입력칸의 위·아래 화살표(스핀 버튼)를 숨긴다. 숫자는 키보드로 입력한다. */
 input[type="number"]::-webkit-inner-spin-button,

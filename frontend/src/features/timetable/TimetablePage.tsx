@@ -38,7 +38,7 @@ export function TimetablePage({
 
   return (
     <div className="timetable-page">
-      <header className="timetable-hero">
+      <header className="timetable-hero page-head">
         <div>
           <p className="eyebrow">수업용 · 암호화 보관</p>
           <h2>시간표</h2>
