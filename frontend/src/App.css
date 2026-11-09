@@ -635,12 +635,12 @@ body {
 
 .primary-button {
   color: #fffaf2;
-  background: linear-gradient(135deg, #d77932, #ef9c4d);
-  box-shadow: 0 7px 15px #b8642a2b;
+  background: linear-gradient(135deg, #b8561a, #a44a12);
+  box-shadow: 0 7px 15px #a44a122b;
 }
 
 .primary-button:hover:not(:disabled) {
-  background: linear-gradient(135deg, #bd6028, #df8438);
+  background: linear-gradient(135deg, #a44a12, #9e4610);
 }
 
 .quiet-button,

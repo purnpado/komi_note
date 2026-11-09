@@ -143,3 +143,12 @@
 
 /* 출결을 입력할 수 없는 날(주말·학기 밖) 안내는 경고 색으로 보여 준다 */
 .app-toast.attendance-blocked { border-color: #e7a46b; background: #fff3e2; color: #8a3b0f; }
+
+/* A2(2026-11-09 화면 점검): 1024px 창에서 학생 줄(특히 비고 칸)이 화면 밖으로 나가지 않게 칸 최소 폭을 줄인다. */
+.attendance-editor-row > * { min-width: 0; }
+@media (max-width: 1200px) {
+  .attendance-editor-grid .table-head,.attendance-editor-row { grid-template-columns:44px minmax(72px, 1fr) repeat(3, minmax(84px, .9fr)) minmax(96px, 1.3fr); }
+}
+/* A5(2026-11-09 화면 점검): 학생 이름 버튼의 누르는 영역을 줄 높이만큼 넓힌다(글자 크기·배치는 그대로). */
+.attendance-student-link { padding:9px 6px; margin:-9px -6px; border-radius:6px; }
+.attendance-student-link:focus-visible { outline:2px solid #2b806a; outline-offset:1px; }

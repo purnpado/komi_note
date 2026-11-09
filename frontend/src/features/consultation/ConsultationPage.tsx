@@ -89,7 +89,7 @@ export function ConsultationPage({
           {
             title: "학생 선택",
             detail:
-              "학생 카드에서 상담 기록 또는 상담 조회를 선택하면 학생별 대화상자가 열립니다. 다른 학생의 기록은 함께 표시하지 않습니다.",
+              "학생 카드를 누르면 그 학생의 기록 보기가, [상담 기록]을 누르면 새 기록 쓰기가 열립니다. 다른 학생의 기록은 함께 표시하지 않습니다.",
           },
           {
             title: "첫 상담 기록 저장",
@@ -303,8 +303,9 @@ export function ConsultationPage({
                     <button className="quiet-button" onClick={() => choose(student.id, "write")}>
                       상담 기록
                     </button>
-                    <button className="primary-button" onClick={() => choose(student.id, "view")}>
-                      상담 조회
+                    {/* B6(2026-11-09): 카드마다 주황 버튼을 두지 않는다. 카드를 눌러도 기록 보기가 열린다. */}
+                    <button className="text-button consult-view-link" onClick={() => choose(student.id, "view")}>
+                      기록 보기 →
                     </button>
                   </div>
                 </article>

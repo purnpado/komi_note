@@ -1,5 +1,6 @@
 import "./cleaning.css";
 import { main as models } from "../../../wailsjs/go/models";
+import { HelpGuide } from "../shared/HelpGuide";
 import { useCleaningPage, makeZone } from "./useCleaningPage";
 
 export function CleaningPage({ students }: { students: models.Student[] }) {
@@ -53,34 +54,28 @@ export function CleaningPage({ students }: { students: models.Student[] }) {
           </button>
         </div>
       </header>
-      <details className="first-use-guide">
-        <summary>청소구역 편성 처음 사용 안내</summary>
-        <ol>
-          <li>
-            <b>기간과 제목 설정</b>
-            <span>주간·격주·월간·직접 지정 중 운영 기간과 시작·종료일을 정합니다.</span>
-          </li>
-          <li>
-            <b>구역과 필요 인원 추가</b>
-            <span>교실·복도처럼 실제 청소구역을 만들고 구역별 필요 인원과 안내를 입력합니다.</span>
-          </li>
-          <li>
-            <b>학생 직접 편성</b>
-            <span>
-              구역마다 학생을 직접 추가합니다. 노란 경고는 중복 배정·직전 구역·미경험 구역 확인용이며 저장을 막지
-              않습니다.
-            </span>
-          </li>
-          <li>
-            <b>저장·이력·인쇄</b>
-            <span>저장한 편성표는 왼쪽 이력에서 다시 열 수 있고, 인쇄 전에 기간·구역별 인원을 확인합니다.</span>
-          </li>
-        </ol>
-        <p className="first-use-note">
-          학생 이름과 배정 이력은 이 컴퓨터의 암호화 보관함에만 저장됩니다. 실제 학생 정보가 포함된 인쇄물은 교실 밖
-          공유에 주의하세요.
-        </p>
-      </details>
+      <HelpGuide
+        title="청소구역 편성 처음 사용 안내"
+        description="기간을 정하고 구역별로 학생을 직접 편성합니다. 중복·직전 구역 경고는 확인용이며 저장을 막지 않습니다."
+        defaultOpen={false}
+        steps={[
+          { title: "기간과 제목 설정", detail: "주간·격주·월간·직접 지정 중 운영 기간과 시작·종료일을 정합니다." },
+          {
+            title: "구역과 필요 인원 추가",
+            detail: "교실·복도처럼 실제 청소구역을 만들고 구역별 필요 인원과 안내를 입력합니다.",
+          },
+          {
+            title: "학생 직접 편성",
+            detail:
+              "구역마다 학생을 직접 추가합니다. 노란 경고는 중복 배정·직전 구역·미경험 구역 확인용이며 저장을 막지 않습니다.",
+          },
+          {
+            title: "저장·이력·인쇄",
+            detail: "저장한 편성표는 왼쪽 이력에서 다시 열 수 있고, 인쇄 전에 기간·구역별 인원을 확인합니다.",
+          },
+        ]}
+        note="학생 이름과 배정 이력은 이 컴퓨터의 암호화 보관함에만 저장됩니다. 실제 학생 정보가 포함된 인쇄물은 교실 밖 공유에 주의하세요."
+      />
       {notice && <p className="form-notice">{notice}</p>}
       <div className="cleaning-layout">
         <aside className="cleaning-history">

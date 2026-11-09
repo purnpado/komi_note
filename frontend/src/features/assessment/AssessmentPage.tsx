@@ -1,6 +1,7 @@
 import { AddStudentDialog } from "./AddStudentDialog";
 import { AssessmentList } from "./AssessmentList";
 import { copy, useAssessmentPage, type Props } from "./useAssessmentPage";
+import { HelpGuide } from "../shared/HelpGuide";
 import { AssessmentWorkspace } from "./AssessmentWorkspace";
 import { AssessmentDialogs } from "./AssessmentDialogs";
 import { AssessmentReviewDialogs } from "./AssessmentReviewDialogs";
@@ -39,14 +40,16 @@ export function AssessmentPage({ config }: Props) {
           </button>
         </div>
       </section>
-      <details className="first-use-guide assessment-guide">
-        <summary>처음 사용 안내</summary>
-        <ol>
-          <li>나이스 수행평가 파일을 반별로 가져옵니다.</li>
-          <li>평가 영역을 하나 고른 뒤 세부 기준과 점수를 입력·저장합니다.</li>
-          <li>영역별 QR과 전자칠판은 해당 영역의 점수만 분리해 표시합니다.</li>
-        </ol>
-      </details>
+      <HelpGuide
+        title="수행평가 관리 처음 사용 안내"
+        description="반별 나이스 수행평가 파일을 가져와 영역별로 세부 기준과 점수를 입력하고, 학생이 QR로 본인 점수만 확인합니다."
+        defaultOpen={false}
+        steps={[
+          { title: "파일 가져오기", detail: "나이스 수행평가 파일을 반별로 가져옵니다." },
+          { title: "세부 기준·점수", detail: "평가 영역을 하나 고른 뒤 세부 기준과 점수를 입력·저장합니다." },
+          { title: "QR·전자칠판", detail: "영역별 QR과 전자칠판은 해당 영역의 점수만 분리해 표시합니다." },
+        ]}
+      />
       {notice && (
         <div className="assessment-notice" role="status">
           <span>{notice}</span>

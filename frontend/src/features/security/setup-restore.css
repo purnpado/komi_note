@@ -9,3 +9,6 @@
 .setup-restore-notice { color: #b42318; font-weight: 800; }
 .setup-restore button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 .setup-restore-row code { font-family: inherit; color: #6b4a22; }
+/* A4(2026-11-09 화면 점검): 키보드로 옮겨 왔을 때 위치가 보이게 한다(다른 입력 칸과 같은 표시). */
+.setup-restore input:focus-visible { outline: 2px solid #7ec4ab; border-color: transparent; }
+.setup-restore .quiet-button:focus-visible, .setup-restore summary:focus-visible { outline: 2px solid #7ec4ab; outline-offset: 2px; }

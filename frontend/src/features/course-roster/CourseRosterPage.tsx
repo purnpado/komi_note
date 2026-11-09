@@ -7,6 +7,7 @@ import { CourseStudentDelete, CourseStudentEditor } from "./CourseStudentEditor"
 import "./course-roster.css";
 
 import { errorMessage } from "../shared/format";
+import { HelpGuide } from "../shared/HelpGuide";
 export function CourseRosterPage() {
   const [rosters, setRosters] = useState<models.CourseRoster[]>([]);
   const [selectedID, setSelectedID] = useState(() => takePageFocus("수업 명렬")?.courseRosterId || "");
@@ -58,13 +59,21 @@ export function CourseRosterPage() {
         </div>
         <span className="course-roster-count">수업 {rosters.length}개</span>
       </header>
-      <details className="course-roster-guide">
-        <summary>처음 사용 안내</summary>
-        <p>
-          새 수행평가 파일을 가져오거나 기존 수행평가에서 ‘수업 명렬로 보내기’를 선택해 명렬을 만듭니다. 명렬이 다르면
-          비교 후 확인한 학생만 추가하며, 평가 점수와 이력은 별도로 유지됩니다.
-        </p>
-      </details>
+      <HelpGuide
+        title="수업 명렬 처음 사용 안내"
+        description="수행평가 파일에서 만든 수업별 학생 명렬을 한곳에서 봅니다. 평가 점수와 이력은 따로 보관됩니다."
+        defaultOpen={false}
+        steps={[
+          {
+            title: "명렬 만들기",
+            detail: "새 수행평가 파일을 가져오거나 기존 수행평가에서 ‘수업 명렬로 보내기’를 선택해 명렬을 만듭니다.",
+          },
+          {
+            title: "다른 명렬 비교",
+            detail: "명렬이 다르면 비교 후 확인한 학생만 추가하며, 평가 점수와 이력은 별도로 유지됩니다.",
+          },
+        ]}
+      />
       {notice && (
         <p className="course-roster-notice" role="alert">
           {notice}

@@ -171,3 +171,8 @@
     align-self: stretch;
   }
 }
+
+/* B1(2026-11-09 화면 점검): 접힌 안내는 제목 한 줄만 보여 첫 화면을 비워 둔다. */
+.help-guide.collapsed { padding: 9px 16px; box-shadow: none; }
+.help-guide.collapsed .help-guide-heading { align-items: center; }
+.help-guide.collapsed h3 { margin: 0; font-size: 14px; }

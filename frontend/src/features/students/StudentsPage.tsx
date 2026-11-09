@@ -82,9 +82,6 @@ export function StudentsPage({
           <p>학생을 누르면 학생 상세정보를 확인하고 수정할 수 있습니다.</p>
         </div>
         <div className="page-actions">
-          <button className="quiet-button danger-button" onClick={() => setResetOpen(true)} disabled={busy}>
-            학생 명렬 초기화
-          </button>
           <button className="quiet-button" onClick={() => setAdding(true)} disabled={busy}>
             ＋ 학생 직접 추가
           </button>
@@ -92,6 +89,10 @@ export function StudentsPage({
             ⇧ 명렬표 가져오기
           </button>
           <HelpTip>나이스 명렬표에서 성별·생년월일·주소를 선택해 추가한 뒤 내려받은 엑셀 파일을 선택합니다.</HelpTip>
+          {/* B5(2026-11-09): 되돌릴 수 없는 버튼은 줄 끝에 둔다 */}
+          <button className="quiet-button danger-button" onClick={() => setResetOpen(true)} disabled={busy}>
+            학생 명렬 초기화
+          </button>
         </div>
       </section>
       <HelpGuide

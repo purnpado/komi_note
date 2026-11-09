@@ -57,3 +57,8 @@
 .consult-follow-hint { color: #8c715e; font-size: 11px; }
 @media (max-width: 640px) { .consult-follow-grid { grid-template-columns: 1fr; } }
 @media (max-width: 640px) { .consultation-dialog-detail .panel-heading { flex-direction: column; }.consultation-dialog-heading-actions { width: 100%; justify-content: flex-start; } }
+/* B6(2026-11-09): 카드의 '기록 보기'는 글자 버튼(주황 채운 버튼 대신) */
+.consultation-student-card > div .consult-view-link { padding: 8px; border-radius: 9px; font-size: 12px; font-weight: 800; color: #8e4512; text-align: center; }
+.consultation-student-card > div .consult-view-link:hover { background: #fff2e2; }
+.theme-classic .consultation-student-card > div .consult-view-link { color: #1f6f5a; }
+.theme-classic .consultation-student-card > div .consult-view-link:hover { background: #eaf6f1; }
