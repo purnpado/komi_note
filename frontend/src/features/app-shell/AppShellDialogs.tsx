@@ -25,7 +25,7 @@ export function UpdateDialog({
         <AlertDialog.Overlay className="dialog-overlay" />
         <AlertDialog.Content className="dialog-content update-dialog">
           <p className="eyebrow">GitHub 공개 업데이트 채널</p>
-          <AlertDialog.Title>새 베타 버전이 준비되었습니다</AlertDialog.Title>
+          <AlertDialog.Title>새 버전이 준비되었습니다</AlertDialog.Title>
           <AlertDialog.Description>
             현재 {info?.currentVersion} → 새 버전 {info?.latestVersion}
             <br />
