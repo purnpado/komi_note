@@ -1638,7 +1638,10 @@ textarea:focus,
 .help-guide-note { margin: 11px 0 0; color: #8b642f; font-size: 12px; line-height: 1.5; }
 .help-tip { position: relative; display: inline-grid; flex: 0 0 auto; place-items: center; align-self: center; width: 20px; height: 20px; border: 1px solid #d88c49; border-radius: 50%; color: #9b5727; background: #fff8ed; font-size: 12px; font-weight: 800; cursor: help; }
 .help-tip > span { position: absolute; z-index: 25; right: 0; bottom: calc(100% + 8px); display: none; width: min(250px, 70vw); padding: 9px 10px; border-radius: 8px; color: #fffaf4; background: #543b2e; box-shadow: 0 8px 18px #35201533; font-size: 12px; font-weight: 500; line-height: 1.5; }
-.help-tip:hover > span,.help-tip:focus > span { display: block; }
+.help-tip:focus-visible { outline: 3px solid #f0a35e; outline-offset: 2px; }
+/* 도움말 팝업은 document.body에 그려 대화상자 스크롤 영역에 잘리지 않게 한다(HelpTip.tsx) */
+.help-tip-popup { position: fixed; z-index: 300; width: max-content; max-width: min(260px, calc(100vw - 16px)); box-sizing: border-box; padding: 9px 10px; border-radius: 8px; color: #fffaf4; background: #543b2e; box-shadow: 0 8px 18px #35201533; font-size: 12px; font-weight: 500; line-height: 1.5; text-align: left; white-space: normal; pointer-events: none; }
+.theme-classic .help-tip-popup, body:has(.theme-classic) .help-tip-popup { background: #174b41; }
 .theme-classic .help-guide { border-color: #c6e0d6; background: linear-gradient(120deg, #f2faf7, #fff 72%); box-shadow: 0 6px 18px #1e574512; }
 .theme-classic .help-guide .eyebrow,.theme-classic .help-guide h3 { color: #1b6e59; }.theme-classic .help-guide-heading p:last-child,.theme-classic .help-guide-steps span { color: #637b72; }.theme-classic .help-guide-toggle { border-color: #b9d7cc; color: #236653; background: #fff; }.theme-classic .help-guide-steps li { border-color: #d9ebe4; background: #fff; }.theme-classic .help-guide-steps b { background: #2c856d; }.theme-classic .help-guide-steps strong { color: #255747; }.theme-classic .help-guide-note { color: #3b725f; }.theme-classic .help-tip { border-color: #83bca8; color: #236a55; background: #f2faf7; }.theme-classic .help-tip > span { background: #174b41; }
 
