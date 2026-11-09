@@ -10,6 +10,7 @@ export type {
     AttendanceTemplate,
     ClassConfig,
     Consultation,
+    ConsultationRevision,
     CourseRoster,
     CourseRosterChange,
     CourseRosterPreview,

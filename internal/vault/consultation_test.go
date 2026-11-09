@@ -138,3 +138,49 @@ func TestConsultationRollsBackWhenWriteFails(t *testing.T) {
 		t.Fatalf("삭제 실패 뒤 되돌리지 않았습니다 %+v", items)
 	}
 }
+
+func TestConsultationRevisionsKeepPreviousContent(t *testing.T) {
+	store, student := consultationStore(t)
+	item, err := store.SaveConsultation(Consultation{StudentID: student.ID, Date: "2026-11-02", Type: "학생 상담", Content: "처음 내용"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if item.UpdatedAt != "" || len(item.Revisions) != 0 {
+		t.Fatalf("새 기록에 이력 %+v", item)
+	}
+	// 바뀐 것이 없으면 이력을 남기지 않는다
+	same, err := store.SaveConsultation(item)
+	if err != nil || len(same.Revisions) != 0 {
+		t.Fatalf("변화 없는 저장 %+v %v", same, err)
+	}
+	item.Content = "고친 내용"
+	edited, err := store.SaveConsultation(item)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if edited.UpdatedAt == "" || len(edited.Revisions) != 1 || edited.Revisions[0].Content != "처음 내용" {
+		t.Fatalf("이력 %+v", edited)
+	}
+	// 화면이 보낸 이력은 무시한다
+	forged := edited
+	forged.Revisions = nil
+	forged.Content = "또 고침"
+	again, err := store.SaveConsultation(forged)
+	if err != nil || len(again.Revisions) != 2 || again.Revisions[0].Content != "고친 내용" || again.Revisions[1].Content != "처음 내용" {
+		t.Fatalf("이력 이어 쓰기 %+v %v", again, err)
+	}
+	for index := 0; index < 25; index++ {
+		again.Content = strings.Repeat("가", index+1)
+		if again, err = store.SaveConsultation(again); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if len(again.Revisions) != maxConsultationRevisions {
+		t.Fatalf("이력 개수 제한 %d", len(again.Revisions))
+	}
+	// 후속 기록을 새로 만들 때 화면이 이력을 보내도 비운다
+	child, err := store.SaveConsultation(Consultation{StudentID: student.ID, ParentID: again.ID, Date: "2026-11-03", Type: "교사 확인", Content: "후속", Revisions: []ConsultationRevision{{Content: "가짜"}}, UpdatedAt: "가짜"})
+	if err != nil || len(child.Revisions) != 0 || child.UpdatedAt != "" {
+		t.Fatalf("새 후속 기록 이력 %+v %v", child, err)
+	}
+}

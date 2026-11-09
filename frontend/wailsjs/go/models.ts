@@ -794,6 +794,23 @@ export namespace main {
 		}
 	}
 
+	// 상담 기록을 고치기 전 값.
+	export class ConsultationRevision {
+	    editedAt: string;
+	    date: string;
+	    type: string;
+	    content: string;
+	    followUpDate: string;
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.editedAt = source["editedAt"] || "";
+	        this.date = source["date"] || "";
+	        this.type = source["type"] || "";
+	        this.content = source["content"] || "";
+	        this.followUpDate = source["followUpDate"] || "";
+	    }
+	}
 	export class Consultation {
 	    id: string;
 	    studentId: string;
@@ -806,6 +823,8 @@ export namespace main {
 	    followUpDone: boolean;
 	    manualDone: boolean;
 	    recordedAt: string;
+	    updatedAt: string;
+	    revisions: ConsultationRevision[];
 
 	    static createFrom(source: any = {}) {
 	        return new Consultation(source);
@@ -824,6 +843,8 @@ export namespace main {
 	        this.followUpDone = source["followUpDone"];
 	        this.manualDone = Boolean(source["manualDone"]);
 	        this.recordedAt = source["recordedAt"];
+	        this.updatedAt = source["updatedAt"] || "";
+	        this.revisions = (source["revisions"] || []).map((item: any) => new ConsultationRevision(item));
 	    }
 	}
 	export class CourseRosterChange {

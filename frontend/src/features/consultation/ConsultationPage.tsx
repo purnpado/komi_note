@@ -3,6 +3,8 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { DeleteConsultation, GetStudentPhoto, ListAllConsultations, SaveConsultation, SetConsultationFollowUpDone } from "../../../wailsjs/go/main/App";
 import { main as models } from "../../../wailsjs/go/models";
 import { HelpGuide } from "../shared/HelpGuide";
+import { escapePrintText, printSheet } from "../shared/desktopActions";
+import { flowOrder, pendingFollowUps, searchConsultations, studentStatus, type SearchFilter } from "./consultationState";
 import "./consultation.css";
 
 import { errorMessage, todayLocal } from "../shared/format";
@@ -19,6 +21,46 @@ function emptyDraft(type = "학생 상담"): Draft {
 
 function shortDate(value: string) {
   return value ? `${Number(value.slice(5, 7))}월 ${Number(value.slice(8, 10))}일` : "";
+}
+
+const printCss = `.print-sheet{font-family:"Pretendard","Malgun Gothic",sans-serif;color:#111}
+.print-sheet h1{margin:0 0 4px;font-size:20px}
+.print-sheet .meta{margin:0 0 4px;font-size:12px;color:#333}
+.print-sheet .warn{margin:0 0 10px;font-size:11px;font-weight:700;color:#a1261b}
+.print-sheet table{width:100%;border-collapse:collapse;font-size:11.5px}
+.print-sheet th,.print-sheet td{border:1px solid #888;padding:5px 6px;vertical-align:top;text-align:left}
+.print-sheet th{background:#eee}
+.print-sheet td.content{white-space:pre-wrap}
+.print-sheet td.date{white-space:nowrap}
+.print-sheet tr{break-inside:avoid}
+@page{size:A4 portrait;margin:14mm}`;
+
+function followText(item: models.Consultation) {
+  if (!item.followUpDate) return "";
+  return `${item.followUpDate}${item.followUpDone ? " (확인 완료)" : ""}`;
+}
+
+function Revisions({ item }: { item: models.Consultation }) {
+  const [open, setOpen] = useState(false);
+  const revisions = item.revisions || [];
+  if (!item.updatedAt && revisions.length === 0) return null;
+  return (
+    <div className="consult-revisions">
+      <button type="button" className="text-button" onClick={() => setOpen(!open)} aria-expanded={open}>
+        수정됨 {revisions.length}회{item.updatedAt ? ` · 마지막 ${item.updatedAt.slice(0, 16).replace("T", " ")}` : ""} {open ? "▴" : "▾"}
+      </button>
+      {open && (
+        <ol>
+          {revisions.map((revision, index) => (
+            <li key={`${revision.editedAt}-${index}`}>
+              <small>{revision.editedAt.slice(0, 16).replace("T", " ")}에 고치기 전 · {revision.date} · {revision.type}{revision.followUpDate ? ` · 예정 ${revision.followUpDate}` : ""}</small>
+              <p>{revision.content}</p>
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+  );
 }
 
 // FollowUpStatus는 다음 확인 예정일의 상태(예정·지남·확인 완료)를 보여 준다.
@@ -61,6 +103,10 @@ export function ConsultationPage({
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
+  const [view, setView] = useState<"students" | "todo" | "search">("students");
+  const [filter, setFilter] = useState<SearchFilter>({ studentId: "", type: "", from: "", to: "", query: "" });
+  const [printFrom, setPrintFrom] = useState("");
+  const [printTo, setPrintTo] = useState("");
   const selected =
     students.find((student) => student.id === selectedID) || null;
   const records = useMemo(
@@ -215,6 +261,37 @@ export function ConsultationPage({
       setBusy(false);
     }
   }
+  const nameOf = (id: string) => {
+    const student = students.find((item) => item.id === id);
+    return student ? `${student.number}번 ${student.name}` : "삭제된 학생";
+  };
+  function printStudentLog() {
+    if (!selected) return;
+    const rows = flowOrder(records, printFrom, printTo)
+      .map(({ item, depth }) => `<tr><td class="date">${escapePrintText(item.date)}</td><td>${depth ? "↳ ".repeat(depth) : ""}${escapePrintText(item.type)}</td><td class="content">${escapePrintText(item.content)}</td><td class="date">${escapePrintText(followText(item))}</td></tr>`)
+      .join("");
+    if (!rows) {
+      setNotice("고른 기간에 인쇄할 상담 기록이 없습니다.");
+      return;
+    }
+    const period = printFrom || printTo ? `${printFrom || "처음"} ~ ${printTo || "오늘"}` : "전체 기간";
+    const html = `<h1>상담일지</h1><p class="meta">${escapePrintText(`${selected.number}번 ${selected.name}`)} · ${escapePrintText(period)} · 인쇄 ${escapePrintText(todayLocal())}</p><p class="warn">상담 기록 · 외부 반출 주의 · 보관과 폐기에 유의해 주세요</p><table><thead><tr><th style="width:15%">날짜</th><th style="width:15%">유형</th><th>내용</th><th style="width:16%">다음 확인</th></tr></thead><tbody>${rows}</tbody></table>`;
+    void printSheet(html, printCss).catch(() => setNotice("인쇄 창을 열지 못했습니다. 다시 시도해 주세요."));
+  }
+  function printSearchList(found: models.Consultation[]) {
+    if (found.length === 0) return;
+    const rows = found
+      .map((item) => `<tr><td class="date">${escapePrintText(item.date)}</td><td>${escapePrintText(nameOf(item.studentId))}</td><td>${item.parentId ? "↳ " : ""}${escapePrintText(item.type)}</td><td class="content">${escapePrintText(item.content)}</td><td class="date">${escapePrintText(followText(item))}</td></tr>`)
+      .join("");
+    const parts = [
+      filter.from || filter.to ? `${filter.from || "처음"} ~ ${filter.to || "오늘"}` : "전체 기간",
+      filter.studentId ? nameOf(filter.studentId) : "전체 학생",
+      filter.type || "전체 유형",
+      filter.query ? `낱말 "${filter.query}"` : "",
+    ].filter(Boolean);
+    const html = `<h1>상담 기록 목록</h1><p class="meta">${escapePrintText(parts.join(" · "))} · ${found.length}건 · 인쇄 ${escapePrintText(todayLocal())}</p><p class="warn">상담 기록 · 외부 반출 주의 · 보관과 폐기에 유의해 주세요</p><table><thead><tr><th style="width:13%">날짜</th><th style="width:13%">학생</th><th style="width:13%">유형</th><th>내용</th><th style="width:15%">다음 확인</th></tr></thead><tbody>${rows}</tbody></table>`;
+    void printSheet(html, printCss).catch(() => setNotice("인쇄 창을 열지 못했습니다. 다시 시도해 주세요."));
+  }
   function startFollow(item: models.Consultation) {
     setFollowTarget(item);
     setFollowDraft(emptyDraft(followTypes[0]));
@@ -254,23 +331,104 @@ export function ConsultationPage({
           {
             title: "후속 기록과 조회",
             detail:
-              "원 상담에서 후속 기록을 이어 쓰고, 조회 화면에서 날짜·종류·내용과 연결 흐름을 확인합니다.",
+              "원 상담에서 후속 기록을 이어 쓰고, 다음 확인 예정일을 정합니다. '확인할 일'에서 예정일이 다가오거나 지난 기록을 모아 보고, '찾기·목록 인쇄'에서 학생·유형·기간·낱말로 찾아 인쇄합니다. 학생 창의 '상담일지 인쇄'로 한 학생의 흐름을 인쇄합니다.",
           },
           {
             title: "수정·삭제 주의",
             detail:
-              "수정은 해당 기록에만 적용됩니다. 원 상담을 삭제하면 연결된 후속 기록도 함께 삭제되며 되돌릴 수 없습니다.",
+              "고치면 고치기 전 내용이 '수정됨' 이력으로 남습니다. 원 상담을 삭제하면 연결된 후속 기록과 이력도 함께 삭제되며 되돌릴 수 없습니다. 인쇄물은 외부로 반출되지 않게 보관해 주세요.",
           },
         ]}
         note="상담 내용은 화면 공유·전자칠판·학생 기기에 표시하지 마세요. 작성 시각은 초 단위로 자동 기록됩니다."
       />
       {notice && !dialogOpen && <p className="app-toast">{notice}</p>}
+      <div className="consult-view-switch" role="tablist" aria-label="상담 기록 보기">
+        <button role="tab" aria-selected={view === "students"} className={view === "students" ? "active" : ""} onClick={() => setView("students")}>학생별</button>
+        <button role="tab" aria-selected={view === "todo"} className={view === "todo" ? "active" : ""} onClick={() => setView("todo")}>
+          확인할 일 {pendingFollowUps(items).length > 0 && <b>{pendingFollowUps(items).length}</b>}
+        </button>
+        <button role="tab" aria-selected={view === "search"} className={view === "search" ? "active" : ""} onClick={() => setView("search")}>찾기·목록 인쇄</button>
+      </div>
+      {view === "todo" && (
+        <section className="panel consult-todo" role="tabpanel" aria-label="확인할 일">
+          <p className="consult-muted">다음 확인 예정일이 있고 아직 확인하지 않은 기록입니다. 예정일이 이른 것부터 보입니다.</p>
+          {pendingFollowUps(items).length === 0 ? (
+            <p className="empty-state">확인할 후속 조치가 없습니다.</p>
+          ) : (
+            <ul>
+              {pendingFollowUps(items).map((item) => (
+                <li key={item.id} className={item.followUpDate < todayLocal() ? "overdue" : ""}>
+                  <div>
+                    <strong>{nameOf(item.studentId)}</strong>
+                    <FollowUpStatus item={item} />
+                    <small>{item.date} · {item.type}</small>
+                    <p>{item.content}</p>
+                  </div>
+                  <div className="consult-todo-actions">
+                    <button className="quiet-button" onClick={() => choose(item.studentId, "view")}>열기</button>
+                    <button className="quiet-button consult-done-button" disabled={busy} onClick={() => void markDone(item, true)}>✓ 확인 완료</button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
+      {view === "search" && (() => {
+        const found = searchConsultations(items, filter);
+        const types = [...new Set([...firstTypes, ...followTypes, ...items.map((item) => item.type)])];
+        return (
+          <section className="panel consult-search" role="tabpanel" aria-label="찾기">
+            <div className="consult-search-filters">
+              <label>학생
+                <select value={filter.studentId} onChange={(event) => setFilter({ ...filter, studentId: event.target.value })}>
+                  <option value="">전체 학생</option>
+                  {students.slice().sort((a, b) => a.number - b.number).map((student) => (
+                    <option key={student.id} value={student.id}>{student.number}번 {student.name}</option>
+                  ))}
+                </select>
+              </label>
+              <label>유형
+                <select value={filter.type} onChange={(event) => setFilter({ ...filter, type: event.target.value })}>
+                  <option value="">전체 유형</option>
+                  {types.map((type) => (
+                    <option key={type}>{type}</option>
+                  ))}
+                </select>
+              </label>
+              <label>시작일<input type="date" value={filter.from} onChange={(event) => setFilter({ ...filter, from: event.target.value })} /></label>
+              <label>끝일<input type="date" value={filter.to} onChange={(event) => setFilter({ ...filter, to: event.target.value })} /></label>
+              <label className="consult-search-query">낱말<input type="search" value={filter.query} placeholder="내용에서 찾기" onChange={(event) => setFilter({ ...filter, query: event.target.value })} /></label>
+            </div>
+            <div className="consult-search-bar">
+              <span>{found.length}건</span>
+              <button className="text-button" onClick={() => setFilter({ studentId: "", type: "", from: "", to: "", query: "" })}>조건 지우기</button>
+              <button className="primary-button" disabled={found.length === 0} onClick={() => printSearchList(found)}>목록 인쇄</button>
+            </div>
+            <ul className="consult-search-results">
+              {found.slice(0, 300).map((item) => (
+                <li key={item.id}>
+                  <button onClick={() => choose(item.studentId, "view")}>
+                    <span>{item.date}</span>
+                    <strong>{nameOf(item.studentId)}</strong>
+                    <span className="consult-type-chip">{item.parentId ? "↳ " : ""}{item.type}</span>
+                    <FollowUpStatus item={item} />
+                    <p>{item.content}</p>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            {found.length > 300 && <p className="consult-muted">앞의 300건만 보입니다. 조건을 좁혀 주세요(인쇄는 전체).</p>}
+          </section>
+        );
+      })()}
+      {view === "students" && (
       <section className="consultation-card-grid">
         {students
           .slice()
           .sort((a, b) => a.number - b.number)
           .map((student) => {
-            const all = items.filter((item) => item.studentId === student.id);
+            const status = studentStatus(items, student.id, todayLocal());
             return (
               <article
                 className={
@@ -295,7 +453,15 @@ export function ConsultationPage({
                     <b>
                       {String(student.number).padStart(2, "0")}번 {student.name}
                     </b>
-                    <small>상담 기록 {all.length}건</small>
+                    <small>
+                      상담 기록 {status.total}건{status.lastDate ? ` · 마지막 ${shortDate(status.lastDate)}` : ""}
+                    </small>
+                    {(status.overdue > 0 || status.planned > 0) && (
+                      <span className="consult-card-flags">
+                        {status.overdue > 0 && <em className="overdue">확인 지남 {status.overdue}</em>}
+                        {status.planned > 0 && <em>확인 예정 {status.planned}</em>}
+                      </span>
+                    )}
                   </span>
                 </button>
                 <div>
@@ -316,6 +482,7 @@ export function ConsultationPage({
             );
           })}
       </section>
+      )}
       <Dialog.Root open={dialogOpen} onOpenChange={changeDialogOpen}>
         <Dialog.Portal>
           <Dialog.Overlay className="dialog-overlay" />
@@ -434,6 +601,14 @@ export function ConsultationPage({
             </form>
           ) : (
             <div className="consult-flow-list">
+              {roots.length > 0 && (
+                <div className="consult-print-bar">
+                  <span>상담일지 인쇄</span>
+                  <label>시작일<input type="date" value={printFrom} onChange={(event) => setPrintFrom(event.target.value)} /></label>
+                  <label>끝일<input type="date" value={printTo} onChange={(event) => setPrintTo(event.target.value)} /></label>
+                  <button className="quiet-button" onClick={printStudentLog}>인쇄</button>
+                </div>
+              )}
               {roots.length === 0 ? (
                 <p className="empty-state">아직 작성한 상담 기록이 없습니다.</p>
               ) : (
@@ -465,6 +640,7 @@ export function ConsultationPage({
                         </div>
                       </header>
                       <p>{root.content}</p>
+                      <Revisions item={root} />
                       <div className="consult-record-actions">
                         <button
                           className="text-button"
@@ -504,6 +680,7 @@ export function ConsultationPage({
                             </small>{" "}
                             <FollowUpStatus item={reply} />
                             <p>{reply.content}</p>
+                            <Revisions item={reply} />
                             <div className="consult-record-actions">
                               <button
                                 className="text-button"

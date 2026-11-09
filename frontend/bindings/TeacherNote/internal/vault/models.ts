@@ -118,6 +118,23 @@ export interface Consultation {
      */
     "manualDone"?: boolean;
     "recordedAt": string;
+
+    /**
+     * UpdatedAt은 마지막으로 고친 시각, Revisions는 고치기 전 내용입니다(최근 것부터 maxConsultationRevisions개).
+     */
+    "updatedAt"?: string;
+    "revisions"?: ConsultationRevision[] | null;
+}
+
+/**
+ * ConsultationRevision은 상담 기록을 고치기 전의 값입니다.
+ */
+export interface ConsultationRevision {
+    "editedAt": string;
+    "date": string;
+    "type": string;
+    "content": string;
+    "followUpDate": string;
 }
 
 /**

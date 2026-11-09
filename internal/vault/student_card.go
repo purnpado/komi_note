@@ -223,7 +223,21 @@ type Consultation struct {
 	// ManualDone은 후속 기록 없이 교사가 직접 "확인 완료"로 끝낸 표시입니다.
 	ManualDone bool   `json:"manualDone,omitempty"`
 	RecordedAt string `json:"recordedAt"`
+	// UpdatedAt은 마지막으로 고친 시각, Revisions는 고치기 전 내용입니다(최근 것부터 maxConsultationRevisions개).
+	UpdatedAt string                 `json:"updatedAt,omitempty"`
+	Revisions []ConsultationRevision `json:"revisions,omitempty"`
 }
+
+// ConsultationRevision은 상담 기록을 고치기 전의 값입니다.
+type ConsultationRevision struct {
+	EditedAt     string `json:"editedAt"`
+	Date         string `json:"date"`
+	Type         string `json:"type"`
+	Content      string `json:"content"`
+	FollowUpDate string `json:"followUpDate"`
+}
+
+const maxConsultationRevisions = 20
 
 const (
 	maxConsultationContent = 5000
@@ -403,6 +417,8 @@ func (s *VaultStore) SaveConsultation(item Consultation) (Consultation, error) {
 	previous := append([]Consultation{}, s.session.Consultations...)
 	if item.ID == "" {
 		item.ManualDone = false
+		item.Revisions = nil
+		item.UpdatedAt = ""
 		if item.ParentID != "" {
 			found := false
 			for _, parent := range s.session.Consultations {
@@ -452,6 +468,18 @@ func (s *VaultStore) SaveConsultation(item Consultation) (Consultation, error) {
 		item.ManualDone = existing.ManualDone
 		if item.FollowUpDate == "" {
 			item.ManualDone = false
+		}
+		// 이력은 화면이 보낸 값이 아니라 보관함 값을 이어 쓰고, 실제로 바뀐 경우에만 고치기 전 값을 남깁니다.
+		item.Revisions = append([]ConsultationRevision{}, existing.Revisions...)
+		item.UpdatedAt = existing.UpdatedAt
+		if existing.Date != item.Date || existing.Type != item.Type || existing.Content != item.Content || existing.FollowUpDate != item.FollowUpDate {
+			now := time.Now().In(time.Local).Format(time.RFC3339)
+			revision := ConsultationRevision{EditedAt: now, Date: existing.Date, Type: existing.Type, Content: existing.Content, FollowUpDate: existing.FollowUpDate}
+			item.Revisions = append([]ConsultationRevision{revision}, item.Revisions...)
+			if len(item.Revisions) > maxConsultationRevisions {
+				item.Revisions = item.Revisions[:maxConsultationRevisions]
+			}
+			item.UpdatedAt = now
 		}
 		s.session.Consultations[index] = item
 	}
