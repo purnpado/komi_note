@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.Title}} · {{.DomainName}} QR</title>
+<style>
+body{margin:0;background:radial-gradient(circle at top,#286c56,#0d3028);color:#fff;font-family:system-ui,sans-serif;display:grid;min-height:100vh;place-items:center;text-align:center}
+.card{width:min(920px,82vw);padding:4vh 5vw;border:3px solid #e8bf64;border-radius:30px;background:#103c32cc;box-shadow:0 28px 70px #03150f88}
+.eyebrow{color:#ffda85;font-size:clamp(18px,2vw,28px);font-weight:850}
+h1{font-size:clamp(34px,5vw,68px);margin:10px 0}
+.qr{width:min(320px,52vw);border:14px solid #fff;border-radius:20px;background:#fff}
+.url{overflow-wrap:anywhere;color:#c9e4ff;font-size:clamp(15px,1.7vw,24px)}
+.status{display:flex;justify-content:center;gap:22px;color:#ffebc5;font-size:clamp(18px,2vw,28px)}
+</style>
+<main class="card">
+<p class="eyebrow">{{.DomainName}} · 학생 점수 확인</p>
+<h1>{{.Title}}</h1>
+<img class="qr" src="/assessment-api/{{.Token}}/qr" alt="학생 점수 확인 QR 코드">
+<p class="url">{{.StudentURL}}</p>
+<div class="status" id="status">접속 현황을 불러오는 중입니다.</div>
+</main>
+<script>
+const api='/assessment-api/{{.Token}}';async function state(){const data=await (await fetch(api+'/board-state')).json();document.querySelector('#status').textContent=data.closed?'확인 회차가 종료되었습니다':data.paused?'교사가 회차를 일시정지했습니다':'인증 '+data.verifiedCount+'명 · 확인 완료 '+data.completedCount+'명'}state();setInterval(state,1500)
+</script></html>

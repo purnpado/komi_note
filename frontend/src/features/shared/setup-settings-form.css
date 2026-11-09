@@ -1,0 +1,114 @@
+/* 최초 설정과 환경 설정이 함께 쓰는 역할·학급 고르기·입력란 규칙입니다. */
+.role-choice-label {
+  grid-column: 1 / -1;
+}
+.role-choice-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 8px;
+}
+.role-choice {
+  min-width: 142px;
+  padding: 10px 13px;
+  border: 1px solid #d9e3e0;
+  border-radius: 9px;
+  background: #fff;
+  color: #61707c;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.role-choice-label small {
+  display: block;
+  margin-top: 8px;
+  color: #788692;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.55;
+}
+.class-selector-label {
+  min-width: 0;
+  color: #4a5564;
+  font-size: 13px;
+  font-weight: 700;
+}
+.class-selector {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 7px;
+  margin-top: 7px;
+}
+.class-selector select {
+  margin-top: 0 !important;
+}
+.compact-button {
+  margin: 0;
+  padding: 10px 12px;
+  white-space: nowrap;
+}
+.selected-class-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.selected-class-chip {
+  padding: 6px 9px;
+  border: 1px solid #b8dfd0;
+  border-radius: 999px;
+  background: #edf9f4;
+  color: #27715e;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.class-selector-label > small {
+  display: block;
+  margin-top: 7px;
+  color: #788692;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.setup-card input:disabled,
+.settings-panel input:disabled {
+  cursor: not-allowed;
+  background: #f2f5f4;
+  color: #9aa6ad;
+}
+.setup-card label,
+.settings-panel label {
+  display: block;
+  color: #4a5564;
+  font-size: 13px;
+  font-weight: 700;
+}
+.setup-card input,
+.setup-card select,
+.settings-panel input,
+.settings-panel select {
+  display: block;
+  width: 100%;
+  margin-top: 7px;
+  padding: 12px 13px;
+  border: 1px solid #dce3ea;
+  border-radius: 8px;
+  background: #fff;
+  color: #364656;
+}
+/* 이 파일은 App.css보다 늦게 읽히므로, 초록 테마의 입력란 색(App.css의 .theme-classic input)이
+   예전처럼 이기도록 같은 강도로 한 번 더 적어 둔다. 비활성·포커스 규칙은 여전히 이 규칙보다 강하다. */
+:where(.theme-classic) .settings-panel input,
+:where(.theme-classic) .settings-panel select {
+  border-color: #d9e2e7;
+  color: #334657;
+  background: #fff;
+}
+.setup-card input:focus,
+.setup-card select:focus,
+.settings-panel input:focus,
+.settings-panel select:focus {
+  outline: 2px solid #7ec4ab;
+  border-color: transparent;
+}

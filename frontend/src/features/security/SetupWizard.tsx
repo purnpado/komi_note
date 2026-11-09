@@ -6,6 +6,7 @@ import { DefaultRecoveryFilePath, InitializeVault, SelectRecoveryFile } from "..
 import { main as models } from "../../../wailsjs/go/models";
 import { errorMessage } from "../shared/format";
 import { SetupRestore } from "./SetupRestore";
+import "../shared/setup-settings-form.css";
 
 const teachingGradeOptions = ["1학년", "2학년", "3학년"];
 const teachingClassOptions = Array.from({ length: 10 }, (_, index) => `${index + 1}반`);

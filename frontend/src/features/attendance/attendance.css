@@ -1,3 +1,28 @@
+/* App.css에서 옮겨 온 규칙(2026-11-09). 예전처럼 이 파일의 다른 규칙보다 먼저 읽히도록 맨 앞에 둔다. */
+.attendance-count {
+  color: #21634f;
+  background: #e7f4ec;
+}
+.attendance-count.결석 {
+  color: #ab4d42;
+  background: #fff0ed;
+}
+.attendance-count.지각,
+.attendance-count.조퇴,
+.attendance-count.결과 {
+  color: #9a6515;
+  background: #fff4d9;
+}
+.attendance-count.교외체험학습 {
+  color: #aa6322;
+  background: #ffedd7;
+}
+@media print {
+  .template-canvas, .template-canvas * { visibility: visible !important; }
+  .template-canvas { position: fixed !important; inset: 0 !important; width: 100% !important; border: 0 !important; background: #fff !important; }
+  .template-point { border: 0 !important; background: #fff !important; font-size: 12pt !important; line-height: 1 !important; }
+}
+
 /* 출결 관리 화면 전용: 기준일, 입력 표, 서식과 출력 편집기 */
 .attendance-date { display:flex; justify-content:center; gap:12px; align-items:center; padding:0 0 20px; }
 .attendance-date .date-move-button { border:1px solid #dce8e3; background:#fff; color:#24735e; width:38px; height:38px; border-radius:12px; font-size:25px; line-height:1; box-shadow:0 3px 10px #274c4220; }

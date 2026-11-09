@@ -24,7 +24,9 @@ type receiptPayload struct {
 	Data string `json:"data"`
 }
 
-func receiptAAD(entryID, receiptID string) string { return "budget-receipt-v1:" + entryID + ":" + receiptID }
+func receiptAAD(entryID, receiptID string) string {
+	return "budget-receipt-v1:" + entryID + ":" + receiptID
+}
 
 func (s *VaultStore) receiptPath(receiptID string) string {
 	return filepath.Join(filepath.Dir(s.filePath), "receipts", receiptID+".receipt")

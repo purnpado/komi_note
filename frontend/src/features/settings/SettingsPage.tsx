@@ -6,6 +6,7 @@ import { FeedbackPanel } from "./FeedbackPanel";
 import { PasswordChangePanel } from "./PasswordChangePanel";
 import { BackupPanel } from "./BackupPanel";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
+import "../shared/setup-settings-form.css";
 import "./settings.css";
 import { useSettingsPage, teachingGradeOptions, teachingClassOptions, isClassicTheme } from "./useSettingsPage";
 import { SettingsAcademicCard } from "./SettingsAcademicCard";
