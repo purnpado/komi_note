@@ -1,7 +1,15 @@
 import { DragEvent as ReactDragEvent, PointerEvent as ReactPointerEvent } from "react";
 import { main as models } from "../../../wailsjs/go/models";
 import { DeleteSeatingPlan, SaveSeatingPlan } from "../../../wailsjs/go/main/App";
-import { defaultGridDimensions, groupSeatsForPlacement, isGroupedPlacement, makeSeats, orderSeatsForPlacement, placementGroupSize, seatsForRoster } from "./seatLayout";
+import {
+  defaultGridDimensions,
+  groupSeatsForPlacement,
+  isGroupedPlacement,
+  makeSeats,
+  orderSeatsForPlacement,
+  placementGroupSize,
+  seatsForRoster,
+} from "./seatLayout";
 import { generateSeatingPlacement } from "./seatingAlgorithm";
 import { escapePrintText, printSheet } from "../shared/desktopActions";
 import { errorMessage } from "../shared/format";
@@ -9,7 +17,50 @@ import type { ClassroomPageView } from "./useClassroomPage";
 
 /** useClassroomPage에서 떼어 낸 처리 함수 묶음(훅 없음). 상태는 view로 받는다. */
 export function seatingPlanActions(view: ClassroomPageView) {
-  const { plans, setPlans, selectedID, setSelectedID, title, setTitle, rows, setRows, columns, setColumns, layoutMode, setLayoutMode, deskPosition, setDeskPosition, placementMode, setPlacementMode, drawMethod, setDrawMethod, competitionMethod, setCompetitionMethod, preventPreviousSeat, setPreventPreviousSeat, preventPreviousPartner, setPreventPreviousPartner, fixedStudentIDs, setFixedStudentIDs, participationMode, setParticipationMode, sessionState, setSessionState, currentRound, setCurrentRound, seats, setSeats, setNotice, setSeatingDeleteOpen, customDraggingID, selectedPlan, orderedStudents, canUseFixedSeats, setSeatingSession, students } = view;
+  const {
+    plans,
+    setPlans,
+    selectedID,
+    setSelectedID,
+    title,
+    setTitle,
+    rows,
+    setRows,
+    columns,
+    setColumns,
+    layoutMode,
+    setLayoutMode,
+    deskPosition,
+    setDeskPosition,
+    placementMode,
+    setPlacementMode,
+    drawMethod,
+    setDrawMethod,
+    competitionMethod,
+    setCompetitionMethod,
+    preventPreviousSeat,
+    setPreventPreviousSeat,
+    preventPreviousPartner,
+    setPreventPreviousPartner,
+    fixedStudentIDs,
+    setFixedStudentIDs,
+    participationMode,
+    setParticipationMode,
+    sessionState,
+    setSessionState,
+    currentRound,
+    setCurrentRound,
+    seats,
+    setSeats,
+    setNotice,
+    setSeatingDeleteOpen,
+    customDraggingID,
+    selectedPlan,
+    orderedStudents,
+    canUseFixedSeats,
+    setSeatingSession,
+    students,
+  } = view;
   function newPlan() {
     const initial = defaultGridDimensions(students.length);
     setSelectedID("");
@@ -20,8 +71,8 @@ export function seatingPlanActions(view: ClassroomPageView) {
     setLayoutMode("격자형");
     setDeskPosition("앞쪽 중앙");
     setPlacementMode("행 기준");
-      setDrawMethod("랜덤 룰렛 배정");
-		setCompetitionMethod("가위바위보");
+    setDrawMethod("랜덤 룰렛 배정");
+    setCompetitionMethod("가위바위보");
     setPreventPreviousSeat(true);
     setPreventPreviousPartner(true);
     setFixedStudentIDs([]);
@@ -52,8 +103,14 @@ export function seatingPlanActions(view: ClassroomPageView) {
     setSeats((current) =>
       current.map((seat) => ({
         ...seat,
-        x: Number.isFinite(seat.x) && seat.x > 0 ? seat.x : Math.round(80 + ((seat.column - 1) * 840) / Math.max(1, columns - 1)),
-        y: Number.isFinite(seat.y) && seat.y > 0 ? seat.y : Math.round(100 + ((seat.row - 1) * 800) / Math.max(1, rows - 1)),
+        x:
+          Number.isFinite(seat.x) && seat.x > 0
+            ? seat.x
+            : Math.round(80 + ((seat.column - 1) * 840) / Math.max(1, columns - 1)),
+        y:
+          Number.isFinite(seat.y) && seat.y > 0
+            ? seat.y
+            : Math.round(100 + ((seat.row - 1) * 800) / Math.max(1, rows - 1)),
       })),
     );
     setNotice("좌석을 끌어 실제 교실 위치에 놓을 수 있습니다.");
@@ -63,15 +120,18 @@ export function seatingPlanActions(view: ClassroomPageView) {
     setSeats((current) => {
       const nextNumber = current.length + 1;
       const offset = ((current.length * 83) % 360) - 180;
-      return [...current, {
-        id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        row: Math.floor(current.length / Math.max(1, columns)) + 1,
-        column: (current.length % Math.max(1, columns)) + 1,
-        x: Math.max(70, Math.min(930, 500 + offset)),
-        y: Math.max(90, Math.min(900, 500 + ((current.length * 127) % 260) - 130)),
-        label: `${nextNumber}번`,
-        studentId: "",
-      } as models.SeatingSeat];
+      return [
+        ...current,
+        {
+          id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          row: Math.floor(current.length / Math.max(1, columns)) + 1,
+          column: (current.length % Math.max(1, columns)) + 1,
+          x: Math.max(70, Math.min(930, 500 + offset)),
+          y: Math.max(90, Math.min(900, 500 + ((current.length * 127) % 260) - 130)),
+          label: `${nextNumber}번`,
+          studentId: "",
+        } as models.SeatingSeat,
+      ];
     });
   }
 
@@ -84,7 +144,7 @@ export function seatingPlanActions(view: ClassroomPageView) {
     const bounds = event.currentTarget.getBoundingClientRect();
     const x = Math.round(Math.max(45, Math.min(955, ((event.clientX - bounds.left) / bounds.width) * 1000)));
     const y = Math.round(Math.max(60, Math.min(940, ((event.clientY - bounds.top) / bounds.height) * 1000)));
-    setSeats((current) => current.map((seat) => seat.id === customDraggingID ? { ...seat, x, y } : seat));
+    setSeats((current) => current.map((seat) => (seat.id === customDraggingID ? { ...seat, x, y } : seat)));
   }
 
   function assignSeat(seatID: string, studentID: string) {
@@ -115,18 +175,12 @@ export function seatingPlanActions(view: ClassroomPageView) {
     });
   }
 
-  function handleSeatDragStart(
-    event: ReactDragEvent<HTMLDivElement>,
-    seatID: string,
-  ) {
+  function handleSeatDragStart(event: ReactDragEvent<HTMLDivElement>, seatID: string) {
     event.dataTransfer.effectAllowed = "move";
     event.dataTransfer.setData("text/plain", seatID);
   }
 
-  function handleSeatDrop(
-    event: ReactDragEvent<HTMLDivElement>,
-    targetID: string,
-  ) {
+  function handleSeatDrop(event: ReactDragEvent<HTMLDivElement>, targetID: string) {
     event.preventDefault();
     moveSeat(event.dataTransfer.getData("text/plain"), targetID);
   }
@@ -152,10 +206,7 @@ export function seatingPlanActions(view: ClassroomPageView) {
     }
     if (result.nextSeats) {
       setSeats(result.nextSeats);
-      setNotice(
-        drawMethod +
-          " 방식으로 자리 배치를 준비했습니다. 저장 전 결과를 확인해 주세요.",
-      );
+      setNotice(drawMethod + " 방식으로 자리 배치를 준비했습니다. 저장 전 결과를 확인해 주세요.");
     }
   }
 
@@ -171,8 +222,8 @@ export function seatingPlanActions(view: ClassroomPageView) {
           layoutMode,
           deskPosition,
           placementMode,
-            drawMethod,
-			competitionMethod,
+          drawMethod,
+          competitionMethod,
           preventPreviousSeat,
           preventPreviousPartner,
           fixedStudentIds: canUseFixedSeats ? fixedStudentIDs : [],
@@ -206,16 +257,11 @@ export function seatingPlanActions(view: ClassroomPageView) {
     }
   }
 
-  const assignedIDs = new Set(
-    seats.map((seat) => seat.studentId).filter(Boolean),
-  );
+  const assignedIDs = new Set(seats.map((seat) => seat.studentId).filter(Boolean));
   const visualSeats = orderSeatsForPlacement(seats, placementMode, layoutMode);
   const groupedPlacement = isGroupedPlacement(placementMode);
   const groupSize = placementGroupSize(placementMode);
-  const displaySeats = visualSeats.slice(
-    0,
-    orderedStudents.length > 0 ? orderedStudents.length : visualSeats.length,
-  );
+  const displaySeats = visualSeats.slice(0, orderedStudents.length > 0 ? orderedStudents.length : visualSeats.length);
   const seatNumberByID = new Map(
     [...displaySeats]
       .sort((left, right) =>
@@ -225,17 +271,14 @@ export function seatingPlanActions(view: ClassroomPageView) {
       )
       .map((seat, index) => [seat.id, index + 1]),
   );
-  const groupedSeatGroups = groupedPlacement
-    ? groupSeatsForPlacement(displaySeats, placementMode)
-    : [];
+  const groupedSeatGroups = groupedPlacement ? groupSeatsForPlacement(displaySeats, placementMode) : [];
   function printSeatingResult() {
     const cells = visualSeats
       .map((seat) => {
-        const student = orderedStudents.find(
-          (item) => item.id === seat.studentId,
-        );
+        const student = orderedStudents.find((item) => item.id === seat.studentId);
         const number = seatNumberByID.get(seat.id) || 0;
-        const position = layoutMode === "사용자 지정" ? ` style="left:${(seat.x || 500) / 10}%;top:${(seat.y || 500) / 10}%"` : "";
+        const position =
+          layoutMode === "사용자 지정" ? ` style="left:${(seat.x || 500) / 10}%;top:${(seat.y || 500) / 10}%"` : "";
         return `<article${position}><b>${number}번</b><strong>${student ? `${escapePrintText(student.number)}번 ${escapePrintText(student.name)}` : "빈 자리"}</strong></article>`;
       })
       .join("");
@@ -247,5 +290,27 @@ export function seatingPlanActions(view: ClassroomPageView) {
       css,
     ).catch(() => setNotice("인쇄 창을 열지 못했습니다. 다시 시도해 주세요."));
   }
-  return { newPlan, changeLayout, switchLayoutMode, addCustomSeat, deleteCustomSeat, moveCustomSeat, assignSeat, moveSeat, handleSeatDragStart, handleSeatDrop, drawSeats, savePlan, removePlan, assignedIDs, visualSeats, groupedPlacement, groupSize, displaySeats, seatNumberByID, groupedSeatGroups, printSeatingResult };
+  return {
+    newPlan,
+    changeLayout,
+    switchLayoutMode,
+    addCustomSeat,
+    deleteCustomSeat,
+    moveCustomSeat,
+    assignSeat,
+    moveSeat,
+    handleSeatDragStart,
+    handleSeatDrop,
+    drawSeats,
+    savePlan,
+    removePlan,
+    assignedIDs,
+    visualSeats,
+    groupedPlacement,
+    groupSize,
+    displaySeats,
+    seatNumberByID,
+    groupedSeatGroups,
+    printSeatingResult,
+  };
 }

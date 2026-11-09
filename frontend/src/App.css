@@ -1,10 +1,6 @@
 #root {
   min-height: 100vh;
 }
-
-.import-preview {
-  margin-bottom: 18px;
-}
 .warning-box {
   margin: 13px 0;
   padding: 9px 13px;
@@ -28,32 +24,6 @@
   color: #7d8995;
   text-align: center;
 }
-.modal-layer {
-  position: fixed;
-  z-index: 40;
-  inset: 34px 0 0;
-  display: grid;
-  place-items: center;
-  padding: 20px;
-  background: #16363088;
-}
-.date-picker input {
-  display: block;
-  box-sizing: border-box;
-  width: 100%;
-  margin-top: 7px;
-  padding: 11px 12px;
-  border: 1px solid #dce3ea;
-  border-radius: 8px;
-  background: #fff;
-  color: #364656;
-}
-.date-picker {
-  min-width: 170px;
-  color: #586776;
-  font-size: 12px;
-  font-weight: 700;
-}
 .page-actions {
   display: flex;
   gap: 8px;
@@ -64,9 +34,6 @@
 }
 .danger-button:hover {
   background: #fff1f1;
-}
-.card-back {
-  margin-bottom: 10px;
 }
 img.window-mark,
 img.brand-mark,
@@ -167,71 +134,6 @@ img.large-mark {
   color: #287360;
   font-size: 13px;
 }
-.copy-toast {
-  position: fixed;
-  right: 28px;
-  bottom: 28px;
-  z-index: 60;
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  min-width: 270px;
-  max-width: min(380px, calc(100vw - 36px));
-  padding: 12px 13px;
-  border: 1px solid #9ed5bc;
-  border-radius: 12px;
-  color: #174d3f;
-  background: #f4fcf7;
-  box-shadow: 0 12px 28px #143d3329;
-}
-.copy-toast > span {
-  width: 27px;
-  height: 27px;
-  display: grid;
-  flex: 0 0 auto;
-  place-items: center;
-  border-radius: 50%;
-  color: #fff;
-  background: #238061;
-  font-weight: 800;
-}
-.copy-toast div {
-  min-width: 0;
-}
-.copy-toast strong,
-.copy-toast small {
-  display: block;
-}
-.copy-toast strong {
-  font-size: 13px;
-}
-.copy-toast small {
-  margin-top: 2px;
-  color: #587268;
-  font-size: 12px;
-}
-.copy-toast button {
-  width: 26px;
-  height: 26px;
-  margin-left: auto;
-  border: 0;
-  border-radius: 6px;
-  color: #4f6c62;
-  background: transparent;
-  font-size: 19px;
-  line-height: 1;
-}
-.copy-toast button:hover {
-  background: #dcefe5;
-}
-.copy-toast.failed {
-  border-color: #e8b8ad;
-  color: #8b4137;
-  background: #fff8f6;
-}
-.copy-toast.failed > span {
-  background: #bb5b4d;
-}
 .application {
   display: grid;
   grid-template-columns: 238px minmax(0, 1fr);
@@ -295,65 +197,8 @@ main {
   max-width: 1480px;
   margin: auto;
 }
-.hero {
-  color: #f4fbf7;
-  background: linear-gradient(110deg, #1a5c51, #25806d);
-  min-height: 190px;
-  border-radius: 16px;
-  padding: 30px 37px;
-  display: flex;
-  justify-content: space-between;
-  overflow: hidden;
-  position: relative;
-}
-.hero:after {
-  content: "";
-  position: absolute;
-  width: 250px;
-  height: 250px;
-  right: 100px;
-  top: -135px;
-  border: 34px solid #ffffff12;
-  border-radius: 50%;
-}
 .hero .eyebrow {
   color: #b6d8ca;
-}
-.hero h2 {
-  font-size: 27px;
-  line-height: 1.28;
-  margin: 0 0 9px;
-  letter-spacing: -1px;
-}
-.hero em {
-  color: #caed9b;
-  font-style: normal;
-}
-.hero > div > p:last-child {
-  color: #d1e6dc;
-  margin: 0;
-  font-size: 14px;
-}
-.hero-date {
-  width: 130px;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: end;
-  justify-content: center;
-  border-left: 1px solid #ffffff31;
-}
-.hero-date strong {
-  font-size: 55px;
-  line-height: 0.8;
-  letter-spacing: -3px;
-}
-.hero-date span {
-  margin-top: 8px;
-}
-.hero-date small {
-  color: #b8d8cd;
-  margin-top: 3px;
 }
 .summary-grid {
   display: grid;
@@ -387,10 +232,6 @@ main {
 .blue {
   color: #467bc3;
   background: #eaf1fb;
-}
-.yellow {
-  color: #ac7814;
-  background: #fff5d7;
 }
 .purple {
   color: #7654ae;
@@ -470,26 +311,6 @@ main {
   color: #758292;
   margin: 0;
   font-size: 14px;
-}
-.toolbar {
-  margin-bottom: 19px;
-  gap: 8px;
-}
-.search-box {
-  flex: 1;
-  max-width: 390px;
-  padding: 10px 13px;
-  color: #71808f;
-  background: #f7f9fb;
-  border: 1px solid #e2e8ee;
-  border-radius: 8px;
-}
-.search-box input {
-  width: calc(100% - 22px);
-  border: 0;
-  background: transparent;
-  outline: 0;
-  font-size: 13px;
 }
 .table-head {
   color: #8793a0;
@@ -593,13 +414,6 @@ main {
   .form-grid {
     grid-template-columns: 1fr;
   }
-  .hero {
-    min-height: 170px;
-    padding: 25px;
-  }
-  .hero-date {
-    display: none;
-  }
   .page-intro {
     align-items: start;
     gap: 16px;
@@ -612,17 +426,6 @@ main {
   .table-head span:nth-child(4),
   .student-row span:nth-child(4) {
     display: none;
-  }
-  .student-delete-button {
-    opacity: 1;
-  }
-  .student-status-button {
-    right: 58px;
-    opacity: 1;
-  }
-  .academic-history-row,
-  .academic-dialog-fields {
-    grid-template-columns: 1fr;
   }
 }
 @media print {
@@ -672,18 +475,6 @@ main {
 .dialog-content:focus {
   outline: none;
 }
-.dialog-symbol {
-  display: grid;
-  place-items: center;
-  width: 39px;
-  height: 39px;
-  margin-bottom: 14px;
-  border-radius: 50%;
-  color: #a34242;
-  background: #fff0f0;
-  font-size: 21px;
-  font-weight: 800;
-}
 .dialog-content h2 {
   margin: 0 0 9px;
   font-size: 21px;
@@ -694,20 +485,6 @@ main {
   color: #6e7c89;
   font-size: 13px;
   line-height: 1.65;
-}
-.dialog-safe-note {
-  display: grid;
-  gap: 4px;
-  margin: 18px 0;
-  padding: 12px 13px;
-  border-radius: 9px;
-  color: #6b5a45;
-  background: #fff8e9;
-  font-size: 12px;
-  line-height: 1.5;
-}
-.dialog-safe-note b {
-  color: #8d672a;
 }
 .dialog-label {
   display: block;
@@ -730,11 +507,6 @@ main {
   outline: 2px solid #7ec4ab;
   border-color: transparent;
 }
-.dialog-notice {
-  margin-top: 10px !important;
-  color: #b44b3e !important;
-  font-size: 12px !important;
-}
 .dialog-actions {
   display: flex;
   justify-content: flex-end;
@@ -748,22 +520,6 @@ main {
   border-radius: 11px;
   padding: 10px 16px;
   font-weight: 800;
-}
-.dialog-danger-button {
-  border: 0;
-  border-radius: 8px;
-  padding: 10px 13px;
-  color: #fff;
-  background: #b84949;
-  font-size: 13px;
-  font-weight: 700;
-}
-.dialog-danger-button:hover {
-  background: #963737;
-}
-.dialog-danger-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
 }
 @media (max-width: 680px) {
   .page-actions {
@@ -922,25 +678,6 @@ textarea:focus,
 .dialog-label input:focus {
   outline: 2px solid #f2b36c88;
   border-color: #dc8a41;
-}
-
-.modal-layer {
-  background: #3f2418a6;
-}
-
-.editor-nav {
-  border-color: #ffe9cf99;
-  background: #a85f2cdd;
-}
-
-.editor-nav:hover:not(:disabled) {
-  background: #d47a35;
-}
-
-.experience-usage {
-  border-color: #efc895;
-  color: #7d4a27;
-  background: #fff3e3;
 }
 
 .warning-box,

@@ -1,0 +1,42 @@
+/* 대시보드 '학급 운영' 카드(생일·자리·청소). 두 테마 모두 읽기 쉬운 대비를 쓴다. */
+.class-ops-list { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.class-ops-row {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 12px;
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #f0e2d2;
+  border-radius: 10px;
+  background: #fffdf9;
+  color: #3e2d22;
+  font: inherit;
+  text-align: left;
+}
+.class-ops-link { cursor: pointer; }
+.class-ops-link:hover { border-color: #e2bf98; background: #fff7ec; }
+.class-ops-link:focus-visible { outline: 2px solid #d9833d; outline-offset: 2px; }
+.class-ops-label { color: #8a5a32; font-size: 12px; font-weight: 800; }
+.class-ops-row strong { font-size: 14px; font-weight: 800; }
+.class-ops-row strong.muted { color: #806b5b; font-weight: 600; }
+.class-ops-row small { grid-column: 2 / 3; color: #806b5b; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.class-ops-link > span[aria-hidden] { grid-row: 1 / span 2; grid-column: 3; color: #b0835b; }
+.class-ops-ended { margin-left: 8px; padding: 1px 7px; border-radius: 999px; background: #fdecea; color: #b4362a; font-size: 11px; font-style: normal; font-weight: 800; }
+.class-ops-birthday .text-button { justify-self: end; }
+.class-ops-names { display: grid; gap: 4px; margin: 6px 0 0; padding: 0 12px 0 101px; list-style: none; }
+.class-ops-names li { display: flex; gap: 10px; align-items: baseline; font-size: 13px; color: #5a4535; }
+.class-ops-names li span { min-width: 92px; color: #806b5b; font-size: 12px; }
+.class-ops-names li.today b { color: #b4521c; }
+
+.theme-classic .class-ops-row { border-color: #d6e8e0; background: #fbfefc; color: #23392f; }
+.theme-classic .class-ops-link:hover { border-color: #a9d3c3; background: #f1faf6; }
+.theme-classic .class-ops-link:focus-visible { outline-color: #2b806a; }
+.theme-classic .class-ops-label { color: #2b6f5c; }
+.theme-classic .class-ops-link > span[aria-hidden] { color: #4f9580; }
+.theme-classic .class-ops-names li.today b { color: #1f7a5f; }
+
+@media (max-width: 600px) {
+  .class-ops-row { grid-template-columns: 64px minmax(0, 1fr) auto; padding: 8px 10px; }
+  .class-ops-names { padding-left: 87px; }
+}

@@ -17,7 +17,61 @@ export function StudentsPage({
   openStudent: (student: models.Student) => void;
   displayGender: (gender: string) => string;
 }) {
-  const { search, setSearch, preview, setPreview, path, setPath, notice, setNotice, busy, setBusy, resetOpen, setResetOpen, confirmation, setConfirmation, resetNotice, setResetNotice, deleteTarget, setDeleteTarget, deleteConfirmation, setDeleteConfirmation, deleteNotice, setDeleteNotice, academicChanges, setAcademicChanges, academicTarget, setAcademicTarget, academicStatus, setAcademicStatus, academicDate, setAcademicDate, academicConfirmation, setAcademicConfirmation, academicNotice, setAcademicNotice, adding, setAdding, photos, setPhotos, rosterView, setRosterView, filtered, reloadAcademicChanges, age, state, selectFile, importRoster, resetStudents, closeReset, deleteStudent, closeDelete, processAcademicChange, closeAcademicChange, newStudent } = useStudentsPage({ students, reloadStudents, openStudent, displayGender });
+  const {
+    search,
+    setSearch,
+    preview,
+    setPreview,
+    path,
+    setPath,
+    notice,
+    setNotice,
+    busy,
+    setBusy,
+    resetOpen,
+    setResetOpen,
+    confirmation,
+    setConfirmation,
+    resetNotice,
+    setResetNotice,
+    deleteTarget,
+    setDeleteTarget,
+    deleteConfirmation,
+    setDeleteConfirmation,
+    deleteNotice,
+    setDeleteNotice,
+    academicChanges,
+    setAcademicChanges,
+    academicTarget,
+    setAcademicTarget,
+    academicStatus,
+    setAcademicStatus,
+    academicDate,
+    setAcademicDate,
+    academicConfirmation,
+    setAcademicConfirmation,
+    academicNotice,
+    setAcademicNotice,
+    adding,
+    setAdding,
+    photos,
+    setPhotos,
+    rosterView,
+    setRosterView,
+    filtered,
+    reloadAcademicChanges,
+    age,
+    state,
+    selectFile,
+    importRoster,
+    resetStudents,
+    closeReset,
+    deleteStudent,
+    closeDelete,
+    processAcademicChange,
+    closeAcademicChange,
+    newStudent,
+  } = useStudentsPage({ students, reloadStudents, openStudent, displayGender });
   return (
     <div className="students-page">
       <section className="page-intro">
@@ -28,31 +82,16 @@ export function StudentsPage({
           <p>학생을 누르면 학생 상세정보를 확인하고 수정할 수 있습니다.</p>
         </div>
         <div className="page-actions">
-          <button
-            className="quiet-button danger-button"
-            onClick={() => setResetOpen(true)}
-            disabled={busy}
-          >
+          <button className="quiet-button danger-button" onClick={() => setResetOpen(true)} disabled={busy}>
             학생 명렬 초기화
           </button>
-          <button
-            className="quiet-button"
-            onClick={() => setAdding(true)}
-            disabled={busy}
-          >
+          <button className="quiet-button" onClick={() => setAdding(true)} disabled={busy}>
             ＋ 학생 직접 추가
           </button>
-          <button
-            className="primary-button"
-            onClick={selectFile}
-            disabled={busy}
-          >
+          <button className="primary-button" onClick={selectFile} disabled={busy}>
             ⇧ 명렬표 가져오기
           </button>
-          <HelpTip>
-            나이스 명렬표에서 성별·생년월일·주소를 선택해 추가한 뒤 내려받은
-            엑셀 파일을 선택합니다.
-          </HelpTip>
+          <HelpTip>나이스 명렬표에서 성별·생년월일·주소를 선택해 추가한 뒤 내려받은 엑셀 파일을 선택합니다.</HelpTip>
         </div>
       </section>
       <HelpGuide
@@ -61,13 +100,11 @@ export function StudentsPage({
         steps={[
           {
             title: "명렬 등록 방식 선택",
-            detail:
-              "나이스 엑셀 명렬표를 가져오거나, 학생 직접 추가로 최소 정보부터 등록합니다.",
+            detail: "나이스 엑셀 명렬표를 가져오거나, 학생 직접 추가로 최소 정보부터 등록합니다.",
           },
           {
             title: "나이스 명렬표 준비",
-            detail:
-              "명렬표 내용 선택에서 성별·생년월일·주소를 체크한 뒤 추가를 누르고 선택 자료 추가를 적용합니다.",
+            detail: "명렬표 내용 선택에서 성별·생년월일·주소를 체크한 뒤 추가를 누르고 선택 자료 추가를 적용합니다.",
           },
           {
             title: "가져오기 전 미리보기",
@@ -92,18 +129,13 @@ export function StudentsPage({
           <div className="panel-heading">
             <div>
               <h3>가져오기 전 확인</h3>
-              <p>
-                {(preview.students || []).length}명을 읽었습니다. 학년·반은 경고
-                확인에만 쓰고 저장하지 않습니다.
-              </p>
+              <p>{(preview.students || []).length}명을 읽었습니다. 학년·반은 경고 확인에만 쓰고 저장하지 않습니다.</p>
             </div>
             <button className="quiet-button" onClick={() => setPreview(null)}>
               취소
             </button>
           </div>
-          <p className="muted-copy">
-            인식한 열: {(preview.headers || []).join(" · ")}
-          </p>
+          <p className="muted-copy">인식한 열: {(preview.headers || []).join(" · ")}</p>
           {(preview.warnings || []).length > 0 && (
             <div className="warning-box">
               {(preview.warnings || []).map((warning) => (
@@ -114,20 +146,13 @@ export function StudentsPage({
           <div className="preview-list">
             {(preview.students || []).slice(0, 5).map((student) => (
               <span key={student.number}>
-                {student.number}번 {student.name} ·{" "}
-                {displayGender(student.gender) || "성별 미입력"} ·{" "}
+                {student.number}번 {student.name} · {displayGender(student.gender) || "성별 미입력"} ·{" "}
                 {student.birthDate || "생년월일 미입력"}
               </span>
             ))}
-            {(preview.students || []).length > 5 && (
-              <span>외 {(preview.students || []).length - 5}명</span>
-            )}
+            {(preview.students || []).length > 5 && <span>외 {(preview.students || []).length - 5}명</span>}
           </div>
-          <button
-            className="primary-button"
-            onClick={importRoster}
-            disabled={busy}
-          >
+          <button className="primary-button" onClick={importRoster} disabled={busy}>
             {busy ? "암호화 저장 중입니다" : "확인 후 암호화 보관함에 저장"}
           </button>
         </section>
@@ -147,16 +172,10 @@ export function StudentsPage({
             {students.length}명 저장됨
           </span>
           <div className="view-toggle" aria-label="학생 명렬 보기 방식">
-            <button
-              className={rosterView === "카드" ? "active" : ""}
-              onClick={() => setRosterView("카드")}
-            >
+            <button className={rosterView === "카드" ? "active" : ""} onClick={() => setRosterView("카드")}>
               카드
             </button>
-            <button
-              className={rosterView === "목록" ? "active" : ""}
-              onClick={() => setRosterView("목록")}
-            >
+            <button className={rosterView === "목록" ? "active" : ""} onClick={() => setRosterView("목록")}>
               목록
             </button>
           </div>
@@ -172,87 +191,48 @@ export function StudentsPage({
             </div>
             {filtered.map((student) => (
               <div className="student-row-wrap" key={student.id}>
-                <button
-                  className="student-row"
-                  onClick={() => openStudent(student)}
-                >
+                <button className="student-row" onClick={() => openStudent(student)}>
                   <span>{String(student.number).padStart(2, "0")}</span>
                   <strong>
                     <i className="avatar">
-                      {photos[student.id] ? (
-                        <img src={photos[student.id]} alt="" />
-                      ) : (
-                        student.name[0]
-                      )}
+                      {photos[student.id] ? <img src={photos[student.id]} alt="" /> : student.name[0]}
                     </i>
                     {student.name}
                     <small>{age(student.birthDate)}</small>
-                    {student.transferInDate && (
-                      <small className="transfer-badge">
-                        전입 {student.transferInDate}
-                      </small>
-                    )}
+                    {student.transferInDate && <small className="transfer-badge">전입 {student.transferInDate}</small>}
                   </strong>
                   <span>{displayGender(student.gender) || "-"}</span>
-                  <span
-                    className={
-                      state(student) === "연락처 입력 완료"
-                        ? "status good"
-                        : "status warning"
-                    }
-                  >
+                  <span className={state(student) === "연락처 입력 완료" ? "status good" : "status warning"}>
                     {state(student)}
                   </span>
                   <span>›</span>
                 </button>
-                <button
-                  type="button"
-                  className="student-delete-button"
-                  onClick={() => setDeleteTarget(student)}
-                >
+                <button type="button" className="student-delete-button" onClick={() => setDeleteTarget(student)}>
                   삭제
                 </button>
-                <button
-                  type="button"
-                  className="student-status-button"
-                  onClick={() => setAcademicTarget(student)}
-                >
+                <button type="button" className="student-status-button" onClick={() => setAcademicTarget(student)}>
                   학적변동
                 </button>
               </div>
             ))}
             {filtered.length === 0 && (
-              <p className="empty-state">
-                아직 저장된 학생이 없습니다. 나이스 명렬표를 가져오거나 직접
-                추가해 주세요.
-              </p>
+              <p className="empty-state">아직 저장된 학생이 없습니다. 나이스 명렬표를 가져오거나 직접 추가해 주세요.</p>
             )}
           </div>
         ) : (
           <div className="student-directory-grid">
             {filtered.map((student) => (
               <article className="student-directory-card" key={student.id}>
-                <button
-                  className="student-directory-main"
-                  onClick={() => openStudent(student)}
-                >
+                <button className="student-directory-main" onClick={() => openStudent(student)}>
                   <i className="student-card-photo">
-                    {photos[student.id] ? (
-                      <img src={photos[student.id]} alt="" />
-                    ) : (
-                      student.name[0]
-                    )}
+                    {photos[student.id] ? <img src={photos[student.id]} alt="" /> : student.name[0]}
                   </i>
                   <span className="student-directory-info">
                     <span className="student-directory-name-row">
-                      <span className="student-card-number">
-                        {String(student.number).padStart(2, "0")}번
-                      </span>
+                      <span className="student-card-number">{String(student.number).padStart(2, "0")}번</span>
                       <strong className="student-card-name">{student.name}</strong>
                       {student.transferInDate && (
-                        <small className="transfer-badge">
-                          전입 {student.transferInDate}
-                        </small>
+                        <small className="transfer-badge">전입 {student.transferInDate}</small>
                       )}
                     </span>
                     <small className="student-card-meta">
@@ -274,24 +254,16 @@ export function StudentsPage({
                   </span>
                 </button>
                 <div className="student-directory-actions">
-                  <button
-                    className="quiet-button"
-                    onClick={() => openStudent(student)}
-                  >
+                  <button className="quiet-button" onClick={() => openStudent(student)}>
                     상세정보
                   </button>
-                  <button
-                    className="quiet-button"
-                    onClick={() => setAcademicTarget(student)}
-                  >
+                  <button className="quiet-button" onClick={() => setAcademicTarget(student)}>
                     학적변동
                   </button>
                 </div>
               </article>
             ))}
-            {filtered.length === 0 && (
-              <p className="empty-state">검색 조건에 맞는 학생이 없습니다.</p>
-            )}
+            {filtered.length === 0 && <p className="empty-state">검색 조건에 맞는 학생이 없습니다.</p>}
           </div>
         )}
       </section>

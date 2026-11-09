@@ -20,7 +20,38 @@ export function SettingsFeaturePage({
   saveConfig: (config: models.ClassConfig) => Promise<void>;
 }) {
   const hookView = useSettingsPage({ config, saveConfig });
-  const { draft, setDraft, notice, setNotice, pinRemoveOpen, setPinRemoveOpen, busy, setBusy, teachingGrade, setTeachingGrade, teachingClass, setTeachingClass, customTeachingClass, setCustomTeachingClass, hasPin, setHasPin, showPinForm, setShowPinForm, pinInput, setPinInput, pinConfirmInput, setPinConfirmInput, pinNotice, setPinNotice, pinBusy, setPinBusy, handleSavePin, handleRemovePin, update, submit } = hookView;
+  const {
+    draft,
+    setDraft,
+    notice,
+    setNotice,
+    pinRemoveOpen,
+    setPinRemoveOpen,
+    busy,
+    setBusy,
+    teachingGrade,
+    setTeachingGrade,
+    teachingClass,
+    setTeachingClass,
+    customTeachingClass,
+    setCustomTeachingClass,
+    hasPin,
+    setHasPin,
+    showPinForm,
+    setShowPinForm,
+    pinInput,
+    setPinInput,
+    pinConfirmInput,
+    setPinConfirmInput,
+    pinNotice,
+    setPinNotice,
+    pinBusy,
+    setPinBusy,
+    handleSavePin,
+    handleRemovePin,
+    update,
+    submit,
+  } = hookView;
   return (
     <>
       <section className="page-intro">
@@ -41,18 +72,15 @@ export function SettingsFeaturePage({
           },
           {
             title: "자동 잠금 시간 선택",
-            detail:
-              "교무실·교실에서 자리를 비울 때 학생 개인정보가 보이지 않도록 시간을 정합니다.",
+            detail: "교무실·교실에서 자리를 비울 때 학생 개인정보가 보이지 않도록 시간을 정합니다.",
           },
           {
             title: "테마 선택 후 저장",
-            detail:
-              "치즈냥 또는 초록 테마를 고르고 설정 저장을 누르면 다음 실행에도 유지됩니다.",
+            detail: "치즈냥 또는 초록 테마를 고르고 설정 저장을 누르면 다음 실행에도 유지됩니다.",
           },
           {
             title: "교외체험학습 기준 입력",
-            detail:
-              "학교 규정에 따라 학년 또는 학기 단위와 허용 일수·학기 기간을 입력합니다.",
+            detail: "학교 규정에 따라 학년 또는 학기 단위와 허용 일수·학기 기간을 입력합니다.",
           },
         ]}
         note="설정은 이 컴퓨터의 암호화 보관함에만 저장됩니다."

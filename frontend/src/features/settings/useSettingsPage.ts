@@ -6,7 +6,9 @@ import { errorMessage } from "../shared/format";
 
 export const teachingGradeOptions = ["1학년", "2학년", "3학년"];
 export const teachingClassOptions = Array.from({ length: 10 }, (_, index) => `${index + 1}반`);
-export function isClassicTheme(theme?: string) { return theme === "초록" || theme === "기존 초록"; }
+export function isClassicTheme(theme?: string) {
+  return theme === "초록" || theme === "기존 초록";
+}
 
 /** SettingsFeaturePage 화면의 상태·계산·처리 함수. 화면(JSX)은 SettingsPage.tsx에 있다. */
 export function useSettingsPage({
@@ -88,13 +90,9 @@ export function useSettingsPage({
   const update = (values: Partial<models.ClassConfig>) =>
     setDraft((current) => new models.ClassConfig({ ...current, ...values }));
   useEffect(() => {
-    document.documentElement.dataset.kkomiTheme = isClassicTheme(draft.theme)
-      ? "classic"
-      : "cheese";
+    document.documentElement.dataset.kkomiTheme = isClassicTheme(draft.theme) ? "classic" : "cheese";
     return () => {
-      document.documentElement.dataset.kkomiTheme = isClassicTheme(config.theme)
-        ? "classic"
-        : "cheese";
+      document.documentElement.dataset.kkomiTheme = isClassicTheme(config.theme) ? "classic" : "cheese";
     };
   }, [config.theme, draft.theme]);
   async function submit(event: FormEvent) {
@@ -102,16 +100,45 @@ export function useSettingsPage({
     setBusy(true);
     try {
       await saveConfig(draft);
-      setNotice(
-        "학사 일정과 교외체험학습 기준을 암호화 보관함에 저장했습니다.",
-      );
+      setNotice("학사 일정과 교외체험학습 기준을 암호화 보관함에 저장했습니다.");
     } catch (error) {
       setNotice(errorMessage(error));
     } finally {
       setBusy(false);
     }
   }
-  return { draft, setDraft, notice, setNotice, pinRemoveOpen, setPinRemoveOpen, busy, setBusy, teachingGrade, setTeachingGrade, teachingClass, setTeachingClass, customTeachingClass, setCustomTeachingClass, hasPin, setHasPin, showPinForm, setShowPinForm, pinInput, setPinInput, pinConfirmInput, setPinConfirmInput, pinNotice, setPinNotice, pinBusy, setPinBusy, handleSavePin, handleRemovePin, update, submit };
+  return {
+    draft,
+    setDraft,
+    notice,
+    setNotice,
+    pinRemoveOpen,
+    setPinRemoveOpen,
+    busy,
+    setBusy,
+    teachingGrade,
+    setTeachingGrade,
+    teachingClass,
+    setTeachingClass,
+    customTeachingClass,
+    setCustomTeachingClass,
+    hasPin,
+    setHasPin,
+    showPinForm,
+    setShowPinForm,
+    pinInput,
+    setPinInput,
+    pinConfirmInput,
+    setPinConfirmInput,
+    pinNotice,
+    setPinNotice,
+    pinBusy,
+    setPinBusy,
+    handleSavePin,
+    handleRemovePin,
+    update,
+    submit,
+  };
 }
 
 /** 화면 구역 컴포넌트에 넘기는 값 묶음 */

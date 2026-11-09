@@ -17,6 +17,7 @@ import { DashboardTimetable } from "../timetable/DashboardTimetable";
 import { MemoWidgets } from "../memo/MemoWidgets";
 import { ScheduleWidget } from "../schedule/ScheduleWidget";
 import { BudgetWidget } from "../budget/BudgetWidget";
+import { ClassOpsWidget } from "./ClassOpsWidget";
 import "./dashboard.css";
 
 type StatProps = { icon: string; title: string; value: string; note: string; color: string; onClick?: () => void };
@@ -227,6 +228,13 @@ export function DashboardPage({
       <ScheduleWidget today={today} onOpen={() => navigate("일정")} />
       <MemoWidgets today={today} onOpen={() => navigate("메모 · 할 일")} />
       <BudgetWidget onOpen={() => navigate("예산 관리")} />
+      {isHomeroomTeacher && (
+        <ClassOpsWidget
+          students={students}
+          onOpenSeating={() => navigate("자리배정")}
+          onOpenCleaning={() => navigate("청소배정")}
+        />
+      )}
       {isHomeroomTeacher && (
         <section className="two-column">
           <div className="panel">

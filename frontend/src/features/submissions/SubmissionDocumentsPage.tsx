@@ -6,29 +6,62 @@ import "./submission.css";
 import { useSubmissionDocumentsPage } from "./useSubmissionDocumentsPage";
 
 export function SubmissionDocumentsPage({ students }: { students: models.Student[] }) {
-  const { documents, setDocuments, selectedID, setSelectedID, title, setTitle, dueDate, setDueDate, note, setNote, documentTab, setDocumentTab, detailOpen, setDetailOpen, deleteOpen, setDeleteOpen, statusFilter, setStatusFilter, notice, setNotice, selected, statuses, refresh, normalizedStatus, count, eligibleCount, saveDocument, removeDocument, confirmRemoveDocument, updateStatus, startNewDocument, currentStatus, statusOptions, filterOptions, filteredStudents, studentTable } = useSubmissionDocumentsPage({ students });
+  const {
+    documents,
+    setDocuments,
+    selectedID,
+    setSelectedID,
+    title,
+    setTitle,
+    dueDate,
+    setDueDate,
+    note,
+    setNote,
+    documentTab,
+    setDocumentTab,
+    detailOpen,
+    setDetailOpen,
+    deleteOpen,
+    setDeleteOpen,
+    statusFilter,
+    setStatusFilter,
+    notice,
+    setNotice,
+    selected,
+    statuses,
+    refresh,
+    normalizedStatus,
+    count,
+    eligibleCount,
+    saveDocument,
+    removeDocument,
+    confirmRemoveDocument,
+    updateStatus,
+    startNewDocument,
+    currentStatus,
+    statusOptions,
+    filterOptions,
+    filteredStudents,
+    studentTable,
+  } = useSubmissionDocumentsPage({ students });
   return (
     <>
       <AlertDialog.Root open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialog.Portal>
           <AlertDialog.Overlay className="dialog-overlay" />
           <AlertDialog.Content className="dialog-content">
-Wall time: 0.9 seconds
-Output:
+            Wall time: 0.9 seconds Output:
             <AlertDialog.Title>제출서류를 삭제할까요?</AlertDialog.Title>
             <AlertDialog.Description>
-              “{selected?.title || "선택한 제출서류"}”와 학생별 제출 상태를
-              삭제합니다. 삭제한 정보는 되돌릴 수 없습니다.
+              “{selected?.title || "선택한 제출서류"}”와 학생별 제출 상태를 삭제합니다. 삭제한 정보는 되돌릴 수
+              없습니다.
             </AlertDialog.Description>
             <div className="dialog-actions">
               <AlertDialog.Cancel asChild>
                 <button className="quiet-button">취소</button>
               </AlertDialog.Cancel>
               <AlertDialog.Action asChild>
-                <button
-                  className="danger-button"
-                  onClick={() => void confirmRemoveDocument()}
-                >
+                <button className="danger-button" onClick={() => void confirmRemoveDocument()}>
                   삭제
                 </button>
               </AlertDialog.Action>
@@ -72,13 +105,11 @@ Output:
         steps={[
           {
             title: "서류 항목 만들기",
-            detail:
-              "학생기초조사서, 개인정보 동의서처럼 확인할 서류 이름과 제출 기한을 입력합니다.",
+            detail: "학생기초조사서, 개인정보 동의서처럼 확인할 서류 이름과 제출 기한을 입력합니다.",
           },
           {
             title: "학생별 상태 기록",
-            detail:
-              "학생 카드의 상태를 바꾸면 암호화 보관함에 즉시 저장됩니다.",
+            detail: "학생 카드의 상태를 바꾸면 암호화 보관함에 즉시 저장됩니다.",
           },
           {
             title: "누계 확인",
@@ -95,29 +126,18 @@ Output:
               <div>
                 <p className="eyebrow">서류별 집계</p>
                 <h3>제출서류 목록</h3>
-                <p>
-                  {documents.length}개 항목 · 서류를 클릭하면 학생별 상태를
-                  관리합니다.
-                </p>
+                <p>{documents.length}개 항목 · 서류를 클릭하면 학생별 상태를 관리합니다.</p>
               </div>
             </div>
             <div className="submission-overview-grid">
               {documents.length === 0 ? (
-                <p className="empty-state">
-                  등록된 제출서류가 없습니다. `제출서류 작성`에서 항목을 추가해
-                  주세요.
-                </p>
+                <p className="empty-state">등록된 제출서류가 없습니다. `제출서류 작성`에서 항목을 추가해 주세요.</p>
               ) : (
                 documents.map((item) => {
                   const itemStatuses = new Map(
-                    (item.statuses || []).map((status) => [
-                      status.studentId,
-                      normalizedStatus(status.status),
-                    ]),
+                    (item.statuses || []).map((status) => [status.studentId, normalizedStatus(status.status)]),
                   );
-                  const submitted = students.filter(
-                    (student) => itemStatuses.get(student.id) === "제출",
-                  ).length;
+                  const submitted = students.filter((student) => itemStatuses.get(student.id) === "제출").length;
                   const notApplicable = students.filter(
                     (student) => itemStatuses.get(student.id) === "해당 없음",
                   ).length;
@@ -127,9 +147,7 @@ Output:
                     <button
                       key={item.id}
                       className={
-                        item.id === selectedID
-                          ? "submission-overview-card active"
-                          : "submission-overview-card"
+                        item.id === selectedID ? "submission-overview-card active" : "submission-overview-card"
                       }
                       onClick={() => {
                         setSelectedID(item.id);
@@ -138,11 +156,7 @@ Output:
                       }}
                     >
                       <strong>{item.title}</strong>
-                      <small>
-                        {item.dueDate
-                          ? `제출 기한 ${item.dueDate}`
-                          : "제출 기한 없음"}
-                      </small>
+                      <small>{item.dueDate ? `제출 기한 ${item.dueDate}` : "제출 기한 없음"}</small>
                       <div>
                         <span>
                           재적 <b>{targetCount}</b>
@@ -163,10 +177,7 @@ Output:
           {selected && detailOpen && (
             <section className="panel submission-student-panel">
               <div className="submission-breadcrumb">
-                <button
-                  className="quiet-button"
-                  onClick={() => setDetailOpen(false)}
-                >
+                <button className="quiet-button" onClick={() => setDetailOpen(false)}>
                   ← 제출서류 목록
                 </button>
                 <span>학생별 제출 상태</span>
@@ -175,39 +186,14 @@ Output:
                 <div>
                   <p className="eyebrow">{selected.title}</p>
                   <h3>학생별 제출 상태</h3>
-                  <p>
-                    {selected.note || "학생별 상태를 선택하면 즉시 저장됩니다."}
-                  </p>
+                  <p>{selected.note || "학생별 상태를 선택하면 즉시 저장됩니다."}</p>
                 </div>
               </div>
               <div className="submission-summary">
-                <Stat
-                  icon="✓"
-                  title="제출"
-                  value={`${count("제출")}명`}
-                  note="완료"
-                  color="mint"
-                />
-                <Stat
-                  icon="○"
-                  title="미제출"
-                  value={`${count("미제출")}명`}
-                  note="확인 필요"
-                />
-                <Stat
-                  icon="!"
-                  title="확인 필요"
-                  value={`${count("확인 필요")}명`}
-                  note="추가 확인"
-                  color="purple"
-                />
-                <Stat
-                  icon="#"
-                  title="재적"
-                  value={`${eligibleCount}명`}
-                  note="해당 없음 제외"
-                  color="blue"
-                />
+                <Stat icon="✓" title="제출" value={`${count("제출")}명`} note="완료" color="mint" />
+                <Stat icon="○" title="미제출" value={`${count("미제출")}명`} note="확인 필요" />
+                <Stat icon="!" title="확인 필요" value={`${count("확인 필요")}명`} note="추가 확인" color="purple" />
+                <Stat icon="#" title="재적" value={`${eligibleCount}명`} note="해당 없음 제외" color="blue" />
               </div>
               <div className="submission-filter-tabs">
                 {filterOptions.map((option) => (
@@ -232,10 +218,7 @@ Output:
                 >
                   서류 정보 수정
                 </button>
-                <button
-                  className="danger-button"
-                  onClick={() => void removeDocument()}
-                >
+                <button className="danger-button" onClick={() => void removeDocument()}>
                   서류 삭제
                 </button>
               </div>
@@ -256,11 +239,7 @@ Output:
                   저장
                 </button>
                 {selected && (
-                  <button
-                    type="button"
-                    className="danger-button"
-                    onClick={() => void removeDocument()}
-                  >
+                  <button type="button" className="danger-button" onClick={() => void removeDocument()}>
                     삭제
                   </button>
                 )}
@@ -277,11 +256,7 @@ Output:
               </label>
               <label>
                 제출 기한
-                <input
-                  type="date"
-                  value={dueDate}
-                  onChange={(event) => setDueDate(event.target.value)}
-                />
+                <input type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} />
               </label>
               <label className="full-width">
                 설명 또는 메모

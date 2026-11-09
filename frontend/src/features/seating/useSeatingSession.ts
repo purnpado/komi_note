@@ -101,11 +101,21 @@ export function useSeatingSessionState({
     };
   }, [selectedID, seatingSession?.running, setPlans, setLayoutMode, setSeats]);
 
-  return { seatingSession, setSeatingSession, partialCloseOpen, setPartialCloseOpen, revealDialogOpen, setRevealDialogOpen, closeSessionOpen, setCloseSessionOpen };
+  return {
+    seatingSession,
+    setSeatingSession,
+    partialCloseOpen,
+    setPartialCloseOpen,
+    revealDialogOpen,
+    setRevealDialogOpen,
+    closeSessionOpen,
+    setCloseSessionOpen,
+  };
 }
 
 /** 처리 함수 묶음이 받는 값: 상태 훅 결과 + 공유 값 */
-export type SeatingSessionView = ReturnType<typeof useSeatingSessionState> & Parameters<typeof useSeatingSessionState>[0];
+export type SeatingSessionView = ReturnType<typeof useSeatingSessionState> &
+  Parameters<typeof useSeatingSessionState>[0];
 
 export function useSeatingSession({
   selectedID,
@@ -160,8 +170,61 @@ export function useSeatingSession({
   setParticipationMode: (mode: string) => void;
   setCurrentRound: (round: number) => void;
 }) {
-  const state = useSeatingSessionState({ selectedID, setSelectedID, title, rows, columns, layoutMode, setLayoutMode, deskPosition, placementMode, drawMethod, competitionMethod, preventPreviousSeat, preventPreviousPartner, canUseFixedSeats, fixedStudentIDs, seats, setSeats, plans, setPlans, students, setNotice, sessionState, setSessionState, setParticipationMode, setCurrentRound });
-  const view = { selectedID, setSelectedID, title, rows, columns, layoutMode, setLayoutMode, deskPosition, placementMode, drawMethod, competitionMethod, preventPreviousSeat, preventPreviousPartner, canUseFixedSeats, fixedStudentIDs, seats, setSeats, plans, setPlans, students, setNotice, sessionState, setSessionState, setParticipationMode, setCurrentRound, ...state };
+  const state = useSeatingSessionState({
+    selectedID,
+    setSelectedID,
+    title,
+    rows,
+    columns,
+    layoutMode,
+    setLayoutMode,
+    deskPosition,
+    placementMode,
+    drawMethod,
+    competitionMethod,
+    preventPreviousSeat,
+    preventPreviousPartner,
+    canUseFixedSeats,
+    fixedStudentIDs,
+    seats,
+    setSeats,
+    plans,
+    setPlans,
+    students,
+    setNotice,
+    sessionState,
+    setSessionState,
+    setParticipationMode,
+    setCurrentRound,
+  });
+  const view = {
+    selectedID,
+    setSelectedID,
+    title,
+    rows,
+    columns,
+    layoutMode,
+    setLayoutMode,
+    deskPosition,
+    placementMode,
+    drawMethod,
+    competitionMethod,
+    preventPreviousSeat,
+    preventPreviousPartner,
+    canUseFixedSeats,
+    fixedStudentIDs,
+    seats,
+    setSeats,
+    plans,
+    setPlans,
+    students,
+    setNotice,
+    sessionState,
+    setSessionState,
+    setParticipationMode,
+    setCurrentRound,
+    ...state,
+  };
   const seatingSessionActionsResult = seatingSessionActions(view);
   return { ...state, ...seatingSessionActionsResult };
 }

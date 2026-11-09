@@ -4,7 +4,14 @@ import { changeEvents } from "../shared/changeEvents";
 import { useVaultChanges } from "../shared/useVaultChanges";
 import { copyText } from "../shared/desktopActions";
 import { useEffect, useMemo, useState } from "react";
-import { DeleteStudent, GetStudentPhoto, ListConsultations, ListStudentAttendance, SaveStudentPhoto, SelectStudentPhoto } from "../../../wailsjs/go/main/App";
+import {
+  DeleteStudent,
+  GetStudentPhoto,
+  ListConsultations,
+  ListStudentAttendance,
+  SaveStudentPhoto,
+  SelectStudentPhoto,
+} from "../../../wailsjs/go/main/App";
 import { main as models } from "../../../wailsjs/go/models";
 import type { StudentDetailNavigationRequest } from "../shared/featureNavigation";
 import { errorMessage } from "../shared/format";
@@ -43,9 +50,7 @@ export function useStudentCard({
 }) {
   const [photo, setPhoto] = useState("");
   const [consultations, setConsultations] = useState<models.Consultation[]>([]);
-  const [attendanceRecords, setAttendanceRecords] = useState<
-    models.AttendanceDay[]
-  >([]);
+  const [attendanceRecords, setAttendanceRecords] = useState<models.AttendanceDay[]>([]);
   const [attendanceYear, setAttendanceYear] = useState("");
   const [attendanceSemester, setAttendanceSemester] = useState("전체");
   const [attendanceMonth, setAttendanceMonth] = useState("전체");
@@ -90,18 +95,11 @@ export function useStudentCard({
     const timer = window.setTimeout(() => setCopyToast(null), 2200);
     return () => window.clearTimeout(timer);
   }, [copyToast]);
-  const orderedStudents = [...students].sort(
-    (left, right) => left.number - right.number,
-  );
-  const currentIndex = orderedStudents.findIndex(
-    (item) => item.id === student.id,
-  );
-  const previousStudent =
-    currentIndex > 0 ? orderedStudents[currentIndex - 1] : null;
+  const orderedStudents = [...students].sort((left, right) => left.number - right.number);
+  const currentIndex = orderedStudents.findIndex((item) => item.id === student.id);
+  const previousStudent = currentIndex > 0 ? orderedStudents[currentIndex - 1] : null;
   const nextStudent =
-    currentIndex >= 0 && currentIndex < orderedStudents.length - 1
-      ? orderedStudents[currentIndex + 1]
-      : null;
+    currentIndex >= 0 && currentIndex < orderedStudents.length - 1 ? orderedStudents[currentIndex + 1] : null;
   const age = () => {
     if (!student.birthDate) return "생년월일 미입력";
     const today = new Date();
@@ -109,17 +107,14 @@ export function useStudentCard({
     let value = today.getFullYear() - birth.getFullYear();
     if (
       today.getMonth() < birth.getMonth() ||
-      (today.getMonth() === birth.getMonth() &&
-        today.getDate() < birth.getDate())
+      (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())
     )
       value--;
     return `만 ${value}세`;
   };
   const attendanceYears = useMemo(
     () =>
-      Array.from(
-        new Set(attendanceRecords.map((item) => item.date.slice(0, 4))),
-      )
+      Array.from(new Set(attendanceRecords.map((item) => item.date.slice(0, 4))))
         .sort()
         .reverse(),
     [attendanceRecords],
@@ -141,31 +136,14 @@ export function useStudentCard({
   const filteredAttendance = useMemo(
     () =>
       attendanceEntries.filter(({ day }) => {
-        if (attendanceYear && day.date.slice(0, 4) !== attendanceYear)
-          return false;
-        if (
-          attendanceMonth !== "전체" &&
-          day.date.slice(5, 7) !== attendanceMonth
-        )
-          return false;
+        if (attendanceYear && day.date.slice(0, 4) !== attendanceYear) return false;
+        if (attendanceMonth !== "전체" && day.date.slice(5, 7) !== attendanceMonth) return false;
         if (attendanceSemester === "전체" || !config) return true;
-        const start =
-          attendanceSemester === "1학기"
-            ? config.semester1StartDate
-            : config.semester2StartDate;
-        const end =
-          attendanceSemester === "1학기"
-            ? config.semester1EndDate
-            : config.semester2EndDate;
+        const start = attendanceSemester === "1학기" ? config.semester1StartDate : config.semester2StartDate;
+        const end = attendanceSemester === "1학기" ? config.semester1EndDate : config.semester2EndDate;
         return !start || !end || (day.date >= start && day.date <= end);
       }),
-    [
-      attendanceEntries,
-      attendanceYear,
-      attendanceMonth,
-      attendanceSemester,
-      config,
-    ],
+    [attendanceEntries, attendanceYear, attendanceMonth, attendanceSemester, config],
   );
   const attendanceCounts = useMemo(
     () =>
@@ -182,23 +160,15 @@ export function useStudentCard({
     () =>
       attendanceEntries.filter(
         ({ day, entry }) =>
-          entry.status === "교외체험학습" &&
-          (!config?.schoolYear || day.date.startsWith(`${config.schoolYear}-`)),
+          entry.status === "교외체험학습" && (!config?.schoolYear || day.date.startsWith(`${config.schoolYear}-`)),
       ).length,
     [attendanceEntries, config?.schoolYear],
   );
   const semesterExperienceUsage = (semester: "1" | "2") =>
     attendanceEntries.filter(({ day, entry }) => {
-      const start =
-        semester === "1"
-          ? config?.semester1StartDate
-          : config?.semester2StartDate;
-      const end =
-        semester === "1" ? config?.semester1EndDate : config?.semester2EndDate;
-      return (
-        entry.status === "교외체험학습" &&
-        Boolean(start && end && day.date >= start && day.date <= end)
-      );
+      const start = semester === "1" ? config?.semester1StartDate : config?.semester2StartDate;
+      const end = semester === "1" ? config?.semester1EndDate : config?.semester2EndDate;
+      return entry.status === "교외체험학습" && Boolean(start && end && day.date >= start && day.date <= end);
     }).length;
   const consultationYears = useMemo(
     () =>
@@ -210,31 +180,14 @@ export function useStudentCard({
   const filteredConsultations = useMemo(
     () =>
       consultations.filter((item) => {
-        if (consultationYear && item.date.slice(0, 4) !== consultationYear)
-          return false;
-        if (
-          consultationMonth !== "전체" &&
-          item.date.slice(5, 7) !== consultationMonth
-        )
-          return false;
+        if (consultationYear && item.date.slice(0, 4) !== consultationYear) return false;
+        if (consultationMonth !== "전체" && item.date.slice(5, 7) !== consultationMonth) return false;
         if (consultationSemester === "전체" || !config) return true;
-        const start =
-          consultationSemester === "1학기"
-            ? config.semester1StartDate
-            : config.semester2StartDate;
-        const end =
-          consultationSemester === "1학기"
-            ? config.semester1EndDate
-            : config.semester2EndDate;
+        const start = consultationSemester === "1학기" ? config.semester1StartDate : config.semester2StartDate;
+        const end = consultationSemester === "1학기" ? config.semester1EndDate : config.semester2EndDate;
         return !start || !end || (item.date >= start && item.date <= end);
       }),
-    [
-      consultations,
-      consultationYear,
-      consultationMonth,
-      consultationSemester,
-      config,
-    ],
+    [consultations, consultationYear, consultationMonth, consultationSemester, config],
   );
   async function choosePhoto() {
     try {
@@ -295,7 +248,59 @@ export function useStudentCard({
       <strong>{text || "미입력"}</strong>
     </button>
   );
-  return { photo, setPhoto, consultations, setConsultations, attendanceRecords, setAttendanceRecords, attendanceYear, setAttendanceYear, attendanceSemester, setAttendanceSemester, attendanceMonth, setAttendanceMonth, consultationYear, setConsultationYear, consultationSemester, setConsultationSemester, consultationMonth, setConsultationMonth, editing, setEditing, notice, setNotice, copyToast, setCopyToast, deleteOpen, setDeleteOpen, deleteConfirmation, setDeleteConfirmation, deleteNotice, setDeleteNotice, busy, setBusy, reload, orderedStudents, currentIndex, previousStudent, nextStudent, age, attendanceYears, attendanceEntries, filteredAttendance, attendanceCounts, experienceUsage, semesterExperienceUsage, consultationYears, filteredConsultations, choosePhoto, removeStudent, closeDelete, copyValue, value };
+  return {
+    photo,
+    setPhoto,
+    consultations,
+    setConsultations,
+    attendanceRecords,
+    setAttendanceRecords,
+    attendanceYear,
+    setAttendanceYear,
+    attendanceSemester,
+    setAttendanceSemester,
+    attendanceMonth,
+    setAttendanceMonth,
+    consultationYear,
+    setConsultationYear,
+    consultationSemester,
+    setConsultationSemester,
+    consultationMonth,
+    setConsultationMonth,
+    editing,
+    setEditing,
+    notice,
+    setNotice,
+    copyToast,
+    setCopyToast,
+    deleteOpen,
+    setDeleteOpen,
+    deleteConfirmation,
+    setDeleteConfirmation,
+    deleteNotice,
+    setDeleteNotice,
+    busy,
+    setBusy,
+    reload,
+    orderedStudents,
+    currentIndex,
+    previousStudent,
+    nextStudent,
+    age,
+    attendanceYears,
+    attendanceEntries,
+    filteredAttendance,
+    attendanceCounts,
+    experienceUsage,
+    semesterExperienceUsage,
+    consultationYears,
+    filteredConsultations,
+    choosePhoto,
+    removeStudent,
+    closeDelete,
+    copyValue,
+    value,
+  };
 }
 
 /** 화면 구역 컴포넌트에 넘기는 값 묶음 */

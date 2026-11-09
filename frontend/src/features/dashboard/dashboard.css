@@ -1,3 +1,77 @@
+/* App.css에서 옮겨 온 규칙(2026-11-09). 예전 적용 순서를 지키려고 맨 앞에 둔다. */
+.hero {
+  color: #f4fbf7;
+  background: linear-gradient(110deg, #1a5c51, #25806d);
+  min-height: 190px;
+  border-radius: 16px;
+  padding: 30px 37px;
+  display: flex;
+  justify-content: space-between;
+  overflow: hidden;
+  position: relative;
+}
+.hero:after {
+  content: "";
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  right: 100px;
+  top: -135px;
+  border: 34px solid #ffffff12;
+  border-radius: 50%;
+}
+.hero h2 {
+  font-size: 27px;
+  line-height: 1.28;
+  margin: 0 0 9px;
+  letter-spacing: -1px;
+}
+.hero em {
+  color: #caed9b;
+  font-style: normal;
+}
+.hero > div > p:last-child {
+  color: #d1e6dc;
+  margin: 0;
+  font-size: 14px;
+}
+.hero-date {
+  width: 130px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  justify-content: center;
+  border-left: 1px solid #ffffff31;
+}
+.hero-date strong {
+  font-size: 55px;
+  line-height: 0.8;
+  letter-spacing: -3px;
+}
+.hero-date span {
+  margin-top: 8px;
+}
+.hero-date small {
+  color: #b8d8cd;
+  margin-top: 3px;
+}
+.yellow {
+  color: #ac7814;
+  background: #fff5d7;
+}
+@media (max-width: 680px) {
+  .hero {
+    min-height: 170px;
+    padding: 25px;
+  }
+}
+@media (max-width: 680px) {
+  .hero-date {
+    display: none;
+  }
+}
+
 .attention {
   margin-top: 13px;
 }
@@ -103,54 +177,256 @@
 }
 
 /* 실제 자료 대시보드: 누를 수 있는 카드·행 */
-.stat-button, .attention-button, .quick-button { font: inherit; color: inherit; text-align: left; cursor: pointer; }
-.stat-button { border: inherit; }
-.attention-button { width: 100%; border: 0; background: transparent; }
-.quick-button { border: inherit; }
-.stat-button:hover, .stat-button:focus-visible,
-.attention-button:hover, .attention-button:focus-visible,
-.quick-button:hover, .quick-button:focus-visible { box-shadow: 0 0 0 3px rgba(217, 130, 53, 0.22); outline: none; }
-.dashboard-empty { margin: 8px 0 0; color: #7a604b; font-weight: 700; }
+.stat-button,
+.attention-button,
+.quick-button {
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.stat-button {
+  border: inherit;
+}
+.attention-button {
+  width: 100%;
+  border: 0;
+  background: transparent;
+}
+.quick-button {
+  border: inherit;
+}
+.stat-button:hover,
+.stat-button:focus-visible,
+.attention-button:hover,
+.attention-button:focus-visible,
+.quick-button:hover,
+.quick-button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(217, 130, 53, 0.22);
+  outline: none;
+}
+.dashboard-empty {
+  margin: 8px 0 0;
+  color: #7a604b;
+  font-weight: 700;
+}
 
 /* 대시보드 시간표 묶음(오늘 수업·우리 반 오늘·이번 주) */
-.dashboard-timetable { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 18px; margin-bottom: 18px; }
-.dashboard-timetable .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.dashboard-timetable-setup { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
-.dashboard-timetable-setup h3 { margin: 2px 0 4px; }
-.dashboard-timetable-setup p:last-child { margin: 0; color: #7d8996; font-size: 13px; }
-.dashboard-lesson-list { display: grid; gap: 8px; margin: 14px 0 0; padding: 0; list-style: none; }
-.dashboard-lesson-list li { display: grid; grid-template-columns: 78px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid #e8edf2; border-radius: 11px; background: #fbfcfe; }
-.dashboard-lesson-list li.lesson-now { border-color: #8cc9b3; background: #f0faf5; }
-.dashboard-lesson-list li.lesson-past { opacity: .5; }
-.dashboard-lesson-list li.lesson-cancelled strong { text-decoration: line-through; color: #9aa3ad; }
-.dashboard-lesson-period b, .dashboard-lesson-period small { display: block; }
-.dashboard-lesson-period b { font-size: 15px; }
-.dashboard-lesson-period small { color: #8995a2; font-size: 11px; }
-.dashboard-lesson-body { min-width: 0; }
-.dashboard-lesson-body strong { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 15px; }
-.dashboard-lesson-body em { color: #3e7f69; font-style: normal; }
-.dashboard-lesson-body small { display: block; overflow: hidden; margin-top: 2px; color: #8390a0; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
-.dashboard-lesson-now { padding: 2px 7px; border-radius: 7px; color: #176b53; background: #dcf2e8; font-size: 11px; }
-.dashboard-lesson-links { display: flex; gap: 2px; }
-.dashboard-timetable .timetable-change-kind { padding: 2px 7px; border-radius: 7px; font-size: 11px; font-weight: 800; text-decoration: none; }
-.dashboard-timetable .kind-교체 { color: #2f5f8a; background: #e6f0fa; }
-.dashboard-timetable .kind-보강 { color: #2e7254; background: #e3f5ec; }
-.dashboard-timetable .kind-결강 { color: #9a3d33; background: #fdebe8; }
-.dashboard-class-today { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; padding-top: 12px; border-top: 1px solid #edf1f5; }
-.dashboard-class-today > span { color: #6b7886; font-size: 12px; font-weight: 800; }
-.dashboard-class-today ol { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
-.dashboard-class-today li { padding: 5px 9px; border-radius: 8px; background: #f1f5f9; font-size: 13px; font-weight: 700; }
-.dashboard-class-today li small { margin-right: 4px; color: #8a96a3; font-size: 10px; }
-.dashboard-class-today li.lesson-changed { background: #e6f0fa; }
-.dashboard-class-today li.lesson-cancelled { color: #9aa3ad; text-decoration: line-through; }
-.dashboard-class-today em { color: #8a96a3; font-size: 13px; font-style: normal; }
-.dashboard-week-wrap { overflow-x: auto; margin-top: 12px; }
-.dashboard-week-table { width: 100%; min-width: 360px; border-collapse: collapse; table-layout: fixed; }
-.dashboard-week-table th, .dashboard-week-table td { padding: 6px 4px; border-bottom: 1px solid #eef2f6; font-size: 13px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.dashboard-week-table thead th { color: #6b7886; font-weight: 800; }
-.dashboard-week-table thead th small { color: #9aa5b1; font-size: 10px; font-weight: 600; }
-.dashboard-week-table tbody th { width: 30px; color: #8a96a3; font-size: 12px; }
-.dashboard-week-table .today { background: #f0faf5; }
-.dashboard-week-table td.changed { font-weight: 800; }
-@media (max-width: 1100px) { .dashboard-timetable { grid-template-columns: 1fr; } }
-@media (max-width: 640px) { .dashboard-timetable-setup { flex-direction: column; align-items: flex-start; } }
+.dashboard-timetable {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 18px;
+  margin-bottom: 18px;
+}
+.dashboard-timetable .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.dashboard-timetable-setup {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+.dashboard-timetable-setup h3 {
+  margin: 2px 0 4px;
+}
+.dashboard-timetable-setup p:last-child {
+  margin: 0;
+  color: #7d8996;
+  font-size: 13px;
+}
+.dashboard-lesson-list {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.dashboard-lesson-list li {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid #e8edf2;
+  border-radius: 11px;
+  background: #fbfcfe;
+}
+.dashboard-lesson-list li.lesson-now {
+  border-color: #8cc9b3;
+  background: #f0faf5;
+}
+.dashboard-lesson-list li.lesson-past {
+  opacity: 0.5;
+}
+.dashboard-lesson-list li.lesson-cancelled strong {
+  text-decoration: line-through;
+  color: #9aa3ad;
+}
+.dashboard-lesson-period b,
+.dashboard-lesson-period small {
+  display: block;
+}
+.dashboard-lesson-period b {
+  font-size: 15px;
+}
+.dashboard-lesson-period small {
+  color: #8995a2;
+  font-size: 11px;
+}
+.dashboard-lesson-body {
+  min-width: 0;
+}
+.dashboard-lesson-body strong {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 15px;
+}
+.dashboard-lesson-body em {
+  color: #3e7f69;
+  font-style: normal;
+}
+.dashboard-lesson-body small {
+  display: block;
+  overflow: hidden;
+  margin-top: 2px;
+  color: #8390a0;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dashboard-lesson-now {
+  padding: 2px 7px;
+  border-radius: 7px;
+  color: #176b53;
+  background: #dcf2e8;
+  font-size: 11px;
+}
+.dashboard-lesson-links {
+  display: flex;
+  gap: 2px;
+}
+.dashboard-timetable .timetable-change-kind {
+  padding: 2px 7px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 800;
+  text-decoration: none;
+}
+.dashboard-timetable .kind-교체 {
+  color: #2f5f8a;
+  background: #e6f0fa;
+}
+.dashboard-timetable .kind-보강 {
+  color: #2e7254;
+  background: #e3f5ec;
+}
+.dashboard-timetable .kind-결강 {
+  color: #9a3d33;
+  background: #fdebe8;
+}
+.dashboard-class-today {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #edf1f5;
+}
+.dashboard-class-today > span {
+  color: #6b7886;
+  font-size: 12px;
+  font-weight: 800;
+}
+.dashboard-class-today ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dashboard-class-today li {
+  padding: 5px 9px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  font-size: 13px;
+  font-weight: 700;
+}
+.dashboard-class-today li small {
+  margin-right: 4px;
+  color: #8a96a3;
+  font-size: 10px;
+}
+.dashboard-class-today li.lesson-changed {
+  background: #e6f0fa;
+}
+.dashboard-class-today li.lesson-cancelled {
+  color: #9aa3ad;
+  text-decoration: line-through;
+}
+.dashboard-class-today em {
+  color: #8a96a3;
+  font-size: 13px;
+  font-style: normal;
+}
+.dashboard-week-wrap {
+  overflow-x: auto;
+  margin-top: 12px;
+}
+.dashboard-week-table {
+  width: 100%;
+  min-width: 360px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.dashboard-week-table th,
+.dashboard-week-table td {
+  padding: 6px 4px;
+  border-bottom: 1px solid #eef2f6;
+  font-size: 13px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dashboard-week-table thead th {
+  color: #6b7886;
+  font-weight: 800;
+}
+.dashboard-week-table thead th small {
+  color: #9aa5b1;
+  font-size: 10px;
+  font-weight: 600;
+}
+.dashboard-week-table tbody th {
+  width: 30px;
+  color: #8a96a3;
+  font-size: 12px;
+}
+.dashboard-week-table .today {
+  background: #f0faf5;
+}
+.dashboard-week-table td.changed {
+  font-weight: 800;
+}
+@media (max-width: 1100px) {
+  .dashboard-timetable {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 640px) {
+  .dashboard-timetable-setup {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

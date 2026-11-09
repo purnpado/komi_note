@@ -1,3 +1,4 @@
+import "../shared/dialog-parts.css";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { main as models } from "../../../wailsjs/go/models";
 

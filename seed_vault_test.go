@@ -125,7 +125,7 @@ func TestSeedSampleData(t *testing.T) {
 			for c := 1; c <= 5; c++ {
 				if seatIdx <= len(created) {
 					seats = append(seats, seating.SeatingSeat{
-						ID:        fmt.Sprintf("s_%d_%d", r, c),
+						ID:        fmt.Sprintf("r%dc%d", r, c), // 앱(seatLayout.makeSeats)과 같은 좌석 번호 형식
 						Row:       r,
 						Column:    c,
 						Label:     fmt.Sprintf("%d분단 %d열", c, r),

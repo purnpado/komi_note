@@ -1,6 +1,15 @@
 import "./students.css";
 import { useEffect, useMemo, useState } from "react";
-import { DeleteStudent, GetStudentPhoto, ImportRoster, ListAcademicChanges, PreviewRoster, ProcessAcademicChange, ResetStudents, SelectRosterFile } from "../../../wailsjs/go/main/App";
+import {
+  DeleteStudent,
+  GetStudentPhoto,
+  ImportRoster,
+  ListAcademicChanges,
+  PreviewRoster,
+  ProcessAcademicChange,
+  ResetStudents,
+  SelectRosterFile,
+} from "../../../wailsjs/go/main/App";
 import { main as models } from "../../../wailsjs/go/models";
 import { errorMessage, todayLocal } from "../shared/format";
 
@@ -37,16 +46,10 @@ export function useStudentsPage({
   const [deleteTarget, setDeleteTarget] = useState<models.Student | null>(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [deleteNotice, setDeleteNotice] = useState("");
-  const [academicChanges, setAcademicChanges] = useState<
-    models.AcademicChange[]
-  >([]);
-  const [academicTarget, setAcademicTarget] = useState<models.Student | null>(
-    null,
-  );
+  const [academicChanges, setAcademicChanges] = useState<models.AcademicChange[]>([]);
+  const [academicTarget, setAcademicTarget] = useState<models.Student | null>(null);
   const [academicStatus, setAcademicStatus] = useState("전출");
-  const [academicDate, setAcademicDate] = useState(
-    todayLocal(),
-  );
+  const [academicDate, setAcademicDate] = useState(todayLocal());
   const [academicConfirmation, setAcademicConfirmation] = useState("");
   const [academicNotice, setAcademicNotice] = useState("");
   const [adding, setAdding] = useState(false);
@@ -54,11 +57,7 @@ export function useStudentsPage({
   const [rosterView, setRosterView] = useState<"목록" | "카드">("카드");
   const filtered = useMemo(
     () =>
-      (students || []).filter(
-        (student) =>
-          student.name.includes(search) ||
-          String(student.number).includes(search),
-      ),
+      (students || []).filter((student) => student.name.includes(search) || String(student.number).includes(search)),
     [students, search],
   );
   useEffect(() => {
@@ -66,14 +65,10 @@ export function useStudentsPage({
     void Promise.all(
       (students || [])
         .filter((student) => student.hasPhoto)
-        .map(
-          async (student) =>
-            [student.id, await GetStudentPhoto(student.id)] as const,
-        ),
+        .map(async (student) => [student.id, await GetStudentPhoto(student.id)] as const),
     )
       .then((items) => {
-        if (active)
-          setPhotos(Object.fromEntries(items.filter(([, photo]) => photo)));
+        if (active) setPhotos(Object.fromEntries(items.filter(([, photo]) => photo)));
       })
       .catch(() => {
         if (active) setPhotos({});
@@ -99,15 +94,13 @@ export function useStudentsPage({
     let value = today.getFullYear() - birth.getFullYear();
     if (
       today.getMonth() < birth.getMonth() ||
-      (today.getMonth() === birth.getMonth() &&
-        today.getDate() < birth.getDate())
+      (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())
     )
       value--;
     return `만 ${value}세`;
   };
   const state = (student: models.Student) =>
-    student.studentPhone &&
-    (student.fatherPhone || student.motherPhone || student.guardianPhone)
+    student.studentPhone && (student.fatherPhone || student.motherPhone || student.guardianPhone)
       ? "연락처 입력 완료"
       : "연락처 보완 필요";
   async function selectFile() {
@@ -115,9 +108,7 @@ export function useStudentsPage({
       const selectedPath = await SelectRosterFile();
       if (!selectedPath) return;
       setBusy(true);
-      const nextPreview = new models.RosterPreview(
-        await PreviewRoster(selectedPath),
-      );
+      const nextPreview = new models.RosterPreview(await PreviewRoster(selectedPath));
       nextPreview.headers = nextPreview.headers || [];
       nextPreview.students = nextPreview.students || [];
       nextPreview.warnings = nextPreview.warnings || [];
@@ -136,9 +127,7 @@ export function useStudentsPage({
       const result = await ImportRoster(path);
       await reloadStudents();
       setPreview(null);
-      setNotice(
-        `${result.added}명 추가, ${result.updated}명 갱신 · 총 ${result.total}명 암호화 저장 완료`,
-      );
+      setNotice(`${result.added}명 추가, ${result.updated}명 갱신 · 총 ${result.total}명 암호화 저장 완료`);
     } catch (error) {
       setNotice(errorMessage(error));
     } finally {
@@ -175,9 +164,7 @@ export function useStudentsPage({
       setDeleteNotice("");
       await DeleteStudent(deleteTarget.id, deleteConfirmation);
       await reloadStudents();
-      setNotice(
-        `${deleteTarget.number}번 ${deleteTarget.name} 학생 정보를 삭제했습니다.`,
-      );
+      setNotice(`${deleteTarget.number}번 ${deleteTarget.name} 학생 정보를 삭제했습니다.`);
       setDeleteTarget(null);
       setDeleteConfirmation("");
     } catch (error) {
@@ -199,12 +186,7 @@ export function useStudentsPage({
     try {
       setBusy(true);
       setAcademicNotice("");
-      await ProcessAcademicChange(
-        academicTarget.id,
-        academicStatus,
-        academicDate,
-        academicConfirmation,
-      );
+      await ProcessAcademicChange(academicTarget.id, academicStatus, academicDate, academicConfirmation);
       await reloadStudents();
       await reloadAcademicChanges();
       setNotice(`${academicTarget.name} 학생의 학적변동을 처리했습니다.`);
@@ -227,13 +209,66 @@ export function useStudentsPage({
     }
   }
   const newStudent = new models.Student({
-    number:
-      Math.max(0, ...(students || []).map((student) => student.number)) + 1,
+    number: Math.max(0, ...(students || []).map((student) => student.number)) + 1,
     name: "",
     gender: "",
     birthDate: "",
     address: "",
     transferInDate: "",
   });
-  return { search, setSearch, preview, setPreview, path, setPath, notice, setNotice, busy, setBusy, resetOpen, setResetOpen, confirmation, setConfirmation, resetNotice, setResetNotice, deleteTarget, setDeleteTarget, deleteConfirmation, setDeleteConfirmation, deleteNotice, setDeleteNotice, academicChanges, setAcademicChanges, academicTarget, setAcademicTarget, academicStatus, setAcademicStatus, academicDate, setAcademicDate, academicConfirmation, setAcademicConfirmation, academicNotice, setAcademicNotice, adding, setAdding, photos, setPhotos, rosterView, setRosterView, filtered, reloadAcademicChanges, age, state, selectFile, importRoster, resetStudents, closeReset, deleteStudent, closeDelete, processAcademicChange, closeAcademicChange, newStudent };
+  return {
+    search,
+    setSearch,
+    preview,
+    setPreview,
+    path,
+    setPath,
+    notice,
+    setNotice,
+    busy,
+    setBusy,
+    resetOpen,
+    setResetOpen,
+    confirmation,
+    setConfirmation,
+    resetNotice,
+    setResetNotice,
+    deleteTarget,
+    setDeleteTarget,
+    deleteConfirmation,
+    setDeleteConfirmation,
+    deleteNotice,
+    setDeleteNotice,
+    academicChanges,
+    setAcademicChanges,
+    academicTarget,
+    setAcademicTarget,
+    academicStatus,
+    setAcademicStatus,
+    academicDate,
+    setAcademicDate,
+    academicConfirmation,
+    setAcademicConfirmation,
+    academicNotice,
+    setAcademicNotice,
+    adding,
+    setAdding,
+    photos,
+    setPhotos,
+    rosterView,
+    setRosterView,
+    filtered,
+    reloadAcademicChanges,
+    age,
+    state,
+    selectFile,
+    importRoster,
+    resetStudents,
+    closeReset,
+    deleteStudent,
+    closeDelete,
+    processAcademicChange,
+    closeAcademicChange,
+    newStudent,
+  };
 }

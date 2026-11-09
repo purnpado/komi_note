@@ -2,7 +2,19 @@ import type { Dispatch, SetStateAction } from "react";
 import { changeEvents } from "../shared/changeEvents";
 import { useVaultChanges } from "../shared/useVaultChanges";
 import { MouseEvent, PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from "react";
-import { DeleteAttendanceTemplate, ExportAttendanceHWPX, GetAttendance, GetAttendanceDocumentPeriod, ListAttendanceTemplates, SaveAttendance, SaveAttendancePDF, SaveAttendanceTemplate, SaveAttendanceTemplateCustomValues, SaveAttendanceTemplateMappings, SelectAttendanceTemplateFile } from "../../../wailsjs/go/main/App";
+import {
+  DeleteAttendanceTemplate,
+  ExportAttendanceHWPX,
+  GetAttendance,
+  GetAttendanceDocumentPeriod,
+  ListAttendanceTemplates,
+  SaveAttendance,
+  SaveAttendancePDF,
+  SaveAttendanceTemplate,
+  SaveAttendanceTemplateCustomValues,
+  SaveAttendanceTemplateMappings,
+  SelectAttendanceTemplateFile,
+} from "../../../wailsjs/go/main/App";
 import { main as models } from "../../../wailsjs/go/models";
 import type { DocumentPointLayout } from "./attendanceTypes";
 import { koreanDate, parseHWPXCustomValues } from "./attendanceUtils";
@@ -42,14 +54,9 @@ export function useAttendance({ students, config, initialDate = "" }: UseAttenda
   const [day, setDay] = useState<models.AttendanceDay | null>(null);
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
-  const [attendanceTab, setAttendanceTab] = useState<
-    "출결 입력" | "출결 서식" | "출결 서류 출력"
-  >("출결 입력");
+  const [attendanceTab, setAttendanceTab] = useState<"출결 입력" | "출결 서식" | "출결 서류 출력">("출결 입력");
   const dateInputRef = useRef<HTMLInputElement>(null);
-  const studentByID = useMemo(
-    () => new Map((students || []).map((student) => [student.id, student])),
-    [students],
-  );
+  const studentByID = useMemo(() => new Map((students || []).map((student) => [student.id, student])), [students]);
   const weekday = (value: string) => {
     const labels = ["일", "월", "화", "수", "목", "금", "토"];
     return labels[new Date(`${value}T12:00:00`).getDay()];
@@ -64,11 +71,7 @@ export function useAttendance({ students, config, initialDate = "" }: UseAttenda
   };
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
-      document
-        .querySelectorAll<HTMLTextAreaElement>(
-          ".attendance-editor-row textarea",
-        )
-        .forEach(resizeReason);
+      document.querySelectorAll<HTMLTextAreaElement>(".attendance-editor-row textarea").forEach(resizeReason);
     });
     return () => window.cancelAnimationFrame(frame);
   }, [day]);
@@ -114,10 +117,7 @@ export function useAttendance({ students, config, initialDate = "" }: UseAttenda
     next.setDate(next.getDate() + offset);
     setDate(nearestWeekday(toLocalDateString(next), offset < 0 ? -1 : 1));
   }
-  function updateEntry(
-    studentID: string,
-    updates: Partial<models.AttendanceEntry>,
-  ) {
+  function updateEntry(studentID: string, updates: Partial<models.AttendanceEntry>) {
     if (!day) return;
     setDay(
       new models.AttendanceDay({
@@ -170,17 +170,111 @@ export function useAttendance({ students, config, initialDate = "" }: UseAttenda
       조퇴: 0,
       결과: 0,
     };
-    for (const entry of day?.entries || [])
-      counts[entry.status] = (counts[entry.status] || 0) + 1;
+    for (const entry of day?.entries || []) counts[entry.status] = (counts[entry.status] || 0) + 1;
     return counts;
   }, [day]);
-  const { templates, setTemplates, template, setTemplate, templatePath, templateName, setTemplateName, templateStatuses, setTemplateStatuses, hwpxCustomText, setHwpxCustomText, mapField, setMapField, customFieldName, setCustomFieldName, setDocumentOverrides, selectedMappingID, setSelectedMappingID, documentPeriod, setSelectedDocumentStudentID, documentStudents, documentStudent, outputStatus, outputTemplates, baseDocumentValues, fieldValue, mappedFields, rangeSeparators, chooseTemplate, saveTemplate, deleteTemplate, placeField, beginMoveMapping, beginResizeMapping, changeMappingFont, outputPoint, beginOutputMove, beginOutputResize, changeOutputFont, removeMapping, saveAttendancePDF, exportAttendanceHWPX, saveHWPXCustomValues } = useAttendanceDocuments({ config, date, day, setNotice, attendanceTab, studentByID });
+  const {
+    templates,
+    setTemplates,
+    template,
+    setTemplate,
+    templatePath,
+    templateName,
+    setTemplateName,
+    templateStatuses,
+    setTemplateStatuses,
+    hwpxCustomText,
+    setHwpxCustomText,
+    mapField,
+    setMapField,
+    customFieldName,
+    setCustomFieldName,
+    setDocumentOverrides,
+    selectedMappingID,
+    setSelectedMappingID,
+    documentPeriod,
+    setSelectedDocumentStudentID,
+    documentStudents,
+    documentStudent,
+    outputStatus,
+    outputTemplates,
+    baseDocumentValues,
+    fieldValue,
+    mappedFields,
+    rangeSeparators,
+    chooseTemplate,
+    saveTemplate,
+    deleteTemplate,
+    placeField,
+    beginMoveMapping,
+    beginResizeMapping,
+    changeMappingFont,
+    outputPoint,
+    beginOutputMove,
+    beginOutputResize,
+    changeOutputFont,
+    removeMapping,
+    saveAttendancePDF,
+    exportAttendanceHWPX,
+    saveHWPXCustomValues,
+  } = useAttendanceDocuments({ config, date, day, setNotice, attendanceTab, studentByID });
   return {
-    date, setDate, day, notice, busy, templates, template, setTemplate, templatePath, templateName, setTemplateName, templateStatuses, setTemplateStatuses,
-    hwpxCustomText, setHwpxCustomText, mapField, setMapField, customFieldName, setCustomFieldName, selectedMappingID, setSelectedMappingID,
-    documentPeriod, setSelectedDocumentStudentID, attendanceTab, setAttendanceTab, dateInputRef, studentByID, resizeReason, moveDate, updateEntry, setDocumentOverrides,
-    markAllPresent, saveAttendance, summary, documentStudents, documentStudent, outputStatus, outputTemplates, baseDocumentValues, mappedFields,
-    fieldValue, rangeSeparators, chooseTemplate, saveTemplate, deleteTemplate, placeField, beginMoveMapping, beginResizeMapping, changeMappingFont,
-    removeMapping, saveHWPXCustomValues, exportAttendanceHWPX, saveAttendancePDF, outputPoint, beginOutputMove, changeOutputFont, beginOutputResize,
+    date,
+    setDate,
+    day,
+    notice,
+    busy,
+    templates,
+    template,
+    setTemplate,
+    templatePath,
+    templateName,
+    setTemplateName,
+    templateStatuses,
+    setTemplateStatuses,
+    hwpxCustomText,
+    setHwpxCustomText,
+    mapField,
+    setMapField,
+    customFieldName,
+    setCustomFieldName,
+    selectedMappingID,
+    setSelectedMappingID,
+    documentPeriod,
+    setSelectedDocumentStudentID,
+    attendanceTab,
+    setAttendanceTab,
+    dateInputRef,
+    studentByID,
+    resizeReason,
+    moveDate,
+    updateEntry,
+    setDocumentOverrides,
+    markAllPresent,
+    saveAttendance,
+    summary,
+    documentStudents,
+    documentStudent,
+    outputStatus,
+    outputTemplates,
+    baseDocumentValues,
+    mappedFields,
+    fieldValue,
+    rangeSeparators,
+    chooseTemplate,
+    saveTemplate,
+    deleteTemplate,
+    placeField,
+    beginMoveMapping,
+    beginResizeMapping,
+    changeMappingFont,
+    removeMapping,
+    saveHWPXCustomValues,
+    exportAttendanceHWPX,
+    saveAttendancePDF,
+    outputPoint,
+    beginOutputMove,
+    changeOutputFont,
+    beginOutputResize,
   };
 }

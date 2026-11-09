@@ -6,32 +6,22 @@ import { assessmentDataEvents, changeEvents } from "../shared/changeEvents";
 import { errorMessage } from "../shared/format";
 import { rosterLabel } from "../timetable/timetableState";
 import { courseKey } from "../grouping/groupingState";
-import { areaLabels, availableTargets, entryStatus, memberKey, progress, recordYears, sortMembers, visibleTabs, type Area, type TabKey, type TargetKind } from "./recordsState";
+import {
+  areaLabels,
+  availableTargets,
+  entryStatus,
+  memberKey,
+  progress,
+  recordYears,
+  sortMembers,
+  visibleTabs,
+  type Area,
+  type TabKey,
+  type TargetKind,
+} from "./recordsState";
 import { type BulkCandidate } from "./PhraseParts";
 import "./records-page.css";
-
-export type Pupil = { key: string; label: string; name: string; number: string; note?: string };
-export type Slot = { schoolYear: string; area: Area; targetKind: TargetKind; targetId: string; subject: string };
-export type Target = { value: string; kind: TargetKind; id: string; label: string; pupils: Pupil[]; roster?: models.CourseRoster };
-
-export const defaultSubject = "과목";
-
-export function slotOf(entry: models.RecordEntry): string {
-  return [entry.schoolYear, entry.area, entry.targetKind, entry.targetId, entry.subject].join("\u0000");
-}
-
-export function slotKey(slot: Slot): string {
-  return [slot.schoolYear, slot.area, slot.targetKind, slot.targetId, slot.area === "subject" ? slot.subject : ""].join("\u0000");
-}
-
-// sameText는 보관함이 저장하는 방식(앞뒤 공백 제거·줄바꿈 통일)으로 두 문장을 비교합니다.
-export function sameText(draft: string, stored: string) {
-  return draft.replace(/\r\n?/g, "\n").trim() === stored;
-}
-
-export function trimNumber(value: string | number) {
-  return String(value).trim().replace(/^0+(?=\d)/, "");
-}
+import { Pupil, Slot, Target, defaultSubject, slotOf, slotKey } from "./recordsSlots";
 
 /** RecordsPage 화면의 상태·계산·처리 함수. 화면(JSX)은 RecordsPage.tsx에 있다. */
 export function useRecordsPage({
@@ -66,7 +56,11 @@ export function useRecordsPage({
 
   async function reload() {
     try {
-      const [nextBook, nextRosters, nextAssessments] = await Promise.all([GetRecordBook(), ListCourseRosters(), ListAssessments()]);
+      const [nextBook, nextRosters, nextAssessments] = await Promise.all([
+        GetRecordBook(),
+        ListCourseRosters(),
+        ListAssessments(),
+      ]);
       setBook(nextBook);
       setRosters(nextRosters || []);
       setAssessments(nextAssessments || []);
@@ -80,7 +74,10 @@ export function useRecordsPage({
     void reload();
   }, []);
   // 학생·수업 명렬·설정·수행평가가 바뀌면 다시 읽는다. 입력 칸은 쓰고 있는 글을 따로 들고 있어 지워지지 않는다.
-  useVaultChanges([changeEvents.students, changeEvents.courseRoster, changeEvents.settings, ...assessmentDataEvents], () => void reload());
+  useVaultChanges(
+    [changeEvents.students, changeEvents.courseRoster, changeEvents.settings, ...assessmentDataEvents],
+    () => void reload(),
+  );
 
   const years = useMemo(
     () =>
@@ -96,10 +93,16 @@ export function useRecordsPage({
     const result: Target[] = [];
     for (const kind of availableTargets(tab, isHomeroomTeacher)) {
       if (kind === "homeroom") {
-        const label = config?.grade && config?.classNumber ? `우리 반 (${config.grade}-${config.classNumber})` : "우리 반";
+        const label =
+          config?.grade && config?.classNumber ? `우리 반 (${config.grade}-${config.classNumber})` : "우리 반";
         const pupils = [...students]
           .sort((a, b) => a.number - b.number)
-          .map((student) => ({ key: student.id, label: `${student.number}번 ${student.name}`, name: student.name, number: String(student.number) }));
+          .map((student) => ({
+            key: student.id,
+            label: `${student.number}번 ${student.name}`,
+            name: student.name,
+            number: String(student.number),
+          }));
         result.push({ value: "homeroom", kind, id: "", label, pupils });
       }
       if (kind === "course") {
@@ -116,7 +119,14 @@ export function useRecordsPage({
                 number: student.number,
                 note: student.status === "전출" ? "전출" : undefined,
               }));
-            result.push({ value: `course:${roster.id}`, kind, id: roster.id, label: `수업 반 ${rosterLabel(roster)}`, pupils, roster });
+            result.push({
+              value: `course:${roster.id}`,
+              kind,
+              id: roster.id,
+              label: `수업 반 ${rosterLabel(roster)}`,
+              pupils,
+              roster,
+            });
           });
       }
       if (kind === "list") {
@@ -144,7 +154,13 @@ export function useRecordsPage({
   }, [target, targetValue]);
 
   const slot: Slot | null = target
-    ? { schoolYear: year, area, targetKind: target.kind, targetId: target.id, subject: area === "subject" ? subject.trim() || defaultSubject : "" }
+    ? {
+        schoolYear: year,
+        area,
+        targetKind: target.kind,
+        targetId: target.id,
+        subject: area === "subject" ? subject.trim() || defaultSubject : "",
+      }
     : null;
 
   const slotEntries = useMemo(() => {
@@ -163,7 +179,9 @@ export function useRecordsPage({
 
   const statuses = pupils.map((pupil) => entryStatus(slotEntries.get(pupil.key)));
   const counts = progress(statuses);
-  const shownPupils = pupils.filter((pupil, index) => !onlyMissing || statuses[index] === "empty" || statuses[index] === "memo");
+  const shownPupils = pupils.filter(
+    (pupil, index) => !onlyMissing || statuses[index] === "empty" || statuses[index] === "memo",
+  );
   const orphanPupils: Pupil[] = orphanEntries.map((entry) => ({
     key: entry.studentKey,
     label: target?.kind === "homeroom" ? "삭제된 학생" : entry.studentKey.replace("|", " "),
@@ -205,7 +223,11 @@ export function useRecordsPage({
   }
 
   function onDeleted(id: string) {
-    setBook((current) => (current ? new models.RecordBook({ ...current, entries: current.entries.filter((entry) => entry.id !== id) }) : current));
+    setBook((current) =>
+      current
+        ? new models.RecordBook({ ...current, entries: current.entries.filter((entry) => entry.id !== id) })
+        : current,
+    );
   }
 
   function onPhraseSaved(saved: models.RecordPhrase) {
@@ -218,7 +240,11 @@ export function useRecordsPage({
   }
 
   function onPhraseRemoved(id: string) {
-    setBook((current) => (current ? new models.RecordBook({ ...current, phrases: current.phrases.filter((phrase) => phrase.id !== id) }) : current));
+    setBook((current) =>
+      current
+        ? new models.RecordBook({ ...current, phrases: current.phrases.filter((phrase) => phrase.id !== id) })
+        : current,
+    );
   }
 
   // 학년말 한꺼번에 보관할 후보: 그 학년도의 검토 완료 문장(학생 이름은 대화상자에서 ○○로 바꿈)
@@ -227,13 +253,17 @@ export function useRecordsPage({
     return book.entries
       .filter((entry) => entry.schoolYear === forYear && entry.reviewed && entry.text.trim())
       .map((entry) => {
-        const student = entry.targetKind === "homeroom" ? students.find((item) => item.id === entry.studentKey) : undefined;
+        const student =
+          entry.targetKind === "homeroom" ? students.find((item) => item.id === entry.studentKey) : undefined;
         const studentName = student ? student.name : entry.studentKey.split("|")[1] || "";
         const where =
           entry.targetKind === "homeroom"
             ? "우리 반"
             : entry.targetKind === "course"
-              ? `수업 반 ${(() => { const roster = rosters.find((item) => item.id === entry.targetId); return roster ? rosterLabel(roster) : ""; })()}`
+              ? `수업 반 ${(() => {
+                  const roster = rosters.find((item) => item.id === entry.targetId);
+                  return roster ? rosterLabel(roster) : "";
+                })()}`
               : book.lists.find((list) => list.id === entry.targetId)?.name || "활동 명단";
         const [code, keyName = ""] = entry.studentKey.split("|");
         const parts = code.split("-");
@@ -242,7 +272,14 @@ export function useRecordsPage({
           : parts.length === 3
             ? `${parts[0]}-${parts[1]} ${parts[2]}번 ${keyName}`
             : `${code}번 ${keyName}`;
-        return { id: entry.id, label: `${areaLabels[entry.area as Area] || entry.area}${entry.subject ? `(${entry.subject})` : ""} · ${where} · ${who}`, area: entry.area, subject: entry.subject, text: entry.text, studentName };
+        return {
+          id: entry.id,
+          label: `${areaLabels[entry.area as Area] || entry.area}${entry.subject ? `(${entry.subject})` : ""} · ${where} · ${who}`,
+          area: entry.area,
+          subject: entry.subject,
+          text: entry.text,
+          studentName,
+        };
       });
   }
 
@@ -268,5 +305,67 @@ export function useRecordsPage({
     return [...names];
   }, [students, pupils]);
 
-  return { book, setBook, rosters, setRosters, assessments, setAssessments, loadError, setLoadError, notice, setNotice, shownTabs, tabKey, setTabKey, tab, creativeArea, setCreativeArea, area, year, setYear, targetValue, setTargetValue, subject, setSubject, selectedKey, setSelectedKey, onlyMissing, setOnlyMissing, listDialog, setListDialog, limitsOpen, setLimitsOpen, cleanupOpen, setCleanupOpen, view, setView, bulkYear, setBulkYear, reload, years, targets, target, slot, slotEntries, pupils, orphanEntries, statuses, counts, shownPupils, orphanPupils, selectable, selected, subjectSuggestions, onSaved, onDeleted, onPhraseSaved, onPhraseRemoved, bulkCandidates, everyName, moveSelection, limit, allNames };
+  return {
+    book,
+    setBook,
+    rosters,
+    setRosters,
+    assessments,
+    setAssessments,
+    loadError,
+    setLoadError,
+    notice,
+    setNotice,
+    shownTabs,
+    tabKey,
+    setTabKey,
+    tab,
+    creativeArea,
+    setCreativeArea,
+    area,
+    year,
+    setYear,
+    targetValue,
+    setTargetValue,
+    subject,
+    setSubject,
+    selectedKey,
+    setSelectedKey,
+    onlyMissing,
+    setOnlyMissing,
+    listDialog,
+    setListDialog,
+    limitsOpen,
+    setLimitsOpen,
+    cleanupOpen,
+    setCleanupOpen,
+    view,
+    setView,
+    bulkYear,
+    setBulkYear,
+    reload,
+    years,
+    targets,
+    target,
+    slot,
+    slotEntries,
+    pupils,
+    orphanEntries,
+    statuses,
+    counts,
+    shownPupils,
+    orphanPupils,
+    selectable,
+    selected,
+    subjectSuggestions,
+    onSaved,
+    onDeleted,
+    onPhraseSaved,
+    onPhraseRemoved,
+    bulkCandidates,
+    everyName,
+    moveSelection,
+    limit,
+    allNames,
+  };
 }

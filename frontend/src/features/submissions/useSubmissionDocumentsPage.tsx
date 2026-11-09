@@ -1,12 +1,15 @@
 import { changeEvents } from "../shared/changeEvents";
 import { useVaultChanges } from "../shared/useVaultChanges";
 import { FormEvent, useEffect, useState } from "react";
-import { DeleteSubmissionDocument, ListSubmissionDocuments, SaveSubmissionDocument, SaveSubmissionStatus } from "../../../wailsjs/go/main/App";
+import {
+  DeleteSubmissionDocument,
+  ListSubmissionDocuments,
+  SaveSubmissionDocument,
+  SaveSubmissionStatus,
+} from "../../../wailsjs/go/main/App";
 import { main as models } from "../../../wailsjs/go/models";
 import "./submission.css";
 import { errorMessage } from "../shared/format";
-
-
 
 /** SubmissionDocumentsPage 화면의 상태·계산·처리 함수. 화면(JSX)은 SubmissionDocumentsPage.tsx에 있다. */
 export function useSubmissionDocumentsPage({ students }: { students: models.Student[] }) {
@@ -21,18 +24,12 @@ export function useSubmissionDocumentsPage({ students }: { students: models.Stud
   const [statusFilter, setStatusFilter] = useState("전체");
   const [notice, setNotice] = useState("");
   const selected = documents.find((item) => item.id === selectedID) || null;
-  const statuses = new Map(
-    (selected?.statuses || []).map((item) => [item.studentId, item]),
-  );
+  const statuses = new Map((selected?.statuses || []).map((item) => [item.studentId, item]));
   const refresh = async () => {
     const items = (await ListSubmissionDocuments()) || [];
     const next = items.map((item) => new models.SubmissionDocument(item));
     setDocuments(next);
-    setSelectedID((current) =>
-      current && next.some((item) => item.id === current)
-        ? current
-        : next[0]?.id || "",
-    );
+    setSelectedID((current) => (current && next.some((item) => item.id === current) ? current : next[0]?.id || ""));
     const active = next.find((item) => item.id === selectedID) || next[0];
     if (active) {
       setTitle(active.title);
@@ -51,13 +48,9 @@ export function useSubmissionDocumentsPage({ students }: { students: models.Stud
       setNote(selected.note || "");
     }
   }, [selectedID]);
-  const normalizedStatus = (value?: string) =>
-    value === "기타" ? "확인 필요" : value || "미제출";
+  const normalizedStatus = (value?: string) => (value === "기타" ? "확인 필요" : value || "미제출");
   const count = (status: string) =>
-    students.filter(
-      (student) =>
-        normalizedStatus(statuses.get(student.id)?.status) === status,
-    ).length;
+    students.filter((student) => normalizedStatus(statuses.get(student.id)?.status) === status).length;
   // 해당 없음 학생은 제출 대상에서 제외하므로 재적·미제출 집계에서도 제외합니다.
   const eligibleCount = students.length - count("해당 없음");
   async function saveDocument(event: FormEvent) {
@@ -98,23 +91,12 @@ export function useSubmissionDocumentsPage({ students }: { students: models.Stud
       setDeleteOpen(false);
     }
   }
-  async function updateStatus(
-    studentID: string,
-    status: string,
-    studentNote = "",
-  ) {
+  async function updateStatus(studentID: string, status: string, studentNote = "") {
     if (!selected) return;
     try {
-      const saved = await SaveSubmissionStatus(
-        selected.id,
-        studentID,
-        status,
-        studentNote,
-      );
+      const saved = await SaveSubmissionStatus(selected.id, studentID, status, studentNote);
       setDocuments((items) =>
-        items.map((item) =>
-          item.id === saved.id ? new models.SubmissionDocument(saved) : item,
-        ),
+        items.map((item) => (item.id === saved.id ? new models.SubmissionDocument(saved) : item)),
       );
     } catch (error) {
       setNotice(errorMessage(error));
@@ -131,17 +113,10 @@ export function useSubmissionDocumentsPage({ students }: { students: models.Stud
   function currentStatus(studentID: string) {
     return normalizedStatus(statuses.get(studentID)?.status);
   }
-  const statusOptions = [
-    "제출",
-    "미제출",
-    "확인 필요",
-    "부분 제출",
-    "해당 없음",
-  ];
+  const statusOptions = ["제출", "미제출", "확인 필요", "부분 제출", "해당 없음"];
   const filterOptions = ["전체", ...statusOptions];
   const filteredStudents = students.filter(
-    (student) =>
-      statusFilter === "전체" || currentStatus(student.id) === statusFilter,
+    (student) => statusFilter === "전체" || currentStatus(student.id) === statusFilter,
   );
   const studentTable = selected && (
     <div className="submission-table-wrap">
@@ -172,13 +147,7 @@ export function useSubmissionDocumentsPage({ students }: { students: models.Stud
                       type="checkbox"
                       className="submission-check"
                       checked={status === option}
-                      onChange={() =>
-                        void updateStatus(
-                          student.id,
-                          option,
-                          current?.note || "",
-                        )
-                      }
+                      onChange={() => void updateStatus(student.id, option, current?.note || "")}
                       aria-label={`${student.name} ${option}`}
                     />
                   </td>
@@ -187,9 +156,7 @@ export function useSubmissionDocumentsPage({ students }: { students: models.Stud
                   <input
                     className="submission-note-input"
                     defaultValue={current?.note || ""}
-                    onBlur={(event) =>
-                      void updateStatus(student.id, status, event.target.value)
-                    }
+                    onBlur={(event) => void updateStatus(student.id, status, event.target.value)}
                     placeholder="비고"
                   />
                 </td>
@@ -198,10 +165,45 @@ export function useSubmissionDocumentsPage({ students }: { students: models.Stud
           })}
         </tbody>
       </table>
-      {filteredStudents.length === 0 && (
-        <p className="empty-state">선택한 상태의 학생이 없습니다.</p>
-      )}
+      {filteredStudents.length === 0 && <p className="empty-state">선택한 상태의 학생이 없습니다.</p>}
     </div>
   );
-  return { documents, setDocuments, selectedID, setSelectedID, title, setTitle, dueDate, setDueDate, note, setNote, documentTab, setDocumentTab, detailOpen, setDetailOpen, deleteOpen, setDeleteOpen, statusFilter, setStatusFilter, notice, setNotice, selected, statuses, refresh, normalizedStatus, count, eligibleCount, saveDocument, removeDocument, confirmRemoveDocument, updateStatus, startNewDocument, currentStatus, statusOptions, filterOptions, filteredStudents, studentTable };
+  return {
+    documents,
+    setDocuments,
+    selectedID,
+    setSelectedID,
+    title,
+    setTitle,
+    dueDate,
+    setDueDate,
+    note,
+    setNote,
+    documentTab,
+    setDocumentTab,
+    detailOpen,
+    setDetailOpen,
+    deleteOpen,
+    setDeleteOpen,
+    statusFilter,
+    setStatusFilter,
+    notice,
+    setNotice,
+    selected,
+    statuses,
+    refresh,
+    normalizedStatus,
+    count,
+    eligibleCount,
+    saveDocument,
+    removeDocument,
+    confirmRemoveDocument,
+    updateStatus,
+    startNewDocument,
+    currentStatus,
+    statusOptions,
+    filterOptions,
+    filteredStudents,
+    studentTable,
+  };
 }

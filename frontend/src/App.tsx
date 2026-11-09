@@ -7,7 +7,12 @@ import { Sidebar } from "./features/navigation/Sidebar";
 import { LockScreen } from "./features/security/LockScreen";
 import { SetupWizard } from "./features/security/SetupWizard";
 import { StudentCard } from "./features/students/StudentDetail";
-import { ResumeParticipationSessions, ListStudents, RemoveApplicationAndQuit, UpdateSettings } from "../wailsjs/go/main/App";
+import {
+  ResumeParticipationSessions,
+  ListStudents,
+  RemoveApplicationAndQuit,
+  UpdateSettings,
+} from "../wailsjs/go/main/App";
 import { main as models } from "../wailsjs/go/models";
 import { errorMessage } from "./features/shared/format";
 import { ProfileMenu, QuickSearch } from "./features/app-shell/HeaderTools";
@@ -16,7 +21,64 @@ import { ReminderInbox } from "./features/reminders/ReminderInbox";
 import { useAppShell, displayGender, isClassicTheme } from "./useAppShell";
 
 function App() {
-  const { windowControls, ready, setReady, needsSetup, setNeedsSetup, locked, setLocked, hasPin, setHasPin, pinLocked, setPinLocked, pinAttempts, setPinAttempts, pinNotice, setPinNotice, config, setConfig, active, setActive, notice, setNotice, students, setStudents, studentCard, setStudentCard, attendanceFocusDate, setAttendanceFocusDate, consultationFocusStudentID, setConsultationFocusStudentID, consultationPageKey, setConsultationPageKey, update, setUpdate, updating, setUpdating, appVersion, setAppVersion, setupAgreementAccepted, setSetupAgreementAccepted, termsRequired, setTermsRequired, sidebarCollapsed, setSidebarCollapsed, lockTimer, participationPaused, setParticipationPaused, loadOpenSession, refreshAppState, installUpdate, lockScreenRef, lockScreen, isHomeroomTeacher, desktopTitleBar, handleStudentDetailNavigation, unlock, unlockWithPin } = useAppShell();
+  const {
+    windowControls,
+    ready,
+    setReady,
+    needsSetup,
+    setNeedsSetup,
+    locked,
+    setLocked,
+    hasPin,
+    setHasPin,
+    pinLocked,
+    setPinLocked,
+    pinAttempts,
+    setPinAttempts,
+    pinNotice,
+    setPinNotice,
+    config,
+    setConfig,
+    active,
+    setActive,
+    notice,
+    setNotice,
+    students,
+    setStudents,
+    studentCard,
+    setStudentCard,
+    attendanceFocusDate,
+    setAttendanceFocusDate,
+    consultationFocusStudentID,
+    setConsultationFocusStudentID,
+    consultationPageKey,
+    setConsultationPageKey,
+    update,
+    setUpdate,
+    updating,
+    setUpdating,
+    appVersion,
+    setAppVersion,
+    setupAgreementAccepted,
+    setSetupAgreementAccepted,
+    termsRequired,
+    setTermsRequired,
+    sidebarCollapsed,
+    setSidebarCollapsed,
+    lockTimer,
+    participationPaused,
+    setParticipationPaused,
+    loadOpenSession,
+    refreshAppState,
+    installUpdate,
+    lockScreenRef,
+    lockScreen,
+    isHomeroomTeacher,
+    desktopTitleBar,
+    handleStudentDetailNavigation,
+    unlock,
+    unlockWithPin,
+  } = useAppShell();
   if (!ready)
     return (
       <>
@@ -53,16 +115,13 @@ function App() {
             setNotice("");
           }}
           onRestored={() => {
-            setNotice("백업으로 보관함을 되살렸습니다. 간편 PIN은 환경 설정에서 다시 등록하고, 새 복구 파일을 만들어 두세요.");
+            setNotice(
+              "백업으로 보관함을 되살렸습니다. 간편 PIN은 환경 설정에서 다시 등록하고, 새 복구 파일을 만들어 두세요.",
+            );
             void refreshAppState();
           }}
         />
-        <UpdateDialog
-          info={update}
-          busy={updating}
-          onClose={() => setUpdate(null)}
-          onInstall={installUpdate}
-        />
+        <UpdateDialog info={update} busy={updating} onClose={() => setUpdate(null)} onInstall={installUpdate} />
       </>
     );
 
@@ -81,12 +140,7 @@ function App() {
           refreshAppState={refreshAppState}
           version={appVersion}
         />
-        <UpdateDialog
-          info={update}
-          busy={updating}
-          onClose={() => setUpdate(null)}
-          onInstall={installUpdate}
-        />
+        <UpdateDialog info={update} busy={updating} onClose={() => setUpdate(null)} onInstall={installUpdate} />
       </>
     );
   }
@@ -120,12 +174,7 @@ function App() {
   return (
     <>
       {desktopTitleBar}
-      <UpdateDialog
-        info={update}
-        busy={updating}
-        onClose={() => setUpdate(null)}
-        onInstall={installUpdate}
-      />
+      <UpdateDialog info={update} busy={updating} onClose={() => setUpdate(null)} onInstall={installUpdate} />
       <AppConfirmDialogHost />
       <div
         className={`application ${isClassicTheme(config?.theme) ? "theme-classic" : "theme-cheese"} ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}
@@ -150,13 +199,22 @@ function App() {
         <main>
           <header className="topbar">
             <div>
-              <p className="eyebrow">
-                로컬 암호화 보관함 · 자동 잠금 {config?.autoLockMinutes}분
-              </p>
+              <p className="eyebrow">로컬 암호화 보관함 · 자동 잠금 {config?.autoLockMinutes}분</p>
               <h1>{active}</h1>
             </div>
             <div className="top-actions">
-              {participationPaused && <button className="quiet-button" onClick={() => { ResumeParticipationSessions(); setParticipationPaused(false); setNotice("QR 참여 회차를 재개했습니다."); }}>회차 재개</button>}
+              {participationPaused && (
+                <button
+                  className="quiet-button"
+                  onClick={() => {
+                    ResumeParticipationSessions();
+                    setParticipationPaused(false);
+                    setNotice("QR 참여 회차를 재개했습니다.");
+                  }}
+                >
+                  회차 재개
+                </button>
+              )}
               <QuickSearch
                 students={students || []}
                 isHomeroomTeacher={isHomeroomTeacher}
@@ -166,7 +224,12 @@ function App() {
                   setActive(page);
                 }}
               />
-              <ReminderInbox onNavigate={(page) => { setStudentCard(null); setActive(page); }} />
+              <ReminderInbox
+                onNavigate={(page) => {
+                  setStudentCard(null);
+                  setActive(page);
+                }}
+              />
               <QuickMemo onSaved={setNotice} />
               <span className="local-status">
                 <i />이 기기에 안전하게 저장됨
@@ -185,19 +248,13 @@ function App() {
           <div className="page-content">
             {studentCard ? (
               <StudentCard
-                student={
-                  (students || []).find(
-                    (student) => student.id === studentCard.id,
-                  ) || studentCard
-                }
+                student={(students || []).find((student) => student.id === studentCard.id) || studentCard}
                 close={() => setStudentCard(null)}
                 students={students || []}
                 navigate={(nextStudent) => setStudentCard(nextStudent)}
                 config={config}
                 requestNavigation={handleStudentDetailNavigation}
-                reloadStudents={async () =>
-                  setStudents((await ListStudents()) || [])
-                }
+                reloadStudents={async () => setStudents((await ListStudents()) || [])}
                 deleted={async () => {
                   setStudentCard(null);
                   setActive("학생 명렬");
@@ -224,8 +281,7 @@ function App() {
                   setStudentCard(null);
                   setActive(page);
                 },
-                (studentID) =>
-                  handleStudentDetailNavigation({ destination: "상담 기록", studentID }),
+                (studentID) => handleStudentDetailNavigation({ destination: "상담 기록", studentID }),
               )
             )}
           </div>
@@ -234,6 +290,5 @@ function App() {
     </>
   );
 }
-
 
 export default App;

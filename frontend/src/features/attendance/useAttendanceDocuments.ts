@@ -12,24 +12,17 @@ import { attendanceOutputActions } from "./attendanceOutputActions";
 export function useAttendanceDocumentsState(shared: UseAttendanceShared) {
   const { config, date, day, setNotice, attendanceTab, studentByID } = shared;
   const [templates, setTemplates] = useState<models.AttendanceTemplate[]>([]);
-  const [template, setTemplate] = useState<models.AttendanceTemplate | null>(
-    null,
-  );
+  const [template, setTemplate] = useState<models.AttendanceTemplate | null>(null);
   const [templatePath, setTemplatePath] = useState("");
   const [templateName, setTemplateName] = useState("");
   const [templateStatuses, setTemplateStatuses] = useState<string[]>(["결석"]);
   const [hwpxCustomText, setHwpxCustomText] = useState("");
   const [mapField, setMapField] = useState("성명");
   const [customFieldName, setCustomFieldName] = useState("");
-  const [documentOverrides, setDocumentOverrides] = useState<
-    Record<string, string>
-  >({});
-  const [documentLayoutOverrides, setDocumentLayoutOverrides] = useState<
-    Record<string, DocumentPointLayout>
-  >({});
+  const [documentOverrides, setDocumentOverrides] = useState<Record<string, string>>({});
+  const [documentLayoutOverrides, setDocumentLayoutOverrides] = useState<Record<string, DocumentPointLayout>>({});
   const [selectedMappingID, setSelectedMappingID] = useState("");
-  const [documentPeriod, setDocumentPeriod] =
-    useState<models.AttendanceDocumentPeriod | null>(null);
+  const [documentPeriod, setDocumentPeriod] = useState<models.AttendanceDocumentPeriod | null>(null);
   const [selectedDocumentStudentID, setSelectedDocumentStudentID] = useState("");
   const documentStudents = useMemo(
     () =>
@@ -44,47 +37,28 @@ export function useAttendanceDocumentsState(shared: UseAttendanceShared) {
     [documentStudents, selectedDocumentStudentID],
   );
   useEffect(() => {
-    if (documentStudent && documentStudent.id !== selectedDocumentStudentID) setSelectedDocumentStudentID(documentStudent.id);
+    if (documentStudent && documentStudent.id !== selectedDocumentStudentID)
+      setSelectedDocumentStudentID(documentStudent.id);
   }, [documentStudent, selectedDocumentStudentID]);
-  const dailyDocumentEntry = day?.entries.find(
-    (entry) => entry.studentId === documentStudent?.id,
-  );
+  const dailyDocumentEntry = day?.entries.find((entry) => entry.studentId === documentStudent?.id);
   useEffect(() => {
     setDocumentPeriod(null);
-    if (
-      !documentStudent ||
-      !dailyDocumentEntry ||
-      dailyDocumentEntry.status === "출석"
-    )
-      return;
+    if (!documentStudent || !dailyDocumentEntry || dailyDocumentEntry.status === "출석") return;
     GetAttendanceDocumentPeriod(documentStudent.id, date)
-      .then((item) =>
-        setDocumentPeriod(new models.AttendanceDocumentPeriod(item)),
-      )
+      .then((item) => setDocumentPeriod(new models.AttendanceDocumentPeriod(item)))
       .catch(() => setDocumentPeriod(null));
   }, [documentStudent?.id, dailyDocumentEntry?.status, date]);
   const documentEntry = documentPeriod?.entry || dailyDocumentEntry;
   const outputStatus = documentEntry?.status || "";
   const outputTemplates = useMemo(
     () =>
-      templates.filter(
-        (item) =>
-          (item.statuses || []).length === 0 ||
-          (item.statuses || []).includes(outputStatus),
-      ),
+      templates.filter((item) => (item.statuses || []).length === 0 || (item.statuses || []).includes(outputStatus)),
     [templates, outputStatus],
   );
   useEffect(() => {
-    if (
-      attendanceTab !== "출결 서류 출력" ||
-      !outputStatus ||
-      outputStatus === "출석"
-    )
-      return;
+    if (attendanceTab !== "출결 서류 출력" || !outputStatus || outputStatus === "출석") return;
     setTemplate((current) =>
-      outputTemplates.some((item) => item.id === current?.id)
-        ? current
-        : outputTemplates[0] || null,
+      outputTemplates.some((item) => item.id === current?.id) ? current : outputTemplates[0] || null,
     );
   }, [attendanceTab, outputStatus, outputTemplates]);
   const koreanDate = (value: string) => {
@@ -94,35 +68,24 @@ export function useAttendanceDocumentsState(shared: UseAttendanceShared) {
   const baseDocumentValues: Record<string, string> = {
     성명: documentStudent?.name || "학생 선택 필요",
     "학년·반·번호":
-      documentStudent && config
-        ? `${config.grade}학년 ${config.classNumber}반 ${documentStudent.number}번`
-        : "",
+      documentStudent && config ? `${config.grade}학년 ${config.classNumber}반 ${documentStudent.number}번` : "",
     학번: documentStudent?.studentId || "",
     "출결 종류": documentEntry?.status || "",
     "사유 구분": documentEntry?.reasonCategory || "",
     "상세 사유": documentEntry?.reason || "",
     교시: documentEntry?.period || "",
-    시작일: documentPeriod?.startDate
-      ? koreanDate(documentPeriod.startDate)
-      : "",
+    시작일: documentPeriod?.startDate ? koreanDate(documentPeriod.startDate) : "",
     종료일: documentPeriod?.endDate ? koreanDate(documentPeriod.endDate) : "",
-    수업일수: documentPeriod?.schoolDays
-      ? `${documentPeriod.schoolDays}일간`
-      : "",
+    수업일수: documentPeriod?.schoolDays ? `${documentPeriod.schoolDays}일간` : "",
   };
   const documentValues: Record<string, string> = {
     ...baseDocumentValues,
     ...documentOverrides,
   };
   const fieldValue = (field: string) =>
-    field === "담임교사"
-      ? (documentOverrides[field] ?? config?.teacherLabel ?? "")
-      : documentValues[field] || "";
+    field === "담임교사" ? (documentOverrides[field] ?? config?.teacherLabel ?? "") : documentValues[field] || "";
   const mappedFields = useMemo(
-    () =>
-      Array.from(
-        new Set((template?.mappings || []).map((point) => point.field)),
-      ),
+    () => Array.from(new Set((template?.mappings || []).map((point) => point.field))),
     [template],
   );
   useEffect(() => {
@@ -142,18 +105,12 @@ export function useAttendanceDocumentsState(shared: UseAttendanceShared) {
   }, [template?.id, template?.format]);
   const rangeSeparators = useMemo(() => {
     if (!documentPeriod?.endDate) return [];
-    const starts = (template?.mappings || []).filter(
-      (point) => point.field === "시작일",
-    );
-    const ends = (template?.mappings || []).filter(
-      (point) => point.field === "종료일",
-    );
+    const starts = (template?.mappings || []).filter((point) => point.field === "시작일");
+    const ends = (template?.mappings || []).filter((point) => point.field === "종료일");
     return starts
       .map((start, index) => {
         const end = ends[index];
-        return end
-          ? { id: `${start.id || index}-${end.id || index}`, start, end }
-          : null;
+        return end ? { id: `${start.id || index}-${end.id || index}`, start, end } : null;
       })
       .filter(
         (
@@ -165,11 +122,57 @@ export function useAttendanceDocumentsState(shared: UseAttendanceShared) {
         } => point !== null,
       );
   }, [template, documentPeriod?.endDate]);
-  return { config, date, day, setNotice, attendanceTab, studentByID, templates, setTemplates, template, setTemplate, templatePath, setTemplatePath, templateName, setTemplateName, templateStatuses, setTemplateStatuses, hwpxCustomText, setHwpxCustomText, mapField, setMapField, customFieldName, setCustomFieldName, documentOverrides, setDocumentOverrides, documentLayoutOverrides, setDocumentLayoutOverrides, selectedMappingID, setSelectedMappingID, documentPeriod, setDocumentPeriod, selectedDocumentStudentID, setSelectedDocumentStudentID, documentStudents, documentStudent, dailyDocumentEntry, documentEntry, outputStatus, outputTemplates, koreanDate, baseDocumentValues, documentValues, fieldValue, mappedFields, rangeSeparators };
+  return {
+    config,
+    date,
+    day,
+    setNotice,
+    attendanceTab,
+    studentByID,
+    templates,
+    setTemplates,
+    template,
+    setTemplate,
+    templatePath,
+    setTemplatePath,
+    templateName,
+    setTemplateName,
+    templateStatuses,
+    setTemplateStatuses,
+    hwpxCustomText,
+    setHwpxCustomText,
+    mapField,
+    setMapField,
+    customFieldName,
+    setCustomFieldName,
+    documentOverrides,
+    setDocumentOverrides,
+    documentLayoutOverrides,
+    setDocumentLayoutOverrides,
+    selectedMappingID,
+    setSelectedMappingID,
+    documentPeriod,
+    setDocumentPeriod,
+    selectedDocumentStudentID,
+    setSelectedDocumentStudentID,
+    documentStudents,
+    documentStudent,
+    dailyDocumentEntry,
+    documentEntry,
+    outputStatus,
+    outputTemplates,
+    koreanDate,
+    baseDocumentValues,
+    documentValues,
+    fieldValue,
+    mappedFields,
+    rangeSeparators,
+  };
 }
 
 /** 처리 함수 묶음이 받는 값: 상태 훅 결과 + 공유 값 */
-export type AttendanceDocumentsView = ReturnType<typeof useAttendanceDocumentsState> & Parameters<typeof useAttendanceDocumentsState>[0];
+export type AttendanceDocumentsView = ReturnType<typeof useAttendanceDocumentsState> &
+  Parameters<typeof useAttendanceDocumentsState>[0];
 
 export function useAttendanceDocuments(shared: UseAttendanceShared) {
   const state = useAttendanceDocumentsState(shared);

@@ -9,7 +9,7 @@ import { areaLabels, checkText, entryStatus, measure, statusLabels, type EntrySt
 import { AiReviewDialog, PhraseSaveDialog, copyToClipboard } from "./PhraseParts";
 import { PhraseInsertDialog } from "./PhraseLibrary";
 import { aiPrompt, type AiMode } from "./recordsState";
-import { Slot, sameText } from "./useRecordsPage";
+import { Slot, sameText } from "./recordsSlots";
 
 export type SaveState = "saved" | "dirty" | "saving" | "error";
 

@@ -1,7 +1,13 @@
 import { changeEvents } from "../shared/changeEvents";
 import { useVaultChanges } from "../shared/useVaultChanges";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { DeleteConsultation, GetStudentPhoto, ListAllConsultations, SaveConsultation, SetConsultationFollowUpDone } from "../../../wailsjs/go/main/App";
+import {
+  DeleteConsultation,
+  GetStudentPhoto,
+  ListAllConsultations,
+  SaveConsultation,
+  SetConsultationFollowUpDone,
+} from "../../../wailsjs/go/main/App";
 import { main as models } from "../../../wailsjs/go/models";
 import { escapePrintText, printSheet } from "../shared/desktopActions";
 import { flowOrder, type SearchFilter } from "./consultationState";
@@ -47,13 +53,17 @@ export function Revisions({ item }: { item: models.Consultation }) {
   return (
     <div className="consult-revisions">
       <button type="button" className="text-button" onClick={() => setOpen(!open)} aria-expanded={open}>
-        수정됨 {revisions.length}회{item.updatedAt ? ` · 마지막 ${item.updatedAt.slice(0, 16).replace("T", " ")}` : ""} {open ? "▴" : "▾"}
+        수정됨 {revisions.length}회{item.updatedAt ? ` · 마지막 ${item.updatedAt.slice(0, 16).replace("T", " ")}` : ""}{" "}
+        {open ? "▴" : "▾"}
       </button>
       {open && (
         <ol>
           {revisions.map((revision, index) => (
             <li key={`${revision.editedAt}-${index}`}>
-              <small>{revision.editedAt.slice(0, 16).replace("T", " ")}에 고치기 전 · {revision.date} · {revision.type}{revision.followUpDate ? ` · 예정 ${revision.followUpDate}` : ""}</small>
+              <small>
+                {revision.editedAt.slice(0, 16).replace("T", " ")}에 고치기 전 · {revision.date} · {revision.type}
+                {revision.followUpDate ? ` · 예정 ${revision.followUpDate}` : ""}
+              </small>
               <p>{revision.content}</p>
             </li>
           ))}
@@ -67,8 +77,13 @@ export function Revisions({ item }: { item: models.Consultation }) {
 export function FollowUpStatus({ item }: { item: models.Consultation }) {
   if (!item.followUpDate) return null;
   if (item.followUpDone)
-    return <span className="consult-status done">✓ 확인 완료{item.manualDone ? "" : " (후속 기록)"} · 예정 {shortDate(item.followUpDate)}</span>;
-  if (item.followUpDate < todayLocal()) return <span className="consult-status overdue">확인 지남 · {shortDate(item.followUpDate)}</span>;
+    return (
+      <span className="consult-status done">
+        ✓ 확인 완료{item.manualDone ? "" : " (후속 기록)"} · 예정 {shortDate(item.followUpDate)}
+      </span>
+    );
+  if (item.followUpDate < todayLocal())
+    return <span className="consult-status overdue">확인 지남 · {shortDate(item.followUpDate)}</span>;
   return <span className="consult-status planned">다음 확인 {shortDate(item.followUpDate)}</span>;
 }
 
@@ -91,15 +106,11 @@ export function useConsultationPage({
   const [items, setItems] = useState<models.Consultation[]>([]);
   const [photos, setPhotos] = useState<Record<string, string>>({});
   const [selectedID, setSelectedID] = useState(initialStudentID);
-  const [mode, setMode] = useState<"write" | "view">(
-    initialStudentID ? "view" : "write",
-  );
+  const [mode, setMode] = useState<"write" | "view">(initialStudentID ? "view" : "write");
   const [dialogOpen, setDialogOpen] = useState(Boolean(initialStudentID));
   const [draft, setDraft] = useState<Draft>(emptyDraft());
   const [editing, setEditing] = useState<models.Consultation | null>(null);
-  const [followTarget, setFollowTarget] = useState<models.Consultation | null>(
-    null,
-  );
+  const [followTarget, setFollowTarget] = useState<models.Consultation | null>(null);
   const [followDraft, setFollowDraft] = useState<Draft>(emptyDraft(followTypes[0]));
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [notice, setNotice] = useState("");
@@ -108,17 +119,10 @@ export function useConsultationPage({
   const [filter, setFilter] = useState<SearchFilter>({ studentId: "", type: "", from: "", to: "", query: "" });
   const [printFrom, setPrintFrom] = useState("");
   const [printTo, setPrintTo] = useState("");
-  const selected =
-    students.find((student) => student.id === selectedID) || null;
-  const records = useMemo(
-    () => items.filter((item) => item.studentId === selectedID),
-    [items, selectedID],
-  );
+  const selected = students.find((student) => student.id === selectedID) || null;
+  const records = useMemo(() => items.filter((item) => item.studentId === selectedID), [items, selectedID]);
   const roots = useMemo(
-    () =>
-      records
-        .filter((item) => !item.parentId)
-        .sort((a, b) => b.date.localeCompare(a.date)),
+    () => records.filter((item) => !item.parentId).sort((a, b) => b.date.localeCompare(a.date)),
     [records],
   );
   async function reload() {
@@ -137,16 +141,9 @@ export function useConsultationPage({
     void Promise.all(
       students
         .filter((student) => student.hasPhoto)
-        .map(
-          async (student) =>
-            [student.id, await GetStudentPhoto(student.id)] as const,
-        ),
+        .map(async (student) => [student.id, await GetStudentPhoto(student.id)] as const),
     )
-      .then(
-        (values) =>
-          active &&
-          setPhotos(Object.fromEntries(values.filter(([, photo]) => photo))),
-      )
+      .then((values) => active && setPhotos(Object.fromEntries(values.filter(([, photo]) => photo))))
       .catch(() => active && setPhotos({}));
     return () => {
       active = false;
@@ -192,16 +189,12 @@ export function useConsultationPage({
     if (!selected) return;
     try {
       setBusy(true);
-      const base = editing
-        ? { ...editing, ...draft, studentId: selected.id }
-        : { ...draft, studentId: selected.id };
+      const base = editing ? { ...editing, ...draft, studentId: selected.id } : { ...draft, studentId: selected.id };
       await SaveConsultation(new models.Consultation(base));
       setDraft(emptyDraft());
       setEditing(null);
       await reload();
-      setNotice(
-        editing ? "상담 기록을 수정했습니다." : "상담 기록을 저장했습니다.",
-      );
+      setNotice(editing ? "상담 기록을 수정했습니다." : "상담 기록을 저장했습니다.");
       setMode("view");
     } catch (error) {
       setNotice(errorMessage(error));
@@ -270,7 +263,10 @@ export function useConsultationPage({
   function printStudentLog() {
     if (!selected) return;
     const rows = flowOrder(records, printFrom, printTo)
-      .map(({ item, depth }) => `<tr><td class="date">${escapePrintText(item.date)}</td><td>${depth ? "↳ ".repeat(depth) : ""}${escapePrintText(item.type)}</td><td class="content">${escapePrintText(item.content)}</td><td class="date">${escapePrintText(followText(item))}</td></tr>`)
+      .map(
+        ({ item, depth }) =>
+          `<tr><td class="date">${escapePrintText(item.date)}</td><td>${depth ? "↳ ".repeat(depth) : ""}${escapePrintText(item.type)}</td><td class="content">${escapePrintText(item.content)}</td><td class="date">${escapePrintText(followText(item))}</td></tr>`,
+      )
       .join("");
     if (!rows) {
       setNotice("고른 기간에 인쇄할 상담 기록이 없습니다.");
@@ -283,7 +279,10 @@ export function useConsultationPage({
   function printSearchList(found: models.Consultation[]) {
     if (found.length === 0) return;
     const rows = found
-      .map((item) => `<tr><td class="date">${escapePrintText(item.date)}</td><td>${escapePrintText(nameOf(item.studentId))}</td><td>${item.parentId ? "↳ " : ""}${escapePrintText(item.type)}</td><td class="content">${escapePrintText(item.content)}</td><td class="date">${escapePrintText(followText(item))}</td></tr>`)
+      .map(
+        (item) =>
+          `<tr><td class="date">${escapePrintText(item.date)}</td><td>${escapePrintText(nameOf(item.studentId))}</td><td>${item.parentId ? "↳ " : ""}${escapePrintText(item.type)}</td><td class="content">${escapePrintText(item.content)}</td><td class="date">${escapePrintText(followText(item))}</td></tr>`,
+      )
       .join("");
     const parts = [
       filter.from || filter.to ? `${filter.from || "처음"} ~ ${filter.to || "오늘"}` : "전체 기간",
@@ -309,7 +308,56 @@ export function useConsultationPage({
     });
     setMode("write");
   }
-  return { items, setItems, photos, setPhotos, selectedID, setSelectedID, mode, setMode, dialogOpen, setDialogOpen, draft, setDraft, editing, setEditing, followTarget, setFollowTarget, followDraft, setFollowDraft, expanded, setExpanded, notice, setNotice, busy, setBusy, view, setView, filter, setFilter, printFrom, setPrintFrom, printTo, setPrintTo, selected, records, roots, reload, choose, changeDialogOpen, descendants, save, saveFollow, remove, markDone, nameOf, printStudentLog, printSearchList, startFollow, startEdit };
+  return {
+    items,
+    setItems,
+    photos,
+    setPhotos,
+    selectedID,
+    setSelectedID,
+    mode,
+    setMode,
+    dialogOpen,
+    setDialogOpen,
+    draft,
+    setDraft,
+    editing,
+    setEditing,
+    followTarget,
+    setFollowTarget,
+    followDraft,
+    setFollowDraft,
+    expanded,
+    setExpanded,
+    notice,
+    setNotice,
+    busy,
+    setBusy,
+    view,
+    setView,
+    filter,
+    setFilter,
+    printFrom,
+    setPrintFrom,
+    printTo,
+    setPrintTo,
+    selected,
+    records,
+    roots,
+    reload,
+    choose,
+    changeDialogOpen,
+    descendants,
+    save,
+    saveFollow,
+    remove,
+    markDone,
+    nameOf,
+    printStudentLog,
+    printSearchList,
+    startFollow,
+    startEdit,
+  };
 }
 
 /** 화면 구역 컴포넌트에 넘기는 값 묶음 */

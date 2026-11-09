@@ -1,3 +1,4 @@
+import "../shared/dialog-parts.css";
 import "./students.css";
 import "./student-detail.css";
 import { main as models } from "../../../wailsjs/go/models";
@@ -33,8 +34,70 @@ export function StudentCard({
   deleted: () => Promise<void>;
   displayGender: (gender: string) => string;
 }) {
-  const view = useStudentCard({ student, close, students, navigate, config, requestNavigation, reloadStudents, deleted, displayGender });
-  const { photo, setPhoto, consultations, setConsultations, attendanceRecords, setAttendanceRecords, attendanceYear, setAttendanceYear, attendanceSemester, setAttendanceSemester, attendanceMonth, setAttendanceMonth, consultationYear, setConsultationYear, consultationSemester, setConsultationSemester, consultationMonth, setConsultationMonth, editing, setEditing, notice, setNotice, copyToast, setCopyToast, deleteOpen, setDeleteOpen, deleteConfirmation, setDeleteConfirmation, deleteNotice, setDeleteNotice, busy, setBusy, reload, orderedStudents, currentIndex, previousStudent, nextStudent, age, attendanceYears, attendanceEntries, filteredAttendance, attendanceCounts, experienceUsage, semesterExperienceUsage, consultationYears, filteredConsultations, choosePhoto, removeStudent, closeDelete, copyValue, value } = view;
+  const view = useStudentCard({
+    student,
+    close,
+    students,
+    navigate,
+    config,
+    requestNavigation,
+    reloadStudents,
+    deleted,
+    displayGender,
+  });
+  const {
+    photo,
+    setPhoto,
+    consultations,
+    setConsultations,
+    attendanceRecords,
+    setAttendanceRecords,
+    attendanceYear,
+    setAttendanceYear,
+    attendanceSemester,
+    setAttendanceSemester,
+    attendanceMonth,
+    setAttendanceMonth,
+    consultationYear,
+    setConsultationYear,
+    consultationSemester,
+    setConsultationSemester,
+    consultationMonth,
+    setConsultationMonth,
+    editing,
+    setEditing,
+    notice,
+    setNotice,
+    copyToast,
+    setCopyToast,
+    deleteOpen,
+    setDeleteOpen,
+    deleteConfirmation,
+    setDeleteConfirmation,
+    deleteNotice,
+    setDeleteNotice,
+    busy,
+    setBusy,
+    reload,
+    orderedStudents,
+    currentIndex,
+    previousStudent,
+    nextStudent,
+    age,
+    attendanceYears,
+    attendanceEntries,
+    filteredAttendance,
+    attendanceCounts,
+    experienceUsage,
+    semesterExperienceUsage,
+    consultationYears,
+    filteredConsultations,
+    choosePhoto,
+    removeStudent,
+    closeDelete,
+    copyValue,
+    value,
+  } = view;
   return (
     <>
       <section className="card-back">
@@ -54,11 +117,7 @@ export function StudentCard({
           ‹
         </button>
         <div className="student-photo">
-          {photo ? (
-            <img src={photo} alt={`${student.name} 학생 사진`} />
-          ) : (
-            <span>{student.name[0]}</span>
-          )}
+          {photo ? <img src={photo} alt={`${student.name} 학생 사진`} /> : <span>{student.name[0]}</span>}
         </div>
         <div>
           <p className="eyebrow">학생 상세정보 · 암호화 보관</p>
@@ -70,24 +129,14 @@ export function StudentCard({
           </p>
         </div>
         <div className="student-hero-actions">
-          <button
-            className="quiet-button"
-            onClick={choosePhoto}
-            disabled={busy}
-          >
+          <button className="quiet-button" onClick={choosePhoto} disabled={busy}>
             ▣ 사진 파일 선택
           </button>
-          <HelpTip>
-            학생별 사진 파일을 선택하면 이 컴퓨터의 암호화 보관함에 저장됩니다.
-          </HelpTip>
+          <HelpTip>학생별 사진 파일을 선택하면 이 컴퓨터의 암호화 보관함에 저장됩니다.</HelpTip>
           <button className="primary-button" onClick={() => setEditing(true)}>
             기본정보 수정
           </button>
-          <button
-            className="quiet-button danger-button"
-            onClick={() => setDeleteOpen(true)}
-            disabled={busy}
-          >
+          <button className="quiet-button danger-button" onClick={() => setDeleteOpen(true)} disabled={busy}>
             학생 정보 삭제
           </button>
         </div>
@@ -104,20 +153,13 @@ export function StudentCard({
       </section>
       {notice && <p className="save-notice">{notice}</p>}
       {copyToast && (
-        <aside
-          className={copyToast.failed ? "copy-toast failed" : "copy-toast"}
-          role="status"
-        >
+        <aside className={copyToast.failed ? "copy-toast failed" : "copy-toast"} role="status">
           <span>{copyToast.failed ? "!" : "✓"}</span>
           <div>
             <strong>{copyToast.failed ? "복사 실패" : "복사 완료"}</strong>
             <small>{copyToast.text}</small>
           </div>
-          <button
-            type="button"
-            onClick={() => setCopyToast(null)}
-            aria-label="복사 안내 닫기"
-          >
+          <button type="button" onClick={() => setCopyToast(null)} aria-label="복사 안내 닫기">
             ×
           </button>
         </aside>
@@ -137,23 +179,19 @@ export function StudentCard({
         steps={[
           {
             title: "사진과 기본정보 보완",
-            detail:
-              "사진 파일 선택과 기본정보 수정을 이용해 연락처·주소를 보완합니다.",
+            detail: "사진 파일 선택과 기본정보 수정을 이용해 연락처·주소를 보완합니다.",
           },
           {
             title: "초록색 복사 표식 사용",
-            detail:
-              "생년월일·주소·연락처는 값을 클릭하면 복사되며, 복사 완료 안내가 표시됩니다.",
+            detail: "생년월일·주소·연락처는 값을 클릭하면 복사되며, 복사 완료 안내가 표시됩니다.",
           },
           {
             title: "상담 내용 확인",
-            detail:
-              "상담 기록 요약과 최근 기록을 확인하고, 상담 기록 열기에서 새 기록과 후속 조치를 관리합니다.",
+            detail: "상담 기록 요약과 최근 기록을 확인하고, 상담 기록 열기에서 새 기록과 후속 조치를 관리합니다.",
           },
           {
             title: "출결 기록 확인",
-            detail:
-              "출결 항목을 누르면 해당 날짜의 출결 입력 화면으로 바로 이동합니다.",
+            detail: "출결 항목을 누르면 해당 날짜의 출결 입력 화면으로 바로 이동합니다.",
           },
         ]}
         note="좌우 화살표로 번호순 다음 학생으로 이동할 수 있습니다."
@@ -188,7 +226,20 @@ export function StudentCard({
           </div>
         </article>
       </section>
-      <StudentConsultationSummary view={{ ...view, student, close, students, navigate, config, requestNavigation, reloadStudents, deleted, displayGender }} />
+      <StudentConsultationSummary
+        view={{
+          ...view,
+          student,
+          close,
+          students,
+          navigate,
+          config,
+          requestNavigation,
+          reloadStudents,
+          deleted,
+          displayGender,
+        }}
+      />
       <section className="student-card-grid">
         <article className="panel career-hope-card">
           <div className="panel-heading">
@@ -200,10 +251,7 @@ export function StudentCard({
               수정 →
             </button>
           </div>
-          <p>
-            {student.careerHope ||
-              "아직 입력한 진로희망이 없습니다. 기본정보 수정에서 기록해 주세요."}
-          </p>
+          <p>{student.careerHope || "아직 입력한 진로희망이 없습니다. 기본정보 수정에서 기록해 주세요."}</p>
         </article>
         <article className="panel career-hope-card">
           <div className="panel-heading">
@@ -216,12 +264,24 @@ export function StudentCard({
             </button>
           </div>
           <p>
-            {student.note ||
-              "등록된 특이사항이 없습니다. 알레르기, 건강, 교우관계, 지도 유의사항 등을 기록해 주세요."}
+            {student.note || "등록된 특이사항이 없습니다. 알레르기, 건강, 교우관계, 지도 유의사항 등을 기록해 주세요."}
           </p>
         </article>
       </section>
-      <StudentAttendancePanel view={{ ...view, student, close, students, navigate, config, requestNavigation, reloadStudents, deleted, displayGender }} />
+      <StudentAttendancePanel
+        view={{
+          ...view,
+          student,
+          close,
+          students,
+          navigate,
+          config,
+          requestNavigation,
+          reloadStudents,
+          deleted,
+          displayGender,
+        }}
+      />
       {editing && (
         <StudentEditor
           student={student}

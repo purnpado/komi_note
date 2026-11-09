@@ -9,7 +9,18 @@ import { useWindowControls } from "./features/app-shell/useWindowControls";
 import { menus, type PageKey } from "./features/navigation/menuTypes";
 import { useSidebar } from "./features/navigation/useSidebar";
 import type { StudentDetailNavigationRequest } from "./features/shared/featureNavigation";
-import { CheckForUpdate, GetAppState, GetSessionConfig, GetParticipationSafetyState, GetAppVersion, InstallAvailableUpdate, ListStudents, LockVault, UnlockVault, UnlockVaultWithPin } from "../wailsjs/go/main/App";
+import {
+  CheckForUpdate,
+  GetAppState,
+  GetSessionConfig,
+  GetParticipationSafetyState,
+  GetAppVersion,
+  InstallAvailableUpdate,
+  ListStudents,
+  LockVault,
+  UnlockVault,
+  UnlockVaultWithPin,
+} from "../wailsjs/go/main/App";
 import { main as models } from "../wailsjs/go/models";
 import { errorMessage } from "./features/shared/format";
 import { EventsOn } from "../wailsjs/runtime/runtime";
@@ -44,8 +55,7 @@ export function useAppShell() {
   const [students, setStudents] = useState<models.Student[]>([]);
   const [studentCard, setStudentCard] = useState<models.Student | null>(null);
   const [attendanceFocusDate, setAttendanceFocusDate] = useState("");
-  const [consultationFocusStudentID, setConsultationFocusStudentID] =
-    useState("");
+  const [consultationFocusStudentID, setConsultationFocusStudentID] = useState("");
   const [consultationPageKey, setConsultationPageKey] = useState(0);
   const [update, setUpdate] = useState<models.UpdateInfo | null>(null);
   const [updating, setUpdating] = useState(false);
@@ -69,7 +79,10 @@ export function useAppShell() {
   useVaultChanges([changeEvents.students, changeEvents.settings], (name) => {
     if (locked) return;
     if (name === changeEvents.settings) void loadOpenSession().catch(() => undefined);
-    else void ListStudents().then((items) => setStudents(items || [])).catch(() => undefined);
+    else
+      void ListStudents()
+        .then((items) => setStudents(items || []))
+        .catch(() => undefined);
   });
 
   const refreshAppState = async () => {
@@ -164,46 +177,43 @@ export function useAppShell() {
     let lastActivityAt = Date.now();
     const resetTimer = () => {
       window.clearTimeout(lockTimer.current);
-      lockTimer.current = window.setTimeout(() => {
-        void GetParticipationSafetyState()
-          .then((state) => {
-            if (state.active && Date.now() - lastActivityAt < PARTICIPATION_LOCK_LIMIT_MS) {
-              setNotice("QR 참여 회차가 진행 중이어서 자동 잠금을 보류했습니다.");
-              resetTimer();
-              return;
-            }
-            if (state.active) {
-              lockScreen(
-                `QR 참여 회차 중이지만 ${PARTICIPATION_LOCK_LIMIT_MINUTES}분 넘게 입력이 없어 화면을 잠갔습니다. 잠금을 해제한 뒤 이어서 진행할 수 있습니다.`,
-              );
-              return;
-            }
-            lockScreen("입력이 없어 화면을 자동으로 잠갔습니다.");
-          })
-          .catch(() => lockScreen("입력이 없어 화면을 자동으로 잠갔습니다."));
-      }, config.autoLockMinutes * 60 * 1000);
+      lockTimer.current = window.setTimeout(
+        () => {
+          void GetParticipationSafetyState()
+            .then((state) => {
+              if (state.active && Date.now() - lastActivityAt < PARTICIPATION_LOCK_LIMIT_MS) {
+                setNotice("QR 참여 회차가 진행 중이어서 자동 잠금을 보류했습니다.");
+                resetTimer();
+                return;
+              }
+              if (state.active) {
+                lockScreen(
+                  `QR 참여 회차 중이지만 ${PARTICIPATION_LOCK_LIMIT_MINUTES}분 넘게 입력이 없어 화면을 잠갔습니다. 잠금을 해제한 뒤 이어서 진행할 수 있습니다.`,
+                );
+                return;
+              }
+              lockScreen("입력이 없어 화면을 자동으로 잠갔습니다.");
+            })
+            .catch(() => lockScreen("입력이 없어 화면을 자동으로 잠갔습니다."));
+        },
+        config.autoLockMinutes * 60 * 1000,
+      );
     };
     const onActivity = () => {
       lastActivityAt = Date.now();
       resetTimer();
     };
     const events = ["mousemove", "mousedown", "keydown", "touchstart"];
-    events.forEach((eventName) =>
-      window.addEventListener(eventName, onActivity),
-    );
+    events.forEach((eventName) => window.addEventListener(eventName, onActivity));
     resetTimer();
     return () => {
       window.clearTimeout(lockTimer.current);
-      events.forEach((eventName) =>
-        window.removeEventListener(eventName, onActivity),
-      );
+      events.forEach((eventName) => window.removeEventListener(eventName, onActivity));
     };
   }, [locked, config]);
 
   useEffect(() => {
-    document.documentElement.dataset.kkomiTheme = isClassicTheme(config?.theme)
-      ? "classic"
-      : "cheese";
+    document.documentElement.dataset.kkomiTheme = isClassicTheme(config?.theme) ? "classic" : "cheese";
   }, [config?.theme]);
 
   const isHomeroomTeacher = config?.teacherRole !== "비담임 교과 교사";
@@ -218,9 +228,7 @@ export function useAppShell() {
     />
   );
 
-  function handleStudentDetailNavigation(
-    request: StudentDetailNavigationRequest,
-  ) {
+  function handleStudentDetailNavigation(request: StudentDetailNavigationRequest) {
     setStudentCard(null);
     if (request.destination === "출결 관리") {
       setAttendanceFocusDate(request.date);
@@ -277,5 +285,62 @@ export function useAppShell() {
     }
   }
 
-  return { windowControls, ready, setReady, needsSetup, setNeedsSetup, locked, setLocked, hasPin, setHasPin, pinLocked, setPinLocked, pinAttempts, setPinAttempts, pinNotice, setPinNotice, config, setConfig, active, setActive, notice, setNotice, students, setStudents, studentCard, setStudentCard, attendanceFocusDate, setAttendanceFocusDate, consultationFocusStudentID, setConsultationFocusStudentID, consultationPageKey, setConsultationPageKey, update, setUpdate, updating, setUpdating, appVersion, setAppVersion, setupAgreementAccepted, setSetupAgreementAccepted, termsRequired, setTermsRequired, sidebarCollapsed, setSidebarCollapsed, lockTimer, participationPaused, setParticipationPaused, loadOpenSession, refreshAppState, installUpdate, lockScreenRef, lockScreen, isHomeroomTeacher, desktopTitleBar, handleStudentDetailNavigation, unlock, unlockWithPin };
+  return {
+    windowControls,
+    ready,
+    setReady,
+    needsSetup,
+    setNeedsSetup,
+    locked,
+    setLocked,
+    hasPin,
+    setHasPin,
+    pinLocked,
+    setPinLocked,
+    pinAttempts,
+    setPinAttempts,
+    pinNotice,
+    setPinNotice,
+    config,
+    setConfig,
+    active,
+    setActive,
+    notice,
+    setNotice,
+    students,
+    setStudents,
+    studentCard,
+    setStudentCard,
+    attendanceFocusDate,
+    setAttendanceFocusDate,
+    consultationFocusStudentID,
+    setConsultationFocusStudentID,
+    consultationPageKey,
+    setConsultationPageKey,
+    update,
+    setUpdate,
+    updating,
+    setUpdating,
+    appVersion,
+    setAppVersion,
+    setupAgreementAccepted,
+    setSetupAgreementAccepted,
+    termsRequired,
+    setTermsRequired,
+    sidebarCollapsed,
+    setSidebarCollapsed,
+    lockTimer,
+    participationPaused,
+    setParticipationPaused,
+    loadOpenSession,
+    refreshAppState,
+    installUpdate,
+    lockScreenRef,
+    lockScreen,
+    isHomeroomTeacher,
+    desktopTitleBar,
+    handleStudentDetailNavigation,
+    unlock,
+    unlockWithPin,
+  };
 }

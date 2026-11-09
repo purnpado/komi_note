@@ -5,7 +5,13 @@ import { SeatingHistoryPanel } from "./SeatingHistoryPanel";
 import { SeatingSetupPanel } from "./SeatingSetupPanel";
 import { SeatingExecutionPanel } from "./SeatingExecutionPanel";
 import { SeatingResultPanel } from "./SeatingResultPanel";
-import { SeatingCloseSessionDialog, SeatingDeleteDialog, SeatingPartialCloseDialog, SeatingRecoveryEndDialog, SeatingRevealNamesDialog } from "./SeatingDialogs";
+import {
+  SeatingCloseSessionDialog,
+  SeatingDeleteDialog,
+  SeatingPartialCloseDialog,
+  SeatingRecoveryEndDialog,
+  SeatingRevealNamesDialog,
+} from "./SeatingDialogs";
 import { openExternalURL } from "../shared/desktopActions";
 import "./seating.css";
 import { useClassroomPage } from "./useClassroomPage";
@@ -17,17 +23,112 @@ export function ClassroomPage({
   students: models.Student[];
   formatRecordedAt: (value: string) => string;
 }) {
-  const { seatingTab, setSeatingTab, plans, setPlans, selectedID, setSelectedID, title, setTitle, rows, setRows, columns, setColumns, layoutMode, setLayoutMode, deskPosition, setDeskPosition, placementMode, setPlacementMode, drawMethod, setDrawMethod, competitionMethod, setCompetitionMethod, preventPreviousSeat, setPreventPreviousSeat, preventPreviousPartner, setPreventPreviousPartner, fixedStudentIDs, setFixedStudentIDs, participationMode, setParticipationMode, sessionState, setSessionState, currentRound, setCurrentRound, seats, setSeats, notice, setNotice, seatingDeleteOpen, setSeatingDeleteOpen, seatingRecoveryEndOpen, setSeatingRecoveryEndOpen, customDraggingID, setCustomDraggingID, initialRosterCount, selectedPlan, orderedStudents, canUseFixedSeats, seatingSession, setSeatingSession, sessionPhase, executionAction, openArrowSession, startArrowAssignment, startSeatingRoulette, revealRandomLadder, advanceRandomLadder, closeArrowEntry, openPreferenceSubmission, closePreferenceSubmission, startRPSCompetition, advancePreferenceRound, stopArrowSession, recoverSeatingSession, copyStudentAddress, partialCloseOpen, setPartialCloseOpen, revealDialogOpen, setRevealDialogOpen, closeSessionOpen, setCloseSessionOpen, revealSeatingNames, swapSeats, hasFinalSeatingResult, loadPlans, loadPlan, newPlan, changeLayout, switchLayoutMode, addCustomSeat, deleteCustomSeat, moveCustomSeat, assignSeat, moveSeat, handleSeatDragStart, handleSeatDrop, drawSeats, savePlan, removePlan, assignedIDs, visualSeats, groupedPlacement, groupSize, displaySeats, seatNumberByID, groupedSeatGroups, printSeatingResult } = useClassroomPage({ students, formatRecordedAt });
+  const {
+    seatingTab,
+    setSeatingTab,
+    plans,
+    setPlans,
+    selectedID,
+    setSelectedID,
+    title,
+    setTitle,
+    rows,
+    setRows,
+    columns,
+    setColumns,
+    layoutMode,
+    setLayoutMode,
+    deskPosition,
+    setDeskPosition,
+    placementMode,
+    setPlacementMode,
+    drawMethod,
+    setDrawMethod,
+    competitionMethod,
+    setCompetitionMethod,
+    preventPreviousSeat,
+    setPreventPreviousSeat,
+    preventPreviousPartner,
+    setPreventPreviousPartner,
+    fixedStudentIDs,
+    setFixedStudentIDs,
+    participationMode,
+    setParticipationMode,
+    sessionState,
+    setSessionState,
+    currentRound,
+    setCurrentRound,
+    seats,
+    setSeats,
+    notice,
+    setNotice,
+    seatingDeleteOpen,
+    setSeatingDeleteOpen,
+    seatingRecoveryEndOpen,
+    setSeatingRecoveryEndOpen,
+    customDraggingID,
+    setCustomDraggingID,
+    initialRosterCount,
+    selectedPlan,
+    orderedStudents,
+    canUseFixedSeats,
+    seatingSession,
+    setSeatingSession,
+    sessionPhase,
+    executionAction,
+    openArrowSession,
+    startArrowAssignment,
+    startSeatingRoulette,
+    revealRandomLadder,
+    advanceRandomLadder,
+    closeArrowEntry,
+    openPreferenceSubmission,
+    closePreferenceSubmission,
+    startRPSCompetition,
+    advancePreferenceRound,
+    stopArrowSession,
+    recoverSeatingSession,
+    copyStudentAddress,
+    partialCloseOpen,
+    setPartialCloseOpen,
+    revealDialogOpen,
+    setRevealDialogOpen,
+    closeSessionOpen,
+    setCloseSessionOpen,
+    revealSeatingNames,
+    swapSeats,
+    hasFinalSeatingResult,
+    loadPlans,
+    loadPlan,
+    newPlan,
+    changeLayout,
+    switchLayoutMode,
+    addCustomSeat,
+    deleteCustomSeat,
+    moveCustomSeat,
+    assignSeat,
+    moveSeat,
+    handleSeatDragStart,
+    handleSeatDrop,
+    drawSeats,
+    savePlan,
+    removePlan,
+    assignedIDs,
+    visualSeats,
+    groupedPlacement,
+    groupSize,
+    displaySeats,
+    seatNumberByID,
+    groupedSeatGroups,
+    printSeatingResult,
+  } = useClassroomPage({ students, formatRecordedAt });
   return (
     <>
       <section className="page-intro">
         <div>
           <p className="eyebrow">학급 운영 · 자리배정</p>
           <h2>자리배정</h2>
-          <p>
-            이전 배치를 확인하고 교실 구조를 정한 뒤, QR 랜덤 룰렛으로 결과를
-            확정합니다.
-          </p>
+          <p>이전 배치를 확인하고 교실 구조를 정한 뒤, QR 랜덤 룰렛으로 결과를 확정합니다.</p>
         </div>
         <div className="dialog-actions">
           <button className="primary-button" onClick={newPlan}>
@@ -70,7 +171,8 @@ export function ClassroomPage({
           },
           {
             title: "배정 규칙과 고정 학생 확인",
-            detail: "이전 자리·짝꿍 금지 규칙을 정하고, 필요한 경우 이전 배치가 있는 학생만 교사 전용 고정 학생으로 지정합니다.",
+            detail:
+              "이전 자리·짝꿍 금지 규칙을 정하고, 필요한 경우 이전 배치가 있는 학생만 교사 전용 고정 학생으로 지정합니다.",
           },
           {
             title: "QR 회차와 게임 진행",
@@ -177,7 +279,9 @@ export function ClassroomPage({
           onCopyAddress={() => void copyStudentAddress()}
           onOpenBoard={() => {
             if (seatingSession?.boardUrl) {
-              void openExternalURL(seatingSession.boardUrl).catch(() => setNotice(`전자칠판 화면을 열지 못했습니다. 브라우저에 직접 입력해 주세요: ${seatingSession.boardUrl}`));
+              void openExternalURL(seatingSession.boardUrl).catch(() =>
+                setNotice(`전자칠판 화면을 열지 못했습니다. 브라우저에 직접 입력해 주세요: ${seatingSession.boardUrl}`),
+              );
             }
           }}
           onCloseSession={() => setCloseSessionOpen(true)}
@@ -204,7 +308,9 @@ export function ClassroomPage({
           canSwap={hasFinalSeatingResult && Boolean(selectedID)}
           onSwapSeats={swapSeats}
           changes={selectedPlan?.changes || []}
-          sessionFinished={Boolean(seatingSession?.running) && ["배정 완료", "자리 확인"].includes(seatingSession?.phase || "")}
+          sessionFinished={
+            Boolean(seatingSession?.running) && ["배정 완료", "자리 확인"].includes(seatingSession?.phase || "")
+          }
           namesRevealed={Boolean(seatingSession?.namesRevealed)}
           onRevealNames={() => setRevealDialogOpen(true)}
           onHideNames={() => void revealSeatingNames(false)}

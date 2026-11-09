@@ -8,8 +8,6 @@ import { changeEvents } from "../shared/changeEvents";
 import { errorMessage } from "../shared/format";
 import { seatingPlanActions } from "./seatingPlanActions";
 
-
-
 /** ClassroomPage 화면의 상태·계산·처리 함수. 화면(JSX)은 ClassroomPage.tsx에 있다. */
 /** useClassroomPage의 상태·계산 부분 */
 export function useClassroomPageState({
@@ -20,10 +18,7 @@ export function useClassroomPageState({
   formatRecordedAt: (value: string) => string;
 }) {
   const [seatingTab, setSeatingTab] = useState<
-    | "이전 자리배치도"
-    | "자리배치 설정"
-    | "자리배치 프로그램 실행"
-    | "확정 및 결과"
+    "이전 자리배치도" | "자리배치 설정" | "자리배치 프로그램 실행" | "확정 및 결과"
   >("이전 자리배치도");
   const [plans, setPlans] = useState<models.SeatingPlan[]>([]);
   const [selectedID, setSelectedID] = useState("");
@@ -48,9 +43,7 @@ export function useClassroomPageState({
   const [customDraggingID, setCustomDraggingID] = useState("");
   const initialRosterCount = useRef(students.length);
   const selectedPlan = plans.find((item) => item.id === selectedID) || null;
-  const orderedStudents = [...students].sort(
-    (left, right) => left.number - right.number,
-  );
+  const orderedStudents = [...students].sort((left, right) => left.number - right.number);
   const canUseFixedSeats = plans.some((plan) => plan.id !== selectedID);
 
   const {
@@ -107,8 +100,7 @@ export function useClassroomPageState({
     setCurrentRound,
   });
 
-  const hasFinalSeatingResult =
-    !seatingSession?.running || ["배정 완료", "자리 확인"].includes(seatingSession.phase);
+  const hasFinalSeatingResult = !seatingSession?.running || ["배정 완료", "자리 확인"].includes(seatingSession.phase);
 
   // autoSelect: 처음 열 때만 첫 배치를 불러온다. 변경 알림으로 다시 읽을 때는 편집 중인 자리를 건드리지 않는다.
   async function loadPlans(autoSelect = true) {
@@ -133,19 +125,11 @@ export function useClassroomPageState({
   useVaultChanges([changeEvents.students, changeEvents.settings], () => void loadPlans(false));
   useEffect(() => {
     // 명렬표가 비동기로 로드되는 경우에도 기본 자리를 24개로 고정하지 않습니다.
-    if (
-      students.length === 0 ||
-      selectedID ||
-      plans.length > 0 ||
-      students.length === initialRosterCount.current
-    ) {
+    if (students.length === 0 || selectedID || plans.length > 0 || students.length === initialRosterCount.current) {
       return;
     }
     const previous = defaultGridDimensions(initialRosterCount.current);
-    if (
-      seats.length !== previous.rows * previous.columns ||
-      seats.some((seat) => Boolean(seat.studentId))
-    ) {
+    if (seats.length !== previous.rows * previous.columns || seats.some((seat) => Boolean(seat.studentId))) {
       initialRosterCount.current = students.length;
       return;
     }
@@ -171,8 +155,8 @@ export function useClassroomPageState({
     setLayoutMode(plan.layoutMode === "사용자 지정" ? "사용자 지정" : "격자형");
     setDeskPosition(plan.deskPosition || "앞쪽 중앙");
     setPlacementMode(plan.placementMode || "행 기준");
-      setDrawMethod(plan.drawMethod || "랜덤 룰렛 배정");
-  setCompetitionMethod("가위바위보");
+    setDrawMethod(plan.drawMethod || "랜덤 룰렛 배정");
+    setCompetitionMethod("가위바위보");
     setPreventPreviousSeat(plan.preventPreviousSeat);
     setPreventPreviousPartner(plan.preventPreviousPartner);
     setFixedStudentIDs([...(plan.fixedStudentIds || [])]);
@@ -180,20 +164,91 @@ export function useClassroomPageState({
     setSessionState(plan.sessionState || "설정 중");
     setCurrentRound(plan.currentRound || 1);
     const loadedSeats =
-      plan.layoutMode === "사용자 지정"
-        ? [...(plan.seats || [])]
-        : makeSeats(planRows, planColumns, plan.seats || []);
+      plan.layoutMode === "사용자 지정" ? [...(plan.seats || [])] : makeSeats(planRows, planColumns, plan.seats || []);
     setSeats(
-      seatsForRoster(
-        loadedSeats,
-        students.length,
-        plan.layoutMode === "사용자 지정" ? "사용자 지정" : "격자형",
-      ),
+      seatsForRoster(loadedSeats, students.length, plan.layoutMode === "사용자 지정" ? "사용자 지정" : "격자형"),
     );
     setNotice((plan.title || "자리 배치") + " 배치안을 불러왔습니다.");
   }
 
-  return { seatingTab, setSeatingTab, plans, setPlans, selectedID, setSelectedID, title, setTitle, rows, setRows, columns, setColumns, layoutMode, setLayoutMode, deskPosition, setDeskPosition, placementMode, setPlacementMode, drawMethod, setDrawMethod, competitionMethod, setCompetitionMethod, preventPreviousSeat, setPreventPreviousSeat, preventPreviousPartner, setPreventPreviousPartner, fixedStudentIDs, setFixedStudentIDs, participationMode, setParticipationMode, sessionState, setSessionState, currentRound, setCurrentRound, seats, setSeats, notice, setNotice, seatingDeleteOpen, setSeatingDeleteOpen, seatingRecoveryEndOpen, setSeatingRecoveryEndOpen, customDraggingID, setCustomDraggingID, initialRosterCount, selectedPlan, orderedStudents, canUseFixedSeats, seatingSession, setSeatingSession, sessionPhase, executionAction, openArrowSession, startArrowAssignment, startSeatingRoulette, revealRandomLadder, advanceRandomLadder, closeArrowEntry, openPreferenceSubmission, closePreferenceSubmission, startRPSCompetition, advancePreferenceRound, stopArrowSession, recoverSeatingSession, copyStudentAddress, partialCloseOpen, setPartialCloseOpen, revealDialogOpen, setRevealDialogOpen, closeSessionOpen, setCloseSessionOpen, revealSeatingNames, swapSeats, hasFinalSeatingResult, loadPlans, loadPlan };
+  return {
+    seatingTab,
+    setSeatingTab,
+    plans,
+    setPlans,
+    selectedID,
+    setSelectedID,
+    title,
+    setTitle,
+    rows,
+    setRows,
+    columns,
+    setColumns,
+    layoutMode,
+    setLayoutMode,
+    deskPosition,
+    setDeskPosition,
+    placementMode,
+    setPlacementMode,
+    drawMethod,
+    setDrawMethod,
+    competitionMethod,
+    setCompetitionMethod,
+    preventPreviousSeat,
+    setPreventPreviousSeat,
+    preventPreviousPartner,
+    setPreventPreviousPartner,
+    fixedStudentIDs,
+    setFixedStudentIDs,
+    participationMode,
+    setParticipationMode,
+    sessionState,
+    setSessionState,
+    currentRound,
+    setCurrentRound,
+    seats,
+    setSeats,
+    notice,
+    setNotice,
+    seatingDeleteOpen,
+    setSeatingDeleteOpen,
+    seatingRecoveryEndOpen,
+    setSeatingRecoveryEndOpen,
+    customDraggingID,
+    setCustomDraggingID,
+    initialRosterCount,
+    selectedPlan,
+    orderedStudents,
+    canUseFixedSeats,
+    seatingSession,
+    setSeatingSession,
+    sessionPhase,
+    executionAction,
+    openArrowSession,
+    startArrowAssignment,
+    startSeatingRoulette,
+    revealRandomLadder,
+    advanceRandomLadder,
+    closeArrowEntry,
+    openPreferenceSubmission,
+    closePreferenceSubmission,
+    startRPSCompetition,
+    advancePreferenceRound,
+    stopArrowSession,
+    recoverSeatingSession,
+    copyStudentAddress,
+    partialCloseOpen,
+    setPartialCloseOpen,
+    revealDialogOpen,
+    setRevealDialogOpen,
+    closeSessionOpen,
+    setCloseSessionOpen,
+    revealSeatingNames,
+    swapSeats,
+    hasFinalSeatingResult,
+    loadPlans,
+    loadPlan,
+  };
 }
 
 /** 처리 함수 묶음이 받는 값: 상태 훅 결과 + 공유 값 */

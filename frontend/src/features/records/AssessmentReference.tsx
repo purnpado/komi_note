@@ -1,5 +1,5 @@
 import { main as models } from "../../../wailsjs/go/models";
-import { trimNumber } from "./useRecordsPage";
+import { trimNumber } from "./recordsSlots";
 
 export function formatScore(value: number | null | undefined) {
   if (value === null || value === undefined) return "-";

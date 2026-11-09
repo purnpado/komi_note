@@ -5,7 +5,29 @@ import type { SettingsPageView } from "./useSettingsPage";
 
 /** SettingsPage.tsx에서 떼어 낸 화면 구역 */
 export function SettingsPrimaryCard({ view: hookView }: { view: SettingsPageView }) {
-  const { draft, setDraft, setPinRemoveOpen, teachingGrade, setTeachingGrade, teachingClass, setTeachingClass, customTeachingClass, setCustomTeachingClass, hasPin, showPinForm, setShowPinForm, pinInput, setPinInput, pinConfirmInput, setPinConfirmInput, pinNotice, setPinNotice, pinBusy, handleSavePin, update } = hookView;
+  const {
+    draft,
+    setDraft,
+    setPinRemoveOpen,
+    teachingGrade,
+    setTeachingGrade,
+    teachingClass,
+    setTeachingClass,
+    customTeachingClass,
+    setCustomTeachingClass,
+    hasPin,
+    showPinForm,
+    setShowPinForm,
+    pinInput,
+    setPinInput,
+    pinConfirmInput,
+    setPinConfirmInput,
+    pinNotice,
+    setPinNotice,
+    pinBusy,
+    handleSavePin,
+    update,
+  } = hookView;
   return (
     <>
       <section className="settings-primary-card">
@@ -17,22 +39,14 @@ export function SettingsPrimaryCard({ view: hookView }: { view: SettingsPageView
             <div className="role-choice-list">
               <button
                 type="button"
-                className={
-                  draft.teacherRole !== "비담임 교과 교사"
-                    ? "role-choice selected"
-                    : "role-choice"
-                }
+                className={draft.teacherRole !== "비담임 교과 교사" ? "role-choice selected" : "role-choice"}
                 onClick={() => update({ teacherRole: "담임 교사" })}
               >
                 담임 교사
               </button>
               <button
                 type="button"
-                className={
-                  draft.teacherRole === "비담임 교과 교사"
-                    ? "role-choice selected"
-                    : "role-choice"
-                }
+                className={draft.teacherRole === "비담임 교과 교사" ? "role-choice selected" : "role-choice"}
                 onClick={() =>
                   update({
                     teacherRole: "비담임 교과 교사",
@@ -44,28 +58,15 @@ export function SettingsPrimaryCard({ view: hookView }: { view: SettingsPageView
                 비담임 교과 교사
               </button>
             </div>
-            <small>
-              역할을 바꿔도 기존 데이터는 삭제하지 않으며, 역할에 맞지
-              않는 메뉴만 숨깁니다.
-            </small>
+            <small>역할을 바꿔도 기존 데이터는 삭제하지 않으며, 역할에 맞지 않는 메뉴만 숨깁니다.</small>
           </label>
           <label>
             학교명
-            <input
-              value={draft.schoolName || ""}
-              onChange={(event) =>
-                update({ schoolName: event.target.value })
-              }
-            />
+            <input value={draft.schoolName || ""} onChange={(event) => update({ schoolName: event.target.value })} />
           </label>
           <label>
             학년도
-            <input
-              value={draft.schoolYear || ""}
-              onChange={(event) =>
-                update({ schoolYear: event.target.value })
-              }
-            />
+            <input value={draft.schoolYear || ""} onChange={(event) => update({ schoolYear: event.target.value })} />
           </label>
           <label>
             학년
@@ -80,37 +81,28 @@ export function SettingsPrimaryCard({ view: hookView }: { view: SettingsPageView
             <input
               disabled={draft.teacherRole === "비담임 교과 교사"}
               value={draft.classNumber || ""}
-              onChange={(event) =>
-                update({ classNumber: event.target.value })
-              }
+              onChange={(event) => update({ classNumber: event.target.value })}
             />
           </label>
           <label>
             교사 표기
             <input
               value={draft.teacherLabel || ""}
-              onChange={(event) =>
-                update({ teacherLabel: event.target.value })
-              }
+              onChange={(event) => update({ teacherLabel: event.target.value })}
             />
           </label>
           <label>
             담당 교과
             <input
               value={draft.teachingSubject || ""}
-              onChange={(event) =>
-                update({ teachingSubject: event.target.value })
-              }
+              onChange={(event) => update({ teachingSubject: event.target.value })}
               placeholder="예: 기술·가정"
             />
           </label>
           <div className="class-selector-label">
             수업 학년·반
             <div className="class-selector">
-              <select
-                value={teachingGrade}
-                onChange={(event) => setTeachingGrade(event.target.value)}
-              >
+              <select value={teachingGrade} onChange={(event) => setTeachingGrade(event.target.value)}>
                 <option value="">학년 선택</option>
                 {teachingGradeOptions.map((grade) => (
                   <option key={grade} value={grade}>
@@ -118,10 +110,7 @@ export function SettingsPrimaryCard({ view: hookView }: { view: SettingsPageView
                   </option>
                 ))}
               </select>
-              <select
-                value={teachingClass}
-                onChange={(event) => setTeachingClass(event.target.value)}
-              >
+              <select value={teachingClass} onChange={(event) => setTeachingClass(event.target.value)}>
                 <option value="">반 선택</option>
                 {teachingClassOptions.map((className) => (
                   <option key={className} value={className}>
@@ -134,9 +123,7 @@ export function SettingsPrimaryCard({ view: hookView }: { view: SettingsPageView
                 <input
                   className="custom-class-input"
                   value={customTeachingClass}
-                  onChange={(event) =>
-                    setCustomTeachingClass(event.target.value)
-                  }
+                  onChange={(event) => setCustomTeachingClass(event.target.value)}
                   placeholder="예: 11반·특수반"
                 />
               )}
@@ -144,16 +131,10 @@ export function SettingsPrimaryCard({ view: hookView }: { view: SettingsPageView
                 type="button"
                 className="quiet-button compact-button"
                 disabled={
-                  !teachingGrade ||
-                  !teachingClass ||
-                  (teachingClass === "__직접입력" &&
-                    !customTeachingClass.trim())
+                  !teachingGrade || !teachingClass || (teachingClass === "__직접입력" && !customTeachingClass.trim())
                 }
                 onClick={() => {
-                  const className =
-                    teachingClass === "__직접입력"
-                      ? customTeachingClass.trim()
-                      : teachingClass;
+                  const className = teachingClass === "__직접입력" ? customTeachingClass.trim() : teachingClass;
                   const next = `${teachingGrade} ${className}`;
                   setDraft((current) => {
                     const classes = current.teachingClasses || [];
@@ -180,9 +161,7 @@ export function SettingsPrimaryCard({ view: hookView }: { view: SettingsPageView
                       (current) =>
                         new models.ClassConfig({
                           ...current,
-                          teachingClasses: (
-                            current.teachingClasses || []
-                          ).filter((item) => item !== className),
+                          teachingClasses: (current.teachingClasses || []).filter((item) => item !== className),
                         }),
                     )
                   }
@@ -191,18 +170,13 @@ export function SettingsPrimaryCard({ view: hookView }: { view: SettingsPageView
                 </button>
               ))}
             </div>
-            <small>
-              학년과 반을 선택해 여러 수업을 추가할 수 있습니다. 선택한
-              항목을 누르면 삭제됩니다.
-            </small>
+            <small>학년과 반을 선택해 여러 수업을 추가할 수 있습니다. 선택한 항목을 누르면 삭제됩니다.</small>
           </div>
           <label>
             자동 잠금 시간
             <select
               value={draft.autoLockMinutes}
-              onChange={(event) =>
-                update({ autoLockMinutes: Number(event.target.value) })
-              }
+              onChange={(event) => update({ autoLockMinutes: Number(event.target.value) })}
             >
               {[1, 3, 5, 10, 15, 30, 60, 120].map((minutes) => (
                 <option key={minutes} value={minutes}>
@@ -223,7 +197,9 @@ export function SettingsPrimaryCard({ view: hookView }: { view: SettingsPageView
             border: "1px solid var(--border-color, #e2e8f0)",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+          <div
+            style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}
+          >
             <div>
               <strong style={{ fontSize: "0.95rem" }}>🔑 간편 숫자 PIN 로그인</strong>
               <span
@@ -271,7 +247,10 @@ export function SettingsPrimaryCard({ view: hookView }: { view: SettingsPageView
           </div>
 
           <p style={{ margin: "0 0 0.5rem 0", fontSize: "0.82rem", color: "#64748b", lineHeight: 1.4 }}>
-            자동 잠금 후 또는 교실 업무 중 마스터 비밀번호 대신 4~8자리 숫자 PIN으로 빠르게 잠금을 해제할 수 있습니다. 5회 연속 오류 시 마스터 암호가 요구됩니다. PIN은 등록한 이 컴퓨터의 현재 Windows 계정에서만 작동하며, 프로그램 폴더를 다른 컴퓨터로 옮기면 마스터 비밀번호로 연 뒤 다시 등록해야 합니다. 자리를 비울 때는 Windows 화면 잠금(Win+L)도 함께 사용해 주세요.
+            자동 잠금 후 또는 교실 업무 중 마스터 비밀번호 대신 4~8자리 숫자 PIN으로 빠르게 잠금을 해제할 수 있습니다.
+            5회 연속 오류 시 마스터 암호가 요구됩니다. PIN은 등록한 이 컴퓨터의 현재 Windows 계정에서만 작동하며,
+            프로그램 폴더를 다른 컴퓨터로 옮기면 마스터 비밀번호로 연 뒤 다시 등록해야 합니다. 자리를 비울 때는 Windows
+            화면 잠금(Win+L)도 함께 사용해 주세요.
           </p>
 
           {showPinForm && (
@@ -313,18 +292,10 @@ export function SettingsPrimaryCard({ view: hookView }: { view: SettingsPageView
                 </label>
               </div>
 
-              {pinNotice && (
-                <p style={{ color: "#dc2626", fontSize: "0.8rem", margin: "0.5rem 0 0 0" }}>
-                  {pinNotice}
-                </p>
-              )}
+              {pinNotice && <p style={{ color: "#dc2626", fontSize: "0.8rem", margin: "0.5rem 0 0 0" }}>{pinNotice}</p>}
 
               <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem", marginTop: "0.75rem" }}>
-                <button
-                  type="button"
-                  className="quiet-button"
-                  onClick={() => setShowPinForm(false)}
-                >
+                <button type="button" className="quiet-button" onClick={() => setShowPinForm(false)}>
                   취소
                 </button>
                 <button
