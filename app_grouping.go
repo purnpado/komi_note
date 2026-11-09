@@ -17,17 +17,19 @@ func (a *App) GetGroupingBook() (GroupingBook, error) {
 
 // SaveGroupPlan은 모둠 편성 결과를 암호화해 저장합니다.
 func (a *App) SaveGroupPlan(plan GroupPlan) (GroupPlan, error) {
-	return a.vault.SaveGroupPlan(plan)
+	saved, err := a.vault.SaveGroupPlan(plan)
+	return notifyAfter(eventGroupingChanged, savedKind(plan.ID), func(p GroupPlan) string { return p.ID }, saved, err)
 }
 
 // DeleteGroupPlan은 모둠 편성 이력 하나를 삭제합니다.
 func (a *App) DeleteGroupPlan(id string) error {
-	return a.vault.DeleteGroupPlan(id)
+	return notifyErr(eventGroupingChanged, changeDeleted, id, a.vault.DeleteGroupPlan(id))
 }
 
 // SaveGroupRules는 반별 교사 전용 편성 조건을 암호화해 저장합니다.
 func (a *App) SaveGroupRules(rules GroupRules) (GroupRules, error) {
-	return a.vault.SaveGroupRules(rules)
+	saved, err := a.vault.SaveGroupRules(rules)
+	return notifyAfter(eventGroupingChanged, changeUpdated, func(r GroupRules) string { return r.SourceID }, saved, err)
 }
 
 // StartGroupingSession은 학생 참여형 모둠 편성(지망 배정) QR 회차를 엽니다.

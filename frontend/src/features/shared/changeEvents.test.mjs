@@ -68,3 +68,10 @@ test("알림 내용이 비었거나 이상해도 종류·번호만 꺼낸다", (
   assert.deepEqual(got.map((n) => [n.kind, n.id]), [[undefined, undefined], [undefined, "x"]]);
   assert.equal("title" in got[1], false, "다른 내용은 넘기지 않음");
 });
+
+test("Go app_events.go의 변경 알림 이름과 화면의 이름이 같다", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const source = await readFile(new URL("../../../../app_events.go", import.meta.url), "utf8");
+  const goNames = [...source.matchAll(/^\s*event\w+\s*=\s*"([^"]+)"/gm)].map((match) => match[1]).sort();
+  assert.deepEqual(Object.values(changeEvents).sort(), goNames);
+});

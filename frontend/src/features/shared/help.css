@@ -1,0 +1,173 @@
+/* 처음 사용 안내(HelpGuide)와 ? 도움말(HelpTip) 규칙입니다(2026-11-09 App.css에서 옮김). */
+/* 화면별 처음 사용 안내와 항목 도움말 */
+.help-guide {
+  margin: 0 0 18px;
+  padding: 17px 19px;
+  border: 1px solid #edc797;
+  border-radius: 14px;
+  background: linear-gradient(120deg, #fff8ed, #fffdf9 72%);
+  box-shadow: 0 6px 18px #8b542012;
+}
+.help-guide-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 18px;
+}
+.help-guide h3 {
+  margin: 0;
+  color: #674025;
+  font-size: 17px;
+  letter-spacing: -0.35px;
+}
+.help-guide-heading p:last-child {
+  margin: 5px 0 0;
+  color: #806654;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.help-guide-toggle {
+  flex: 0 0 auto;
+  border: 1px solid #e4bf91;
+  border-radius: 8px;
+  padding: 7px 10px;
+  color: #895127;
+  background: #fffdf8;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.help-guide-toggle:hover {
+  border-color: #ce813f;
+  background: #fff0de;
+}
+.help-guide-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 15px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.help-guide-steps li {
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #f0dfca;
+  border-radius: 10px;
+  background: #fffdf9;
+}
+.help-guide-steps b {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: #fff9f0;
+  background: #d88439;
+  font-size: 12px;
+}
+.help-guide-steps div {
+  display: grid;
+  gap: 3px;
+}
+.help-guide-steps strong {
+  color: #65432c;
+  font-size: 12px;
+}
+.help-guide-steps span {
+  color: #806f62;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.help-guide-note {
+  margin: 11px 0 0;
+  color: #8b642f;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.help-tip {
+  position: relative;
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  align-self: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #d88c49;
+  border-radius: 50%;
+  color: #9b5727;
+  background: #fff8ed;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: help;
+}
+.help-tip > span {
+  position: absolute;
+  z-index: 25;
+  right: 0;
+  bottom: calc(100% + 8px);
+  display: none;
+  width: min(250px, 70vw);
+  padding: 9px 10px;
+  border-radius: 8px;
+  color: #fffaf4;
+  background: #543b2e;
+  box-shadow: 0 8px 18px #35201533;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.help-tip:focus-visible {
+  outline: 3px solid #f0a35e;
+  outline-offset: 2px;
+}
+/* 도움말 팝업은 document.body에 그려 대화상자 스크롤 영역에 잘리지 않게 한다(HelpTip.tsx) */
+.help-tip-popup {
+  position: fixed;
+  z-index: 300;
+  width: max-content;
+  max-width: min(260px, calc(100vw - 16px));
+  box-sizing: border-box;
+  padding: 9px 10px;
+  border-radius: 8px;
+  color: #fffaf4;
+  background: #543b2e;
+  box-shadow: 0 8px 18px #35201533;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: left;
+  white-space: normal;
+  pointer-events: none;
+}
+@media (max-width: 780px) {
+  .help-guide-steps {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 520px) {
+  .help-guide {
+    padding: 14px;
+  }
+}
+@media (max-width: 520px) {
+  .help-guide-heading {
+    align-items: start;
+    flex-direction: column;
+    gap: 9px;
+  }
+}
+@media (max-width: 520px) {
+  .help-guide-steps {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 520px) {
+  .help-guide-toggle {
+    align-self: stretch;
+  }
+}

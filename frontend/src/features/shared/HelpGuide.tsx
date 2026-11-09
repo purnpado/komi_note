@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./help.css";
 
 export type GuideStep = { title: string; detail: string };
 

@@ -4,6 +4,7 @@ import { main as models } from "../../../wailsjs/go/models";
 import { menus, type PageKey } from "../navigation/menuTypes";
 import { openExternalURL } from "../shared/desktopActions";
 import "./header-tools.css";
+import "./app-shell.css";
 
 const extraPages: { key: PageKey; icon: string; homeroomOnly?: boolean }[] = [
   { key: "자리배정", icon: "▦", homeroomOnly: true },

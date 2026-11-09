@@ -4,6 +4,8 @@ import { ListCleaningPlans, SaveCleaningPlan } from "../../../wailsjs/go/main/Ap
 import { main as models } from "../../../wailsjs/go/models";
 import "./cleaning.css";
 
+import { useVaultChanges } from "../shared/useVaultChanges";
+import { changeEvents } from "../shared/changeEvents";
 import { errorMessage, todayLocal } from "../shared/format";
 type CleaningZoneForm = {
   id: string;
@@ -67,6 +69,8 @@ export function CleaningPage({ students }: { students: models.Student[] }) {
   useEffect(() => {
     void loadPlans();
   }, []);
+  // 학생 삭제·백업 되살리기 뒤 저장된 편성 목록을 다시 읽는다(편집 중인 배정은 그대로).
+  useVaultChanges([changeEvents.students, changeEvents.settings], () => void loadPlans());
 
   const byStudent = useMemo(() => {
     const result = new Map<string, CleaningAssignmentForm[]>();

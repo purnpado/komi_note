@@ -2,6 +2,7 @@ import { useState } from "react";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { main as models } from "../../../wailsjs/go/models";
 import kkomiIcon from "../../assets/images/kkomi-note-icon.png";
+import "./app-shell.css";
 
 export const termsVersion = "2026-10-09";
 

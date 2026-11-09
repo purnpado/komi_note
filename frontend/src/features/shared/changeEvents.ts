@@ -14,7 +14,15 @@ export const changeEvents = {
   attendance: "attendance:변경",
   submissions: "submissions:변경",
   settings: "settings:변경",
+  // 학급 운영·모둠·학교생활기록(2026-11-09): 지금은 보내기만 한다. 같은 화면은 입력 중 덮어쓰지 않도록 받지 않는다.
+  seating: "seating:변경",
+  cleaning: "cleaning:변경",
+  grouping: "grouping:변경",
+  records: "records:변경",
 } as const;
+
+/** 수행평가 점수·명단이 바뀌는 알림(수행평가 전용 알림 이름). 학교생활기록의 수행평가 참고가 다시 읽는다. */
+export const assessmentDataEvents = ["assessment:평가가져옴", "assessment:점수변경", "assessment:학생추가"] as const;
 
 export type ChangeEventName = (typeof changeEvents)[keyof typeof changeEvents];
 export type ChangeNotice = { kind?: string; id?: string };

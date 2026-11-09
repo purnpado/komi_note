@@ -50,7 +50,7 @@ var (
 func NewApp() *App {
 	vaultStore := vault.NewVaultStore()
 	events := assessment.NewAssessmentEventBus()
-	app := &App{vault: vaultStore, survey: survey.NewSurveyServer(vaultStore), seating: seating.NewSeatingServer(vaultStore), groupSession: groupsession.NewServer(), assessmentEvents: events}
+	app := &App{vault: vaultStore, survey: survey.NewSurveyServer(vaultStore), seating: seating.NewSeatingServer(notifyingSeatingStore{vaultStore}), groupSession: groupsession.NewServer(), assessmentEvents: events}
 	app.assessment = assessment.NewAssessmentServer(vaultStore, events)
 	app.survey.OnResponse = func(surveyID string) { notifyChange(eventSurveyChanged, changeAnswered, surveyID) }
 	app.bg.settings = background.Load(vaultStore.DataDir())

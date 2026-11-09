@@ -3,6 +3,8 @@ import { main as models } from "../../../wailsjs/go/models";
 import { ListSeatingPlans } from "../../../wailsjs/go/main/App";
 import { defaultGridDimensions, makeSeats, seatsForRoster } from "./seatLayout";
 import { useSeatingSession } from "./useSeatingSession";
+import { useVaultChanges } from "../shared/useVaultChanges";
+import { changeEvents } from "../shared/changeEvents";
 import { errorMessage } from "../shared/format";
 import { seatingPlanActions } from "./seatingPlanActions";
 
@@ -108,12 +110,13 @@ export function useClassroomPageState({
   const hasFinalSeatingResult =
     !seatingSession?.running || ["배정 완료", "자리 확인"].includes(seatingSession.phase);
 
-  async function loadPlans() {
+  // autoSelect: 처음 열 때만 첫 배치를 불러온다. 변경 알림으로 다시 읽을 때는 편집 중인 자리를 건드리지 않는다.
+  async function loadPlans(autoSelect = true) {
     try {
       const result = (await ListSeatingPlans()) || [];
       const next = result.map((item) => new models.SeatingPlan(item));
       setPlans(next);
-      if (next.length > 0 && !selectedID) loadPlan(next[0]);
+      if (autoSelect && next.length > 0 && !selectedID) loadPlan(next[0]);
     } catch (error) {
       setNotice(errorMessage(error));
     }
@@ -126,6 +129,8 @@ export function useClassroomPageState({
     setSeats(makeSeats(initial.rows, initial.columns, []));
     void loadPlans();
   }, []);
+  // 학생을 지우거나 백업을 되살리면 Go가 배치 속 학생을 정리하므로 저장된 목록을 다시 읽는다.
+  useVaultChanges([changeEvents.students, changeEvents.settings], () => void loadPlans(false));
   useEffect(() => {
     // 명렬표가 비동기로 로드되는 경우에도 기본 자리를 24개로 고정하지 않습니다.
     if (

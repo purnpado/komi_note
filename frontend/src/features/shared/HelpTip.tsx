@@ -1,5 +1,6 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import "./help.css";
 
 type Position = { left: number; top: number; placement: "top" | "bottom" };
 

@@ -35,10 +35,11 @@ func (a *App) ListCleaningPlans() ([]CleaningPlan, error) {
 
 // SaveCleaningPlan은 청소구역 편성표를 암호화해 저장합니다.
 func (a *App) SaveCleaningPlan(plan CleaningPlan) (CleaningPlan, error) {
-	return a.vault.SaveCleaningPlan(plan)
+	saved, err := a.vault.SaveCleaningPlan(plan)
+	return notifyAfter(eventCleaningChanged, savedKind(plan.ID), func(p CleaningPlan) string { return p.ID }, saved, err)
 }
 
 // DeleteCleaningPlan은 청소구역 편성 이력을 삭제합니다.
 func (a *App) DeleteCleaningPlan(id string) error {
-	return a.vault.DeleteCleaningPlan(id)
+	return notifyErr(eventCleaningChanged, changeDeleted, id, a.vault.DeleteCleaningPlan(id))
 }

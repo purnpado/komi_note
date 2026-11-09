@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { GetRecordBook, ListAssessments, ListCourseRosters } from "../../../wailsjs/go/main/App";
 import { main as models } from "../../../wailsjs/go/models";
+import { useVaultChanges } from "../shared/useVaultChanges";
+import { assessmentDataEvents, changeEvents } from "../shared/changeEvents";
 import { errorMessage } from "../shared/format";
 import { rosterLabel } from "../timetable/timetableState";
 import { courseKey } from "../grouping/groupingState";
@@ -77,6 +79,8 @@ export function useRecordsPage({
   useEffect(() => {
     void reload();
   }, []);
+  // 학생·수업 명렬·설정·수행평가가 바뀌면 다시 읽는다. 입력 칸은 쓰고 있는 글을 따로 들고 있어 지워지지 않는다.
+  useVaultChanges([changeEvents.students, changeEvents.courseRoster, changeEvents.settings, ...assessmentDataEvents], () => void reload());
 
   const years = useMemo(
     () =>

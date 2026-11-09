@@ -1,6 +1,10 @@
 package main
 
-import "github.com/wailsapp/wails/v3/pkg/application"
+import (
+	"strings"
+
+	"github.com/wailsapp/wails/v3/pkg/application"
+)
 
 // 변경 알림(이벤트): 저장이 바뀌면 화면에 "무엇이 바뀌었는지"만 알립니다.
 // 알림에는 제목·내용·금액·학생 정보를 넣지 않고 변경 종류와 내부 번호만 담습니다.
@@ -27,6 +31,11 @@ const (
 	eventAttendanceChanged   = "attendance:변경"
 	eventSubmissionsChanged  = "submissions:변경"
 	eventSettingsChanged     = "settings:변경"
+	// 학급 운영·모둠·학교생활기록(2026-11-09): 보내기만 하고, 각 화면은 학생·수업 명렬·설정 변경을 받아 다시 읽는다.
+	eventSeatingChanged  = "seating:변경"
+	eventCleaningChanged = "cleaning:변경"
+	eventGroupingChanged = "grouping:변경"
+	eventRecordsChanged  = "records:변경"
 )
 
 // 변경 종류
@@ -49,6 +58,22 @@ var emitChange = func(name string, notice ChangeNotice) {
 // notifyChange는 저장에 성공한 뒤에만 부릅니다.
 func notifyChange(name, kind, id string) {
 	emitChange(name, ChangeNotice{Kind: kind, ID: id})
+}
+
+// savedKind는 저장 전 번호가 비어 있으면 "추가", 있으면 "수정"을 돌려줍니다.
+func savedKind(id string) string {
+	if strings.TrimSpace(id) == "" {
+		return changeAdded
+	}
+	return changeUpdated
+}
+
+// notifyErr는 err가 없을 때만 변경 알림을 보내고 err를 그대로 돌려줍니다.
+func notifyErr(name, kind, id string, err error) error {
+	if err == nil {
+		notifyChange(name, kind, id)
+	}
+	return err
 }
 
 // notifyAfter는 err가 없을 때만 변경 알림을 보내고 결과를 그대로 돌려줍니다.

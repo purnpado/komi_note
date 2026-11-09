@@ -1,5 +1,7 @@
 package main
 
+import "TeacherNote/internal/vault"
+
 // 자리배정 저장과 QR 회차 바인딩
 
 // StartSeatingSession은 자리배정 QR 참여 회차를 엽니다.
@@ -92,10 +94,22 @@ func (a *App) ListSeatingPlans() ([]SeatingPlan, error) {
 
 // SaveSeatingPlan은 자리 배치 결과와 규칙을 암호화해 저장합니다.
 func (a *App) SaveSeatingPlan(plan SeatingPlan) (SeatingPlan, error) {
-	return a.vault.SaveSeatingPlan(plan)
+	saved, err := a.vault.SaveSeatingPlan(plan)
+	return notifyAfter(eventSeatingChanged, savedKind(plan.ID), func(p SeatingPlan) string { return p.ID }, saved, err)
 }
 
 // DeleteSeatingPlan은 자리 배치 이력을 삭제합니다.
 func (a *App) DeleteSeatingPlan(id string) error {
-	return a.vault.DeleteSeatingPlan(id)
+	return notifyErr(eventSeatingChanged, changeDeleted, id, a.vault.DeleteSeatingPlan(id))
+}
+
+// notifyingSeatingStore는 자리배정 QR 회차에 넘기는 보관함입니다.
+// 회차가 직접 저장하는 룰렛 결과·결과 자리 바꾸기도 저장에 성공하면 seating:변경을 보냅니다.
+type notifyingSeatingStore struct {
+	*vault.VaultStore
+}
+
+func (s notifyingSeatingStore) SaveSeatingPlan(plan SeatingPlan) (SeatingPlan, error) {
+	saved, err := s.VaultStore.SaveSeatingPlan(plan)
+	return notifyAfter(eventSeatingChanged, savedKind(plan.ID), func(p SeatingPlan) string { return p.ID }, saved, err)
 }

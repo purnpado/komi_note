@@ -3,6 +3,7 @@ import kkomiIcon from "../../assets/images/kkomi-note-icon.png";
 import { ResetMasterPassword, SelectRecoveryFile } from "../../../wailsjs/go/main/App";
 
 import { errorMessage } from "../shared/format";
+import "./security.css";
 export function LockScreen({
   notice,
   unlock,

@@ -1,0 +1,232 @@
+/* 잠금 화면·최초 설정 화면 전용 규칙입니다(2026-11-09 App.css에서 옮김). */
+.lock-screen {
+  min-height: calc(100vh - 34px);
+  display: grid;
+  grid-template-columns: 1.08fr 0.92fr;
+  background: #f7f9fd;
+}
+.lock-art {
+  padding: 14vh 13%;
+  background: linear-gradient(140deg, #103c38, #17544d 62%, #1d6a5d);
+  color: #e9f6f1;
+  position: relative;
+  overflow: hidden;
+}
+.lock-art:after {
+  content: "";
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  right: -110px;
+  bottom: -130px;
+  border: 1px solid #81b8a7;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 42px #ffffff0b,
+    0 0 0 84px #ffffff09;
+}
+.large-mark {
+  width: 118px;
+  height: 118px;
+  box-sizing: border-box;
+  border: 4px solid #e8f7f0;
+  border-radius: 50%;
+  background: #d7eee4;
+  object-fit: cover;
+  margin-bottom: 42px;
+  box-shadow: 0 10px 26px #071f1b3d;
+}
+.lock-art p {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.45;
+  margin: 0 0 38px;
+  letter-spacing: -0.8px;
+}
+.lock-art ul {
+  list-style: none;
+  padding: 0;
+  color: #c5e1d7;
+  line-height: 2.35;
+  font-size: 15px;
+}
+.lock-art li:before {
+  content: "✓";
+  margin-right: 12px;
+  color: #80d0ae;
+}
+.unlock-card {
+  width: min(420px, 78%);
+  align-self: center;
+  justify-self: center;
+}
+.unlock-card h1 {
+  font-size: 29px;
+  letter-spacing: -1.2px;
+  margin: 0 0 10px;
+}
+.unlock-card > p {
+  color: #697586;
+  margin: 0 0 35px;
+}
+.unlock-card label {
+  display: block;
+  color: #4a5564;
+  font-size: 13px;
+  font-weight: 700;
+  margin: 18px 0 7px;
+}
+.class-readonly,
+.unlock-card input {
+  display: block;
+  width: 100%;
+  border: 1px solid #dce3ea;
+  background: white;
+  border-radius: 10px;
+  padding: 14px 15px;
+  margin-top: 8px;
+  color: #405060;
+}
+.unlock-card input:focus {
+  outline: 2px solid #7ec4ab;
+  border-color: transparent;
+}
+.wide-text-button {
+  display: block;
+  width: 100%;
+  margin: 16px auto 0;
+  text-align: center;
+}
+.file-select {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.file-select input {
+  flex: 1;
+  min-width: 0;
+  margin-top: 0 !important;
+  background: #f8fafc !important;
+}
+.setup-screen {
+  min-height: calc(100vh - 34px);
+  padding: 48px 24px;
+  background: linear-gradient(145deg, #eef7f2, #f7f9fd 45%, #eaf3f5);
+}
+.setup-card {
+  max-width: 820px;
+  padding: 38px;
+  margin: auto;
+  background: #fff;
+  border: 1px solid #dfe9e5;
+  border-radius: 18px;
+  box-shadow: 0 20px 45px #275c4d18;
+}
+.setup-card h1 {
+  margin: 0 0 9px;
+  font-size: 28px;
+  letter-spacing: -1px;
+}
+.setup-copy {
+  color: #6e7d89;
+  margin: 0 0 26px;
+  line-height: 1.65;
+}
+.setup-section {
+  margin-top: 26px;
+  padding-top: 23px;
+  border-top: 1px solid #e9eef1;
+}
+.setup-section h3 {
+  margin: 0 0 5px;
+  font-size: 16px;
+}
+.setup-section p {
+  color: #788694;
+  margin: 0 0 14px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.recovery-section {
+  background: #f8fbfa;
+  margin-left: -12px;
+  margin-right: -12px;
+  padding: 22px 12px 0;
+  border-radius: 10px;
+}
+/* 배치(display·정렬)는 공통 .primary-button을 따른다. 예전에도 App.css 뒤쪽의 .primary-button이 덮어써 효과가 없던 값이라 지웠다. */
+.setup-submit {
+  margin-top: 25px;
+  width: 100%;
+}
+@media (max-width: 680px) {
+  .lock-screen {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 680px) {
+  .lock-art {
+    display: none;
+  }
+}
+@media (max-width: 680px) {
+  .unlock-card {
+    width: min(420px, 88%);
+  }
+}
+@media (max-width: 680px) {
+  .setup-screen {
+    padding: 24px 12px;
+  }
+}
+@media (max-width: 680px) {
+  .setup-card {
+    padding: 24px 18px;
+  }
+}
+@media (min-width: 1500px) {
+  .lock-screen {
+    grid-template-columns: minmax(560px, 0.86fr) minmax(720px, 1.14fr);
+  }
+}
+@media (min-width: 1500px) {
+  .lock-art {
+    padding-left: max(9vw, 110px);
+    padding-right: 9vw;
+  }
+}
+@media (min-width: 1500px) {
+  .unlock-card {
+    width: min(490px, 64%);
+    justify-self: start;
+    margin-left: clamp(48px, 9vw, 180px);
+  }
+}
+.lock-art {
+  background: radial-gradient(
+      circle at 75% 88%,
+      #f5c57b28 0 20%,
+      transparent 20.4%
+    ),
+    linear-gradient(145deg, #593b2e 0%, #8b5435 58%, #c87939 100%);
+}
+.lock-art:after {
+  border-color: #ffe2b455;
+}
+.large-mark {
+  border-color: #fff0d7;
+  background: #fff0d6;
+  box-shadow: 0 10px 26px #35190842;
+}
+.lock-art p,
+.lock-art li,
+.lock-art li:before {
+  color: #ffe5c3;
+}
+.lock-watermark {
+  margin-top: 16px;
+}
+.setup-watermark {
+  margin: -4px 0 14px;
+  text-align: left;
+}

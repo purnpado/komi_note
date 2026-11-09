@@ -1,4 +1,5 @@
 import kkomiIcon from "../../assets/images/kkomi-note-icon.png";
+import "./app-shell.css";
 
 type DesktopTitleBarProps = {
   fullscreen: boolean;

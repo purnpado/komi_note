@@ -3,6 +3,8 @@ import { DeleteGroupPlan, GetGroupingBook, GetGroupingSessionInfo, ListCourseRos
 import { main as models } from "../../../wailsjs/go/models";
 import { confirmWithRadix } from "../app-shell/AppConfirmDialog";
 import { printSheet } from "../shared/desktopActions";
+import { useVaultChanges } from "../shared/useVaultChanges";
+import { changeEvents } from "../shared/changeEvents";
 import { errorMessage, todayLocal } from "../shared/format";
 import { rosterLabel } from "../timetable/timetableState";
 import { assignRoles, courseKey, defaultGroupNames, evaluate, groupCount, makeGroups, moveMember, pairsInPlan, parseRoles, swapMembers, type GroupDraft, type Pair, type Pupil } from "./groupingState";
@@ -68,6 +70,14 @@ export function useGroupingPage({ students, isHomeroomTeacher, config }: { stude
       })
       .catch(() => undefined);
   }, []);
+
+  // 학생·수업 명렬·설정(백업 되살리기)이 바뀌면 편성 이력과 수업 명렬을 다시 읽는다.
+  useVaultChanges([changeEvents.students, changeEvents.courseRoster, changeEvents.settings], () => {
+    void reload().catch(() => undefined);
+    ListCourseRosters()
+      .then((items) => setRosters((items || []).map((item) => new models.CourseRoster(item))))
+      .catch(() => undefined);
+  });
 
   const sources: Source[] = useMemo(() => {
     const list: Source[] = [];
