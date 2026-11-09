@@ -1,12 +1,34 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { DeleteConsultation, GetStudentPhoto, ListAllConsultations, SaveConsultation } from "../../../wailsjs/go/main/App";
+import { DeleteConsultation, GetStudentPhoto, ListAllConsultations, SaveConsultation, SetConsultationFollowUpDone } from "../../../wailsjs/go/main/App";
 import { main as models } from "../../../wailsjs/go/models";
 import { HelpGuide } from "../shared/HelpGuide";
 import "./consultation.css";
 
 import { errorMessage, todayLocal } from "../shared/format";
 type ConsultationConfirm = (request: { title: string; description: string }) => Promise<boolean>;
+
+const firstTypes = ["학생 상담", "보호자 통화", "보호자 면담", "교사 확인", "기타", "후속 조치"];
+const followTypes = ["학생 재상담", "보호자 통화", "보호자 면담", "교사 확인", "조치 결과", "기타"];
+
+type Draft = { date: string; type: string; content: string; followUpDate: string };
+
+function emptyDraft(type = "학생 상담"): Draft {
+  return { date: todayLocal(), type, content: "", followUpDate: "" };
+}
+
+function shortDate(value: string) {
+  return value ? `${Number(value.slice(5, 7))}월 ${Number(value.slice(8, 10))}일` : "";
+}
+
+// FollowUpStatus는 다음 확인 예정일의 상태(예정·지남·확인 완료)를 보여 준다.
+function FollowUpStatus({ item }: { item: models.Consultation }) {
+  if (!item.followUpDate) return null;
+  if (item.followUpDone)
+    return <span className="consult-status done">✓ 확인 완료{item.manualDone ? "" : " (후속 기록)"} · 예정 {shortDate(item.followUpDate)}</span>;
+  if (item.followUpDate < todayLocal()) return <span className="consult-status overdue">확인 지남 · {shortDate(item.followUpDate)}</span>;
+  return <span className="consult-status planned">다음 확인 {shortDate(item.followUpDate)}</span>;
+}
 
 export type ConsultationPageProps = {
   students: models.Student[];
@@ -30,17 +52,12 @@ export function ConsultationPage({
     initialStudentID ? "view" : "write",
   );
   const [dialogOpen, setDialogOpen] = useState(Boolean(initialStudentID));
-  const [draft, setDraft] = useState({
-    date: todayLocal(),
-    type: "학생 상담",
-    content: "",
-    followUpDate: "",
-  });
+  const [draft, setDraft] = useState<Draft>(emptyDraft());
   const [editing, setEditing] = useState<models.Consultation | null>(null);
   const [followTarget, setFollowTarget] = useState<models.Consultation | null>(
     null,
   );
-  const [followContent, setFollowContent] = useState("");
+  const [followDraft, setFollowDraft] = useState<Draft>(emptyDraft(followTypes[0]));
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
@@ -90,8 +107,11 @@ export function ConsultationPage({
   function choose(id: string, nextMode: "write" | "view") {
     setSelectedID(id);
     setMode(nextMode);
+    // 다른 학생 창에 쓰던 내용이 남지 않도록 매번 비운다
+    setDraft(emptyDraft());
     setEditing(null);
     setFollowTarget(null);
+    setFollowDraft(emptyDraft(followTypes[0]));
     setNotice("");
     setDialogOpen(true);
   }
@@ -99,9 +119,11 @@ export function ConsultationPage({
     if (!open && busy) return;
     setDialogOpen(open);
     if (!open) {
+      setDraft(emptyDraft());
       setEditing(null);
       setFollowTarget(null);
-      setFollowContent("");
+      setFollowDraft(emptyDraft(followTypes[0]));
+      setNotice("");
     }
   }
   function descendants(parent: models.Consultation) {
@@ -126,12 +148,7 @@ export function ConsultationPage({
         ? { ...editing, ...draft, studentId: selected.id }
         : { ...draft, studentId: selected.id };
       await SaveConsultation(new models.Consultation(base));
-      setDraft({
-        date: todayLocal(),
-        type: "학생 상담",
-        content: "",
-        followUpDate: "",
-      });
+      setDraft(emptyDraft());
       setEditing(null);
       await reload();
       setNotice(
@@ -146,22 +163,22 @@ export function ConsultationPage({
   }
   async function saveFollow(event: FormEvent) {
     event.preventDefault();
-    if (!followTarget || !followContent.trim()) return;
+    if (!followTarget || !followDraft.content.trim()) return;
     try {
       setBusy(true);
       await SaveConsultation(
         new models.Consultation({
           studentId: followTarget.studentId,
           parentId: followTarget.id,
-          date: todayLocal(),
-          type: "후속 조치",
-          content: followContent,
+          ...followDraft,
         }),
       );
+      const rootID = followTarget.rootId || followTarget.id;
       setFollowTarget(null);
-      setFollowContent("");
+      setFollowDraft(emptyDraft(followTypes[0]));
       await reload();
-      setNotice("후속 기록을 저장했습니다.");
+      setExpanded((value) => ({ ...value, [rootID]: true }));
+      setNotice("후속 기록을 저장했습니다. 앞 기록은 확인 완료로 바뀌었습니다.");
     } catch (error) {
       setNotice(errorMessage(error));
     } finally {
@@ -185,6 +202,23 @@ export function ConsultationPage({
     } finally {
       setBusy(false);
     }
+  }
+  async function markDone(item: models.Consultation, done: boolean) {
+    try {
+      setBusy(true);
+      await SetConsultationFollowUpDone(item.id, done);
+      await reload();
+      setNotice(done ? "후속 기록 없이 확인 완료로 표시했습니다." : "확인 완료 표시를 취소했습니다.");
+    } catch (error) {
+      setNotice(errorMessage(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+  function startFollow(item: models.Consultation) {
+    setFollowTarget(item);
+    setFollowDraft(emptyDraft(followTypes[0]));
+    setNotice("");
   }
   function startEdit(item: models.Consultation) {
     setEditing(item);
@@ -230,7 +264,7 @@ export function ConsultationPage({
         ]}
         note="상담 내용은 화면 공유·전자칠판·학생 기기에 표시하지 마세요. 작성 시각은 초 단위로 자동 기록됩니다."
       />
-      {notice && <p className="app-toast">{notice}</p>}
+      {notice && !dialogOpen && <p className="app-toast">{notice}</p>}
       <section className="consultation-card-grid">
         {students
           .slice()
@@ -321,10 +355,14 @@ export function ConsultationPage({
               </Dialog.Close>
             </div>
           </div>
+          {notice && (
+            <p className="consultation-dialog-notice" role="status" aria-live="polite">{notice}</p>
+          )}
           {mode === "write" ? (
             <form
               className="consultation-form consultation-inline-form"
               onSubmit={save}
+              noValidate
             >
               <div className="form-grid">
                 <label>
@@ -345,18 +383,16 @@ export function ConsultationPage({
                       setDraft({ ...draft, type: event.target.value })
                     }
                   >
-                    <option>학생 상담</option>
-                    <option>보호자 통화</option>
-                    <option>보호자 면담</option>
-                    <option>교사 확인</option>
-                    <option>기타</option>
-                    <option>후속 조치</option>
+                    {[...new Set([...firstTypes, draft.type])].map((type) => (
+                      <option key={type}>{type}</option>
+                    ))}
                   </select>
                 </label>
               </div>
               <label>
                 상담 내용
                 <textarea
+                  maxLength={5000}
                   value={draft.content}
                   onChange={(event) =>
                     setDraft({ ...draft, content: event.target.value })
@@ -367,6 +403,7 @@ export function ConsultationPage({
                 다음 확인 예정일(선택)
                 <input
                   type="date"
+                  min={draft.date}
                   value={draft.followUpDate}
                   onChange={(event) =>
                     setDraft({ ...draft, followUpDate: event.target.value })
@@ -410,6 +447,7 @@ export function ConsultationPage({
                           {root.date} · 기록 {formatRecordedAt(root.recordedAt)}
                         </time>
                         <span>{root.type}</span>
+                        <FollowUpStatus item={root} />
                         <div>
                           {replies.length > 0 && (
                             <button
@@ -442,13 +480,20 @@ export function ConsultationPage({
                         </button>
                         <button
                           className="text-button consult-follow-button"
-                          onClick={() => {
-                            setFollowTarget(root);
-                            setFollowContent("");
-                          }}
+                          onClick={() => startFollow(root)}
                         >
                           ↳ 후속 기록
                         </button>
+                        {root.followUpDate && !root.followUpDone && (
+                          <button className="text-button consult-done-button" disabled={busy} onClick={() => void markDone(root, true)}>
+                            ✓ 확인 완료
+                          </button>
+                        )}
+                        {root.manualDone && (
+                          <button className="text-button" disabled={busy} onClick={() => void markDone(root, false)}>
+                            완료 취소
+                          </button>
+                        )}
                       </div>
                       {open &&
                         replies.map((reply) => (
@@ -456,7 +501,8 @@ export function ConsultationPage({
                             <small>
                               {reply.date} · {reply.type} · 기록{" "}
                               {formatRecordedAt(reply.recordedAt)}
-                            </small>
+                            </small>{" "}
+                            <FollowUpStatus item={reply} />
                             <p>{reply.content}</p>
                             <div className="consult-record-actions">
                               <button
@@ -471,15 +517,22 @@ export function ConsultationPage({
                               >
                                 삭제
                               </button>
-                              <button
-                                className="text-button consult-follow-button"
-                                onClick={() => {
-                                  setFollowTarget(reply);
-                                  setFollowContent("");
-                                }}
-                              >
-                                ↳ 후속 기록
-                              </button>
+                        <button
+                          className="text-button consult-follow-button"
+                          onClick={() => startFollow(reply)}
+                        >
+                          ↳ 후속 기록
+                        </button>
+                        {reply.followUpDate && !reply.followUpDone && (
+                          <button className="text-button consult-done-button" disabled={busy} onClick={() => void markDone(reply, true)}>
+                            ✓ 확인 완료
+                          </button>
+                        )}
+                        {reply.manualDone && (
+                          <button className="text-button" disabled={busy} onClick={() => void markDone(reply, false)}>
+                            완료 취소
+                          </button>
+                        )}
                             </div>
                           </div>
                         ))}
@@ -491,17 +544,36 @@ export function ConsultationPage({
                           <form
                             className="consult-follow-form"
                             onSubmit={saveFollow}
+                            noValidate
                           >
-                            <strong>후속 기록</strong>
+                            <strong>후속 기록 · {followTarget.date} {followTarget.type}에 이어서</strong>
+                            <div className="consult-follow-grid">
+                              <label>
+                                날짜
+                                <input type="date" min={followTarget.date} value={followDraft.date} onChange={(event) => setFollowDraft({ ...followDraft, date: event.target.value })} />
+                              </label>
+                              <label>
+                                유형
+                                <select value={followDraft.type} onChange={(event) => setFollowDraft({ ...followDraft, type: event.target.value })}>
+                                  {followTypes.map((type) => (
+                                    <option key={type}>{type}</option>
+                                  ))}
+                                </select>
+                              </label>
+                              <label>
+                                다음 확인 예정일(선택)
+                                <input type="date" min={followDraft.date} value={followDraft.followUpDate} onChange={(event) => setFollowDraft({ ...followDraft, followUpDate: event.target.value })} />
+                              </label>
+                            </div>
                             <label>
                               내용
                               <textarea
-                                value={followContent}
-                                onChange={(event) =>
-                                  setFollowContent(event.target.value)
-                                }
+                                maxLength={5000}
+                                value={followDraft.content}
+                                onChange={(event) => setFollowDraft({ ...followDraft, content: event.target.value })}
                               />
                             </label>
+                            <small className="consult-follow-hint">저장하면 앞 기록은 확인 완료가 됩니다. 다시 확인할 일이 있으면 다음 확인 예정일을 넣어 주세요.</small>
                             <div className="consult-follow-actions">
                               <button
                                 type="button"
@@ -512,7 +584,7 @@ export function ConsultationPage({
                               </button>
                               <button
                                 className="primary-button"
-                                disabled={busy}
+                                disabled={busy || !followDraft.content.trim()}
                               >
                                 저장
                               </button>

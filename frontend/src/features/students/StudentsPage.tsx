@@ -487,9 +487,8 @@ export function StudentsPage({
                       {state(student)}
                     </small>
                     {student.note && (
-                      <div className="student-card-note" title={student.note}>
-                        📌 {student.note}
-                      </div>
+                      // 화면 공유·전자칠판에 비치지 않도록 내용은 상세정보에서만 보여 준다
+                      <small className="student-card-note-flag">📌 특이사항 있음</small>
                     )}
                   </span>
                 </button>

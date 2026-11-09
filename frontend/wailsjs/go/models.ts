@@ -804,6 +804,7 @@ export namespace main {
 	    content: string;
 	    followUpDate: string;
 	    followUpDone: boolean;
+	    manualDone: boolean;
 	    recordedAt: string;
 
 	    static createFrom(source: any = {}) {
@@ -821,6 +822,7 @@ export namespace main {
 	        this.content = source["content"];
 	        this.followUpDate = source["followUpDate"];
 	        this.followUpDone = source["followUpDone"];
+	        this.manualDone = Boolean(source["manualDone"]);
 	        this.recordedAt = source["recordedAt"];
 	    }
 	}

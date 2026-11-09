@@ -812,6 +812,13 @@ export function SelectStudentPhoto(): $CancellablePromise<string> {
 }
 
 /**
+ * SetConsultationFollowUpDone은 후속 기록 없이 상담 후속 확인을 완료로 표시하거나 취소합니다.
+ */
+export function SetConsultationFollowUpDone(id: string, done: boolean): $CancellablePromise<$models.Consultation> {
+    return $Call.ByID(737857370, id, done);
+}
+
+/**
  * SetGroupingPots는 교사가 나눈 포트를 저장합니다(교사만 보는 기준).
  */
 export function SetGroupingPots(pots: (string[] | null)[] | null): $CancellablePromise<$models.GroupSessionInfo> {

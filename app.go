@@ -1076,6 +1076,11 @@ func (a *App) SaveConsultation(item Consultation) (Consultation, error) {
 	return a.vault.SaveConsultation(item)
 }
 
+// SetConsultationFollowUpDone은 후속 기록 없이 상담 후속 확인을 완료로 표시하거나 취소합니다.
+func (a *App) SetConsultationFollowUpDone(id string, done bool) (Consultation, error) {
+	return a.vault.SetConsultationFollowUpDone(id, done)
+}
+
 // DeleteConsultation은 선택한 상담 기록과 연결된 후속 기록을 삭제합니다.
 func (a *App) DeleteConsultation(id string) (int, error) {
 	return a.vault.DeleteConsultation(id)

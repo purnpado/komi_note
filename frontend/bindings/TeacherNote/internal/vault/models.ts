@@ -112,6 +112,11 @@ export interface Consultation {
     "content": string;
     "followUpDate": string;
     "followUpDone": boolean;
+
+    /**
+     * ManualDone은 후속 기록 없이 교사가 직접 "확인 완료"로 끝낸 표시입니다.
+     */
+    "manualDone"?: boolean;
     "recordedAt": string;
 }
 

@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 const maxStudentPhotoSize = 5 * 1024 * 1024
@@ -219,7 +220,37 @@ type Consultation struct {
 	Content      string `json:"content"`
 	FollowUpDate string `json:"followUpDate"`
 	FollowUpDone bool   `json:"followUpDone"`
-	RecordedAt   string `json:"recordedAt"`
+	// ManualDone은 후속 기록 없이 교사가 직접 "확인 완료"로 끝낸 표시입니다.
+	ManualDone bool   `json:"manualDone,omitempty"`
+	RecordedAt string `json:"recordedAt"`
+}
+
+const (
+	maxConsultationContent = 5000
+	maxConsultationType    = 20
+)
+
+// sortConsultations는 상담 날짜 최신 순, 같은 날짜는 나중에 쓴 기록이 먼저 오도록 정렬합니다.
+func sortConsultations(items []Consultation) {
+	sort.SliceStable(items, func(i, j int) bool {
+		if items[i].Date != items[j].Date {
+			return items[i].Date > items[j].Date
+		}
+		return items[i].RecordedAt > items[j].RecordedAt
+	})
+}
+
+// refreshFollowUpDone은 후속 기록이 있거나 직접 완료한 기록만 확인 완료로 맞춥니다.
+func refreshFollowUpDone(items []Consultation) {
+	hasChild := map[string]bool{}
+	for _, item := range items {
+		if item.ParentID != "" {
+			hasChild[item.ParentID] = true
+		}
+	}
+	for i := range items {
+		items[i].FollowUpDone = hasChild[items[i].ID] || items[i].ManualDone
+	}
 }
 
 type studentPhoto struct {
@@ -319,7 +350,7 @@ func (s *VaultStore) ListConsultations(studentID string) ([]Consultation, error)
 			items = append(items, item)
 		}
 	}
-	sort.Slice(items, func(i, j int) bool { return items[i].Date > items[j].Date })
+	sortConsultations(items)
 	return items, nil
 }
 
@@ -331,7 +362,7 @@ func (s *VaultStore) ListAllConsultations() ([]Consultation, error) {
 		return nil, errors.New("먼저 보관함을 열어 주세요")
 	}
 	items := append([]Consultation{}, s.session.Consultations...)
-	sort.Slice(items, func(i, j int) bool { return items[i].Date > items[j].Date })
+	sortConsultations(items)
 	return items, nil
 }
 
@@ -356,28 +387,38 @@ func (s *VaultStore) SaveConsultation(item Consultation) (Consultation, error) {
 	}
 	if item.FollowUpDate != "" {
 		if _, err := time.Parse("2006-01-02", item.FollowUpDate); err != nil {
-			return Consultation{}, errors.New("후속 조치일을 확인해 주세요")
+			return Consultation{}, errors.New("다음 확인 예정일을 확인해 주세요")
+		}
+		if item.FollowUpDate < item.Date {
+			return Consultation{}, errors.New("다음 확인 예정일은 상담 날짜와 같거나 그 뒤로 정해 주세요")
 		}
 	}
-	if item.ParentID != "" {
-		parentIndex := -1
-		for i, parent := range s.session.Consultations {
-			if parent.ID == item.ParentID && parent.StudentID == item.StudentID {
-				parentIndex = i
-				item.RootID = parent.RootID
-				if item.RootID == "" {
-					item.RootID = parent.ID
+	if utf8.RuneCountInString(item.Content) > maxConsultationContent {
+		return Consultation{}, fmt.Errorf("상담 내용은 %d자 이하로 입력해 주세요", maxConsultationContent)
+	}
+	if utf8.RuneCountInString(item.Type) > maxConsultationType {
+		return Consultation{}, fmt.Errorf("상담 유형은 %d자 이하로 입력해 주세요", maxConsultationType)
+	}
+	// 저장에 실패하면 이 상태로 되돌린다(메모리에만 남아 다음 저장 때 섞여 들어가지 않게).
+	previous := append([]Consultation{}, s.session.Consultations...)
+	if item.ID == "" {
+		item.ManualDone = false
+		if item.ParentID != "" {
+			found := false
+			for _, parent := range s.session.Consultations {
+				if parent.ID == item.ParentID && parent.StudentID == item.StudentID {
+					item.RootID = parent.RootID
+					if item.RootID == "" {
+						item.RootID = parent.ID
+					}
+					found = true
+					break
 				}
-				break
+			}
+			if !found {
+				return Consultation{}, errors.New("연결할 상담 기록을 찾지 못했습니다")
 			}
 		}
-		if parentIndex < 0 {
-			return Consultation{}, errors.New("연결할 상담 기록을 찾지 못했습니다")
-		}
-		// 후속 기록이 남으면 바로 앞 기록의 확인은 끝난 것으로 봅니다.
-		s.session.Consultations[parentIndex].FollowUpDone = true
-	}
-	if item.ID == "" {
 		id, err := newStudentID()
 		if err != nil {
 			return Consultation{}, err
@@ -387,32 +428,77 @@ func (s *VaultStore) SaveConsultation(item Consultation) (Consultation, error) {
 		if item.RootID == "" {
 			item.RootID = item.ID
 		}
+		// 후속 기록이 남으면 바로 앞 기록의 확인은 끝난 것으로 봅니다(refreshFollowUpDone).
 		s.session.Consultations = append(s.session.Consultations, item)
 	} else {
+		index := -1
 		for i := range s.session.Consultations {
 			if s.session.Consultations[i].ID == item.ID {
-				existing := s.session.Consultations[i]
-				if existing.StudentID != item.StudentID {
-					return Consultation{}, errors.New("학생을 바꿔 상담 기록을 수정할 수 없습니다")
-				}
-				item.ParentID = existing.ParentID
-				item.RootID = existing.RootID
-				item.RecordedAt = existing.RecordedAt
-				s.session.Consultations[i] = item
-				s.session.UpdatedAt = time.Now().UTC()
-				if err := s.writeCurrentVaultLocked(); err != nil {
-					return Consultation{}, err
-				}
-				return item, nil
+				index = i
+				break
 			}
 		}
-		return Consultation{}, errors.New("수정할 상담 기록을 찾지 못했습니다")
+		if index < 0 {
+			return Consultation{}, errors.New("수정할 상담 기록을 찾지 못했습니다")
+		}
+		existing := s.session.Consultations[index]
+		if existing.StudentID != item.StudentID {
+			return Consultation{}, errors.New("학생을 바꿔 상담 기록을 수정할 수 없습니다")
+		}
+		// 연결·작성 시각·완료 상태는 화면 값이 아니라 보관함 값을 유지합니다.
+		item.ParentID = existing.ParentID
+		item.RootID = existing.RootID
+		item.RecordedAt = existing.RecordedAt
+		item.ManualDone = existing.ManualDone
+		if item.FollowUpDate == "" {
+			item.ManualDone = false
+		}
+		s.session.Consultations[index] = item
 	}
+	refreshFollowUpDone(s.session.Consultations)
 	s.session.UpdatedAt = time.Now().UTC()
 	if err := s.writeCurrentVaultLocked(); err != nil {
+		s.session.Consultations = previous
 		return Consultation{}, err
 	}
+	for _, saved := range s.session.Consultations {
+		if saved.ID == item.ID {
+			return saved, nil
+		}
+	}
 	return item, nil
+}
+
+// SetConsultationFollowUpDone은 후속 기록 없이 "확인 완료"로 끝내거나(done) 그 표시를 취소합니다.
+// 후속 기록이 있는 기록은 이미 완료이므로 취소해도 완료로 남습니다.
+func (s *VaultStore) SetConsultationFollowUpDone(id string, done bool) (Consultation, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.session == nil {
+		return Consultation{}, errors.New("먼저 보관함을 열어 주세요")
+	}
+	index := -1
+	for i := range s.session.Consultations {
+		if s.session.Consultations[i].ID == id {
+			index = i
+			break
+		}
+	}
+	if index < 0 {
+		return Consultation{}, errors.New("상담 기록을 찾지 못했습니다")
+	}
+	if done && s.session.Consultations[index].FollowUpDate == "" {
+		return Consultation{}, errors.New("다음 확인 예정일이 있는 기록만 확인 완료로 표시할 수 있습니다")
+	}
+	previous := append([]Consultation{}, s.session.Consultations...)
+	s.session.Consultations[index].ManualDone = done
+	refreshFollowUpDone(s.session.Consultations)
+	s.session.UpdatedAt = time.Now().UTC()
+	if err := s.writeCurrentVaultLocked(); err != nil {
+		s.session.Consultations = previous
+		return Consultation{}, err
+	}
+	return s.session.Consultations[index], nil
 }
 
 // DeleteConsultation은 선택한 상담 기록과 연결된 모든 후속 기록을 함께 삭제합니다.
@@ -445,18 +531,12 @@ func (s *VaultStore) DeleteConsultation(id string) (int, error) {
 	if len(kept) == len(s.session.Consultations) {
 		return 0, errors.New("삭제할 상담 기록을 찾지 못했습니다")
 	}
-	for i := range kept {
-		kept[i].FollowUpDone = false
-		for _, child := range kept {
-			if child.ParentID == kept[i].ID {
-				kept[i].FollowUpDone = true
-				break
-			}
-		}
-	}
+	previous := s.session.Consultations
+	refreshFollowUpDone(kept)
 	s.session.Consultations = kept
 	s.session.UpdatedAt = time.Now().UTC()
 	if err := s.writeCurrentVaultLocked(); err != nil {
+		s.session.Consultations = previous
 		return 0, err
 	}
 	return len(removeIDs), nil

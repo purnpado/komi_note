@@ -297,3 +297,5 @@ export function SaveRecordPhrase(arg1:main.RecordPhrase):Promise<main.RecordPhra
 export function SaveRecordPhrases(arg1:Array<main.RecordPhrase>):Promise<main.RecordPhraseBulkResult>;
 
 export function DeleteRecordPhrase(arg1:string):Promise<void>;
+
+export function SetConsultationFollowUpDone(arg1:string,arg2:boolean):Promise<main.Consultation>;
