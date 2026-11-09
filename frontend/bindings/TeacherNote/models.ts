@@ -9,6 +9,9 @@ import * as assessment$0 from "./internal/assessment/models.js";
 import * as attendance$0 from "./internal/attendance/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as background$0 from "./internal/background/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as cleaning$0 from "./internal/cleaning/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
@@ -61,6 +64,23 @@ export interface AttendanceHWPXExportResult {
 
 export type AttendanceTemplate = vault$0.AttendanceTemplate;
 
+/**
+ * BackgroundInfo는 설정과 이 컴퓨터에서 쓸 수 있는 기능을 함께 돌려준다.
+ */
+export interface BackgroundInfo {
+    "settings": BackgroundSettings;
+    "autoStartSupported": boolean;
+    "desktopSupported": boolean;
+}
+
+export type BackgroundSettings = background$0.Settings;
+
+export type BudgetBook = vault$0.BudgetBook;
+
+export type BudgetEntry = vault$0.BudgetEntry;
+
+export type BudgetLedger = vault$0.BudgetLedger;
+
 export type ClassConfig = vault$0.ClassConfig;
 
 export type CleaningPlan = cleaning$0.CleaningPlan;
@@ -89,6 +109,10 @@ export type GroupSessionRequest = groupsession$0.StartRequest;
 
 export type GroupingBook = vault$0.GroupingBook;
 
+export type MemoBook = vault$0.MemoBook;
+
+export type MemoItem = vault$0.MemoItem;
+
 /**
  * ParticipationSafetyState는 자동 잠금 판단에 필요한 공개 최소 상태입니다.
  * 회차 제목·학생 정보·QR 토큰은 포함하지 않습니다.
@@ -115,6 +139,20 @@ export interface RecordPhraseBulkResult {
 }
 
 /**
+ * ReminderInboxItem은 프로그램 안 '확인할 알림' 한 줄이다.
+ */
+export interface ReminderInboxItem {
+    "key": string;
+    "kind": string;
+    "refId": string;
+    "title": string;
+    "at": string;
+    "eventAt": string;
+    "missed": boolean;
+    "quiet": boolean;
+}
+
+/**
  * RestoreResult는 백업 되살리기 뒤 안내할 내용입니다.
  */
 export type RestoreResult = vault$0.RestoreResult;
@@ -122,6 +160,10 @@ export type RestoreResult = vault$0.RestoreResult;
 export type RosterImportResult = vault$0.RosterImportResult;
 
 export type RosterPreview = vault$0.RosterPreview;
+
+export type ScheduleBook = vault$0.ScheduleBook;
+
+export type ScheduleEvent = vault$0.ScheduleEvent;
 
 export type SeatingPlan = seating$0.SeatingPlan;
 

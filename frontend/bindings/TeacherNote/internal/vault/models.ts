@@ -9,10 +9,19 @@ import * as assessment$0 from "../assessment/models.js";
 import * as attendance$0 from "../attendance/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as budget$0 from "../budget/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as grouping$0 from "../grouping/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as memo$0 from "../memo/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as records$0 from "../records/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as schedule$0 from "../schedule/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
 import * as students$0 from "../students/models.js";
@@ -72,6 +81,15 @@ export type AttendanceFieldPoint = attendance$0.AttendanceFieldPoint;
  * AttendanceTemplate은 학교별 결석계 양식과 교사가 지정한 입력 위치입니다.
  */
 export type AttendanceTemplate = attendance$0.AttendanceTemplate;
+
+export type BudgetBook = budget$0.Book;
+
+export type BudgetEntry = budget$0.Entry;
+
+/**
+ * BudgetLedger·BudgetEntry·BudgetBook은 예산 장부 자료입니다.
+ */
+export type BudgetLedger = budget$0.Ledger;
 
 /**
  * ClassConfig은 암호화 보관함 안에 저장하는 학급 기본 설정입니다.
@@ -188,6 +206,16 @@ export type GroupRules = grouping$0.Rules;
 export type GroupingBook = grouping$0.Book;
 
 /**
+ * MemoBook은 메모·할 일 전체입니다.
+ */
+export type MemoBook = memo$0.Book;
+
+/**
+ * MemoItem은 메모 또는 할 일 하나입니다.
+ */
+export type MemoItem = memo$0.Item;
+
+/**
  * RecordActivityList는 동아리 등 교사가 직접 만든 활동 명단입니다.
  */
 export type RecordActivityList = records$0.ActivityList;
@@ -229,6 +257,16 @@ export type RosterImportResult = students$0.RosterImportResult;
  * RosterPreview는 가져오기 전 확인할 명렬표 미리보기입니다.
  */
 export type RosterPreview = students$0.RosterPreview;
+
+/**
+ * ScheduleBook은 일정 전체입니다.
+ */
+export type ScheduleBook = schedule$0.Book;
+
+/**
+ * ScheduleEvent는 일정 하나입니다.
+ */
+export type ScheduleEvent = schedule$0.Event;
 
 /**
  * SessionResult는 잠금 해제 뒤에만 화면에 제공하는 설정입니다.

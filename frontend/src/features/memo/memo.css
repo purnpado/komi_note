@@ -1,0 +1,101 @@
+/* 메모·할 일 전용 스타일 */
+.memo-intro-actions { display: flex; gap: 8px; align-items: center; }
+.memo-intro-actions button { min-height: 42px; padding: 10px 16px; border-radius: 10px; font-weight: 800; }
+.memo-toolbar { display: grid; gap: 12px; }
+.memo-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.memo-filters button { min-height: 38px; padding: 8px 14px; border: 1px solid #ecd7c1; border-radius: 999px; background: #fffdf9; color: #785c47; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+.memo-filters button small { margin-left: 3px; color: #a58a74; font-weight: 700; }
+.memo-filters button.active { border-color: #d4772f; background: #ffe6c7; color: #8a481f; }
+.memo-search-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.memo-search-row input { flex: 1 1 240px; min-height: 40px; padding: 8px 12px; border: 1px solid #e3c4a3; border-radius: 10px; font: inherit; }
+.memo-tag-row, .memo-card-tags, .memo-tag-suggest { display: flex; flex-wrap: wrap; gap: 5px; }
+.memo-tag { padding: 3px 9px; border: 1px solid #ead3bd; border-radius: 999px; background: #fff8ef; color: #7b5433; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+.memo-tag small { color: #a58a74; }
+.memo-tag.active { border-color: #d4772f; background: #d4772f; color: #fff; }
+.memo-tag.active small { color: #ffe9d6; }
+.memo-section-title { margin: 0 0 12px; color: #5a4030; font-size: 16px; }
+
+/* 메모 색: 밝은 바탕 + 진한 글자로 두 테마 모두에서 읽기 쉽게 */
+.c-default { --memo-bg: #fffdf8; --memo-line: #e6d6c4; --memo-ink: #3e2d22; }
+.c-blue { --memo-bg: #eaf3ff; --memo-line: #b7d2f3; --memo-ink: #1f3d63; }
+.c-green { --memo-bg: #e9f7ee; --memo-line: #b3dfc2; --memo-ink: #1f4d32; }
+.c-yellow { --memo-bg: #fff8d6; --memo-line: #ecd98a; --memo-ink: #5a4a10; }
+.c-orange { --memo-bg: #ffeedd; --memo-line: #f2c49a; --memo-ink: #6b3a12; }
+.c-red { --memo-bg: #ffeceb; --memo-line: #f1b9b4; --memo-ink: #6e231d; }
+.c-purple { --memo-bg: #f3edff; --memo-line: #cfc0f0; --memo-ink: #3e2a6b; }
+.c-gray { --memo-bg: #f1f2f3; --memo-line: #cfd3d6; --memo-ink: #33393d; }
+
+.memo-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.memo-card { display: grid; align-content: start; gap: 8px; padding: 14px; border: 1px solid var(--memo-line); border-radius: 13px; background: var(--memo-bg); color: var(--memo-ink); }
+.memo-card.pinned { box-shadow: 0 0 0 2px var(--memo-line), 0 6px 14px #8f55201a; }
+.memo-card-open { display: grid; gap: 6px; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.memo-card-open h4 { margin: 0; font-size: 15px; }
+.memo-card-open p { display: -webkit-box; margin: 0; overflow: hidden; -webkit-line-clamp: 7; -webkit-box-orient: vertical; white-space: pre-line; font-size: 13px; line-height: 1.55; }
+.memo-pin { justify-self: end; margin-bottom: -18px; font-size: 13px; }
+.memo-card footer { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding-top: 6px; border-top: 1px solid var(--memo-line); }
+.memo-card footer small { opacity: .7; font-size: 11px; }
+.memo-card footer span { display: flex; gap: 2px; }
+.memo-card footer .text-button { padding: 2px 6px; font-size: 12px; }
+.memo-card-open:focus-visible, .todo-main:focus-visible { outline: 3px solid #f4c796; outline-offset: 2px; border-radius: 6px; }
+
+.todo-groups { display: grid; gap: 14px; }
+.todo-group h4 { margin: 0 0 6px; color: #6f4e38; font-size: 14px; }
+.todo-group h4 small { margin-left: 4px; color: #a58a74; }
+.todo-group.late h4 { color: #b23b16; }
+.todo-group ul { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.todo-row { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto auto; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid #f0e2d2; border-left: 4px solid #ead3bd; border-radius: 10px; background: #fffdf9; }
+.todo-row.p-높음 { border-left-color: #d9532c; }
+.todo-row.p-낮음 { border-left-color: #c9d3cf; }
+.todo-row.done { opacity: .62; }
+.todo-row.done b { text-decoration: line-through; }
+.todo-check input { width: 20px; height: 20px; accent-color: #d4772f; cursor: pointer; }
+.todo-main { display: grid; gap: 2px; padding: 0; border: 0; background: transparent; color: #3e2d22; font: inherit; text-align: left; cursor: pointer; }
+.todo-main small { overflow: hidden; color: #8a7160; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.todo-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 5px; font-size: 12px; }
+.todo-meta time { color: #6f5644; font-weight: 700; white-space: nowrap; }
+.todo-meta time.late, .widget-todos time.late { color: #b23b16; }
+.todo-priority { padding: 2px 7px; border-radius: 999px; background: #ffe2d8; color: #a33a16; font-style: normal; font-weight: 800; }
+.todo-actions { display: flex; gap: 2px; }
+.todo-actions .text-button { padding: 2px 6px; font-size: 12px; }
+
+.memo-editor { width: min(560px, calc(100vw - 32px)); }
+.memo-editor-form { display: grid; gap: 10px; }
+.memo-editor-form textarea, .memo-editor-form input:not([type=checkbox]):not([type=radio]), .memo-editor-form select { width: 100%; }
+.memo-kind-switch { display: flex; gap: 6px; }
+.memo-kind-switch button { flex: 1; min-height: 40px; border: 1px solid #ecd7c1; border-radius: 10px; background: #fffdf9; color: #785c47; font: inherit; font-weight: 800; cursor: pointer; }
+.memo-kind-switch button.active { border-color: #d4772f; background: #ffe6c7; color: #8a481f; }
+.memo-editor-row { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; }
+.memo-editor-row .dialog-label { flex: 1 1 130px; }
+.memo-color-picker { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; border: 0; }
+.memo-color-picker legend { margin-bottom: 4px; color: #6f5644; font-size: 12px; font-weight: 800; }
+.memo-swatch { position: relative; width: 30px; height: 30px; border: 2px solid var(--memo-line); border-radius: 50%; background: var(--memo-bg); cursor: pointer; }
+.memo-swatch input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+.memo-swatch.selected { box-shadow: 0 0 0 3px #d4772f; }
+.memo-swatch:has(input:focus-visible) { outline: 3px solid #f4c796; outline-offset: 2px; }
+.memo-privacy-note { margin: 0; color: #8a7160; font-size: 11px; line-height: 1.5; }
+.memo-editor .form-error { margin: 0; color: #b23b16; font-weight: 700; }
+.memo-editor .sr-only, .todo-check .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.memo-editor .inline-check { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; }
+
+.memo-widgets { margin-top: 0; }
+.widget-todos { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.widget-todos li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border: 1px solid #f0e2d2; border-radius: 10px; }
+.widget-todos label { display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer; }
+.widget-todos input { width: 18px; height: 18px; accent-color: #d4772f; }
+.widget-todos time { color: #6f5644; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.widget-memos { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.memo-card.mini { cursor: pointer; font: inherit; text-align: left; }
+.memo-card.mini span { display: -webkit-box; overflow: hidden; -webkit-line-clamp: 3; -webkit-box-orient: vertical; font-size: 12px; white-space: pre-line; }
+
+.theme-classic .memo-filters button.active, .theme-classic .memo-kind-switch button.active { border-color: #2b806a; background: #ddf3e9; color: #17664f; }
+.theme-classic .memo-tag.active { border-color: #2b806a; background: #2b806a; }
+.theme-classic .todo-check input, .theme-classic .widget-todos input { accent-color: #237b64; }
+.theme-classic .memo-swatch.selected { box-shadow: 0 0 0 3px #2b806a; }
+
+@media (max-width: 700px) {
+  .todo-row { grid-template-columns: 30px minmax(0, 1fr); }
+  .todo-meta, .todo-actions { grid-column: 2; justify-content: flex-start; }
+  .memo-intro-actions { width: 100%; }
+}
+.memo-remind-row { display: flex; align-items: center; gap: 8px; }
+.memo-remind-row input { flex: 1; }

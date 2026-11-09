@@ -1377,6 +1377,13 @@ export namespace main {
 	    text: string;
 	    type: string;
 	    options: string[];
+	    description?: string;
+	    optional?: boolean;
+	    allowOther?: boolean;
+	    maxChoices?: number;
+	    scaleSteps?: number;
+	    scaleMinLabel?: string;
+	    scaleMaxLabel?: string;
 
 	    static createFrom(source: any = {}) {
 	        return new SurveyQuestion(source);
@@ -1388,6 +1395,13 @@ export namespace main {
 	        this.text = source["text"];
 	        this.type = source["type"];
 	        this.options = source["options"];
+	        this.description = source["description"];
+	        this.optional = source["optional"];
+	        this.allowOther = source["allowOther"];
+	        this.maxChoices = source["maxChoices"];
+	        this.scaleSteps = source["scaleSteps"];
+	        this.scaleMinLabel = source["scaleMinLabel"];
+	        this.scaleMaxLabel = source["scaleMaxLabel"];
 	    }
 	}
 	export class Survey {
@@ -1399,6 +1413,8 @@ export namespace main {
 	    anonymous: boolean;
 	    status: string;
 	    expectedParticipants: number;
+	    description?: string;
+	    targetRosterId?: string;
 	    questions: SurveyQuestion[];
 	    responses: SurveyResponse[];
 	    createdAt: string;
@@ -1418,6 +1434,8 @@ export namespace main {
 	        this.anonymous = source["anonymous"];
 	        this.status = source["status"];
 	        this.expectedParticipants = source["expectedParticipants"];
+	        this.description = source["description"];
+	        this.targetRosterId = source["targetRosterId"];
 	        this.questions = this.convertValues(source["questions"], SurveyQuestion);
 	        this.responses = this.convertValues(source["responses"], SurveyResponse);
 	        this.createdAt = source["createdAt"];
@@ -1459,6 +1477,7 @@ export namespace main {
 	    expectedParticipants: number;
 	    responseCnt: number;
 	    notice: string;
+	    participants?: SurveyParticipantStatus[];
 
 	    static createFrom(source: any = {}) {
 	        return new SurveySessionInfo(source);
@@ -1480,6 +1499,27 @@ export namespace main {
 	        this.expectedParticipants = source["expectedParticipants"];
 	        this.responseCnt = source["responseCnt"];
 	        this.notice = source["notice"];
+	        this.participants = source["participants"];
+	    }
+	}
+	export class SurveyParticipantStatus {
+	    id: string;
+	    number: string;
+	    name: string;
+	    joined: boolean;
+	    responded: boolean;
+
+	    static createFrom(source: any = {}) {
+	        return new SurveyParticipantStatus(source);
+	    }
+
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.number = source["number"];
+	        this.name = source["name"];
+	        this.joined = source["joined"];
+	        this.responded = source["responded"];
 	    }
 	}
 	export class UpdateInfo {

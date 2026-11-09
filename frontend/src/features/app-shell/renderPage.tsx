@@ -10,11 +10,12 @@ import { StudentsPage } from "../students/StudentsPage";
 import { StudentStatsPage } from "../students/StudentStatsPage";
 import { AssessmentPage } from "../assessment/AssessmentPage";
 import { SurveyHubPage } from "../survey/SurveyHubPage";
+import { MemoPage } from "../memo/MemoPage";
+import { SchedulePage } from "../schedule/SchedulePage";
 import { ConsultationPage } from "../consultation/ConsultationPage";
 import { ClassroomPage } from "../seating/ClassroomPage";
-import { BudgetPage } from "../records/RecordPages";
+import { BudgetPage } from "../budget/BudgetPage";
 import { RecordsPage } from "../records/RecordsPage";
-import { FeatureGuidePage } from "../shared/FeatureGuidePage";
 import { confirmWithRadix } from "./AppConfirmDialog";
 import type { PageKey } from "../navigation/menuTypes";
 import { main as models } from "../../../wailsjs/go/models";
@@ -104,24 +105,12 @@ export function renderPage(
     return <TimetablePage config={config} isHomeroomTeacher={isHomeroomTeacher} />;
   if (active === "모둠 편성")
     return <GroupingPage students={students} isHomeroomTeacher={isHomeroomTeacher} config={config} />;
-  if (active === "메모 · 할 일")
-    return (
-      <FeatureGuidePage
-        title="메모 · 할 일"
-        description="색상 메모, 마감일, 알림을 통합해 개인 업무를 관리하는 기능을 준비하고 있습니다."
-      />
-    );
-  if (active === "일정 · 구글 캘린더")
-    return (
-      <FeatureGuidePage
-        title="일정 · 구글 캘린더"
-        description="교사 일정과 구글 캘린더 동기화를 안전하게 연결하는 기능을 준비하고 있습니다."
-      />
-    );
+  if (active === "메모 · 할 일") return <MemoPage />;
+  if (active === "일정") return <SchedulePage navigate={navigate} />;
   if (active === "평가 관리") return <AssessmentPage config={config} />;
   if (active === "학교생활기록")
     return <RecordsPage students={students} config={config} isHomeroomTeacher={isHomeroomTeacher} />;
-  if (active === "예산 관리") return <BudgetPage />;
+  if (active === "예산 관리") return <BudgetPage config={config} isHomeroomTeacher={isHomeroomTeacher} />;
   return (
     <DashboardPage
       config={config}

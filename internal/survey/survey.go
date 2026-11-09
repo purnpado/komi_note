@@ -1,13 +1,28 @@
 package survey
 
-import "TeacherNote/internal/students"
-
 // Store는 설문 웹서버가 필요한 최소 저장소 인터페이스입니다.
 type Store interface {
 	GetSurvey(id string) (Survey, error)
 	SetSurveyStatus(id, status string) error
 	SubmitSurvey(id, studentID, respondentName string, answers map[string]string, multiAnswers map[string][]string) error
-	ListStudents() ([]students.Student, error)
+	// SurveyParticipants는 학생 설문의 참여 대상(담임 반 또는 고른 수업 반)을 돌려준다.
+	SurveyParticipants(id string) ([]Participant, error)
+}
+
+// Participant는 설문 참여 대상 학생 한 명이다. ID는 담임 반이면 학생 ID, 수업 반이면 "course|명렬ID|번호|이름"이다.
+type Participant struct {
+	ID     string `json:"id"`
+	Number string `json:"number"`
+	Name   string `json:"name"`
+}
+
+// ParticipantStatus는 교사 화면에만 보이는 회차 참여 현황이다(전자칠판·학생 화면에는 보내지 않음).
+type ParticipantStatus struct {
+	ID        string `json:"id"`
+	Number    string `json:"number"`
+	Name      string `json:"name"`
+	Joined    bool   `json:"joined"`
+	Responded bool   `json:"responded"`
 }
 
 // Survey는 학급 안에서만 운영하는 설문지와 암호화 응답 기록입니다.
@@ -20,6 +35,8 @@ type Survey struct {
 	Anonymous            bool             `json:"anonymous"`
 	Status               string           `json:"status"`
 	ExpectedParticipants int              `json:"expectedParticipants"`
+	Description          string           `json:"description,omitempty"`
+	TargetRosterID       string           `json:"targetRosterId,omitempty"`
 	Questions            []SurveyQuestion `json:"questions"`
 	Responses            []SurveyResponse `json:"responses"`
 	CreatedAt            string           `json:"createdAt"`
@@ -27,11 +44,19 @@ type Survey struct {
 }
 
 // SurveyQuestion은 설문 문항 정의입니다.
+// 예전 설문은 새 칸이 비어 있어도 그대로 동작한다(Optional이 false면 꼭 답해야 하는 문항).
 type SurveyQuestion struct {
-	ID      string   `json:"id"`
-	Text    string   `json:"text"`
-	Type    string   `json:"type"`
-	Options []string `json:"options"`
+	ID            string   `json:"id"`
+	Text          string   `json:"text"`
+	Type          string   `json:"type"`
+	Options       []string `json:"options"`
+	Description   string   `json:"description,omitempty"`
+	Optional      bool     `json:"optional,omitempty"`
+	AllowOther    bool     `json:"allowOther,omitempty"`
+	MaxChoices    int      `json:"maxChoices,omitempty"`
+	ScaleSteps    int      `json:"scaleSteps,omitempty"`
+	ScaleMinLabel string   `json:"scaleMinLabel,omitempty"`
+	ScaleMaxLabel string   `json:"scaleMaxLabel,omitempty"`
 }
 
 // SurveyResponse는 교사용 암호화 보관함에서만 학생별 응답을 확인할 수 있도록 보관합니다.
@@ -60,5 +85,6 @@ type SurveySessionInfo struct {
 	ExpectedParticipants int    `json:"expectedParticipants"`
 	ResponseCnt          int    `json:"responseCnt"`
 	Notice               string `json:"notice"`
+	// Participants는 교사 화면의 접속 초기화용 현황이다(학생 설문만).
+	Participants []ParticipantStatus `json:"participants,omitempty"`
 }
-

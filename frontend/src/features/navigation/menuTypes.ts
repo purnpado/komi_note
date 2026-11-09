@@ -13,7 +13,7 @@ export type MenuKey =
   | "모둠 편성"
   | "설문 조사"
   | "메모 · 할 일"
-  | "일정 · 구글 캘린더"
+  | "일정"
   | "예산 관리";
 
 export type PageKey = MenuKey | "자리배정" | "청소배정" | "환경 설정";
@@ -44,6 +44,6 @@ export const menus: MenuItem[] = [
   { key: "모둠 편성", icon: "⌘", group: "수업용" },
   { key: "설문 조사", icon: "▥", group: "업무용" },
   { key: "메모 · 할 일", icon: "▤", group: "업무용" },
-  { key: "일정 · 구글 캘린더", icon: "◴", group: "업무용" },
+  { key: "일정", icon: "◴", group: "업무용" },
   { key: "예산 관리", icon: "₩", group: "업무용" },
 ];

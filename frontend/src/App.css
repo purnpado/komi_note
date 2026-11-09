@@ -1049,23 +1049,6 @@ main {
   padding: 5px 8px;
   font-size: 11px;
 }
-.expense {
-  display: grid;
-  grid-template-columns: 75px 1.5fr 1fr 110px;
-  align-items: center;
-  padding: 17px 0;
-  border-top: 1px solid #e8eef2;
-}
-.expense span,
-.expense small {
-  color: #7b8998;
-  font-size: 12px;
-}
-.expense b {
-  text-align: right;
-  color: #424f5d;
-  font-size: 13px;
-}
 @media (max-width: 1200px) {
   .page-content,
   .topbar {

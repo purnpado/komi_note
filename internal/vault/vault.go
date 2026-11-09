@@ -113,6 +113,10 @@ type vaultData struct {
 	Timetable           *TimetableBook       `json:"timetable,omitempty"`
 	Grouping            *GroupingBook        `json:"grouping,omitempty"`
 	Records             *RecordBook          `json:"records,omitempty"`
+	Memo                *MemoBook            `json:"memo,omitempty"`
+	Schedule            *ScheduleBook        `json:"schedule,omitempty"`
+	ReminderSent        []string             `json:"reminderSent,omitempty"`
+	Budget              *BudgetBook          `json:"budget,omitempty"`
 	CreatedAt           time.Time            `json:"createdAt"`
 	UpdatedAt           time.Time            `json:"updatedAt"`
 	RecoveryCreated     bool                 `json:"recoveryCreated"`

@@ -41,6 +41,9 @@ import { main as models } from "../wailsjs/go/models";
 
 import { errorMessage } from "./features/shared/format";
 import { ProfileMenu, QuickSearch } from "./features/app-shell/HeaderTools";
+import { QuickMemo } from "./features/memo/QuickMemo";
+import { ReminderInbox } from "./features/reminders/ReminderInbox";
+import { EventsOn } from "../wailsjs/runtime/runtime";
 function displayGender(gender: string) {
   if (["남", "남자", "남성"].includes(gender)) return "남";
   if (["여", "여자", "여성"].includes(gender)) return "여";
@@ -159,6 +162,10 @@ function App() {
     }
   }
 
+  // 트레이 메뉴 '화면 잠금'은 Go가 알림만 보내고, 잠금은 화면의 평소 잠금 절차(자동 저장 마무리 포함)로 한다.
+  const lockScreenRef = useRef<(message?: string) => void>(() => undefined);
+  useEffect(() => EventsOn("app:잠금요청", () => lockScreenRef.current("트레이 메뉴에서 화면을 잠갔습니다.")), []);
+
   function lockScreen(message = "") {
     // 자동 저장을 기다리던 입력(학교생활기록 등)을 먼저 저장한 뒤 보관함을 닫습니다.
     void flushPendingSaves().finally(() => {
@@ -171,6 +178,7 @@ function App() {
       if (message) setNotice(message);
     });
   }
+  lockScreenRef.current = lockScreen;
 
   useEffect(() => {
     if (locked || !config) return;
@@ -440,6 +448,8 @@ function App() {
                   setActive(page);
                 }}
               />
+              <ReminderInbox onNavigate={(page) => { setStudentCard(null); setActive(page); }} />
+              <QuickMemo onSaved={setNotice} />
               <span className="local-status">
                 <i />이 기기에 안전하게 저장됨
               </span>

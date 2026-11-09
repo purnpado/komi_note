@@ -1,3 +1,4 @@
+import { BackgroundPanel } from "./BackgroundPanel";
 import React, { FormEvent, useEffect, useState } from "react";
 import { main as models } from "../../../wailsjs/go/models";
 import { HasPin, SetPin, RemovePin } from "../../../wailsjs/go/main/App";
@@ -674,6 +675,7 @@ export function SettingsFeaturePage({
       </section>
       <PasswordChangePanel />
       <BackupPanel />
+      <BackgroundPanel />
       <FeedbackPanel />
       <AlertDialog.Root open={pinRemoveOpen} onOpenChange={setPinRemoveOpen}>
         <AlertDialog.Portal>

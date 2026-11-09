@@ -12,6 +12,9 @@ import type { PageKey } from "../navigation/menuTypes";
 import { toLocalDateString, todayLocal } from "../shared/format";
 import { Attention, Quick } from "./DashboardWidgets";
 import { DashboardTimetable } from "../timetable/DashboardTimetable";
+import { MemoWidgets } from "../memo/MemoWidgets";
+import { ScheduleWidget } from "../schedule/ScheduleWidget";
+import { BudgetWidget } from "../budget/BudgetWidget";
 import "./dashboard.css";
 
 type StatProps = { icon: string; title: string; value: string; note: string; color: string; onClick?: () => void };
@@ -216,6 +219,9 @@ export function DashboardPage({
         )}
       </section>
       <DashboardTimetable today={today} isHomeroomTeacher={isHomeroomTeacher} navigate={navigate} />
+      <ScheduleWidget today={today} onOpen={() => navigate("일정")} />
+      <MemoWidgets today={today} onOpen={() => navigate("메모 · 할 일")} />
+      <BudgetWidget onOpen={() => navigate("예산 관리")} />
       {isHomeroomTeacher && (
         <section className="two-column">
           <div className="panel">

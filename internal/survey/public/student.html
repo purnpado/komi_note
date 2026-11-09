@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{.Title}} · 꼬미노트</title>
+<style>
+*{box-sizing:border-box}
+body{min-height:100vh;margin:0;padding:clamp(14px,5vw,56px);background:linear-gradient(145deg,#fff8ef,#fff0dc);color:#3e3129;font:clamp(16px,1.7vw,18px)/1.5 Pretendard,system-ui,sans-serif}
+.shell{width:min(760px,100%);margin:auto;padding:clamp(22px,5vw,46px);border-radius:clamp(18px,3vw,28px);background:#fff;box-shadow:0 14px 38px #8f5a1c20}
+.eyebrow{margin:0 0 10px;color:#a8612d;font-weight:800}
+h1{margin:0 0 12px;font-size:clamp(27px,6vw,46px);line-height:1.2;word-break:keep-all}
+.lead{margin:0 0 22px;color:#765a49;white-space:pre-line}
+label.field{display:block;margin:12px 0 0;font-weight:700}
+input[type=text],input[type=number],select,textarea{width:100%;margin-top:6px;padding:14px;border:1px solid #e3c19c;border-radius:12px;background:#fffdf9;font:inherit;color:inherit}
+textarea{min-height:120px;resize:vertical}
+button.main{width:100%;margin-top:18px;padding:15px;border:0;border-radius:12px;background:#c96a22;color:#fff;font:inherit;font-weight:800}
+button.main:disabled{opacity:.6}
+.box{padding:18px;border-radius:14px;background:#fff4e5;color:#7a4a22}
+.hidden{display:none}
+fieldset{margin:0 0 26px;padding:16px;border:1px solid #f0dcc6;border-radius:16px}
+fieldset.missing{border-color:#c4421c;box-shadow:0 0 0 2px #f6c9b8}
+legend{padding:0 6px;font-size:clamp(18px,3.2vw,24px);font-weight:800;line-height:1.4}
+.req{color:#c4421c;margin-left:4px}
+.desc{margin:4px 0 10px;color:#7d6656;white-space:pre-line}
+.hint{margin:4px 0 8px;color:#8d6b52;font-size:.92em}
+.option{position:relative;display:flex;align-items:center;gap:10px;margin:8px 0;padding:12px 14px;border:1px solid #ead8c5;border-radius:14px;background:#fffdf9;cursor:pointer}
+.option input{width:22px;height:22px;flex:none;accent-color:#c96a22}
+.option:has(input:checked){border-color:#c96a22;background:#fff4e5}
+input.other-text{display:block;margin:2px 0 8px 36px;width:calc(100% - 36px)}
+.scale{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.scale label{flex:1 1 44px;display:grid;place-items:center;min-height:48px;border:1px solid #e3c19c;border-radius:12px;background:#fffdf9;font-weight:800;cursor:pointer}
+.scale input{position:absolute;opacity:0;width:1px;height:1px}
+.scale label:has(input:checked){background:#c96a22;color:#fff;border-color:#c96a22}
+.scale label:has(input:focus-visible){outline:3px solid #f4c796}
+.scale-ends{display:flex;justify-content:space-between;color:#8d6b52;font-size:.9em}
+.error{margin:6px 0 0;color:#b23b16;font-weight:700}
+.notice{margin:16px 0 0;color:#a44b2d;font-weight:700}
+@media (prefers-reduced-motion:no-preference){fieldset{transition:box-shadow .2s}}
+</style>
+</head>
+<body>
+<main class="shell">
+<p class="eyebrow">꼬미노트 교실 참여</p>
+<h1 id="surveyTitle">{{.Title}}</h1>
+<p class="lead hidden" id="surveyLead"></p>
+<section id="loginPanel" class="hidden"></section>
+<div id="waitBox" class="box hidden"></div>
+<form id="answerForm" class="hidden" novalidate></form>
+<p id="pageNotice" class="notice" role="alert"></p>
+</main>
+<script>
+const surveyToken={{.Token}};
+const surveyApi='/api/'+surveyToken;
+const el=(id)=>document.getElementById(id);
+let surveyState=null,formRendered=false,submitted=false;
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function showOnly(id){['loginPanel','waitBox','answerForm'].forEach(x=>el(x).classList.toggle('hidden',x!==id))}
+function wait(text){el('waitBox').textContent=text;showOnly('waitBox')}
+function renderLogin(identity){
+  const panel=el('loginPanel');
+  if(identity==='staff-anonymous'){panel.innerHTML='<p class="desc">이름 없이 익명으로 참여합니다.</p><button class="main" id="joinButton" type="button">참여하기</button>'}
+  else if(identity==='staff-name'){panel.innerHTML='<label class="field">이름<input type="text" id="joinName" autocomplete="name" maxlength="30"></label><button class="main" id="joinButton" type="button">참여하기</button>'}
+  else{panel.innerHTML='<p class="desc">본인 번호와 이름을 입력하면 선생님이 설문을 시작할 때까지 기다립니다.</p><label class="field">번호<input type="text" id="joinNumber" inputmode="numeric" placeholder="예: 7"></label><label class="field">이름<input type="text" id="joinName" autocomplete="name"></label><button class="main" id="joinButton" type="button">참여하기</button>'}
+  showOnly('loginPanel');
+  el('joinButton').onclick=joinSurvey;
+}
+async function joinSurvey(){
+  const button=el('joinButton');button.disabled=true;el('pageNotice').textContent='';
+  try{
+    const body={number:el('joinNumber')?.value||'',name:el('joinName')?.value||''};
+    const r=await fetch(surveyApi+'/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!r.ok){el('pageNotice').textContent=(await r.text()).trim();return}
+    await refreshState();
+  }catch(e){el('pageNotice').textContent='연결을 확인해 주세요.'}finally{button.disabled=false}
+}
+function optionRow(q,option,kind){
+  return '<label class="option"><input type="'+kind+'" name="'+esc(q.id)+'" value="'+esc(option)+'"><span>'+esc(option)+'</span></label>';
+}
+function otherRow(q,kind){
+  return '<label class="option"><input type="'+kind+'" name="'+esc(q.id)+'" value="__other__"><span>기타(직접 입력)</span></label><input type="text" class="other-text" data-other="'+esc(q.id)+'" maxlength="100" placeholder="기타 내용">';
+}
+function questionBody(q){
+  const opts=q.options||[];
+  if(q.type==='단답')return '<input type="text" data-text="'+esc(q.id)+'" maxlength="200">';
+  if(q.type==='서술')return '<textarea data-text="'+esc(q.id)+'" maxlength="2000"></textarea>';
+  if(q.type==='목록 선택'){
+    return '<select data-select="'+esc(q.id)+'"><option value="">골라 주세요</option>'+opts.map(o=>'<option value="'+esc(o)+'">'+esc(o)+'</option>').join('')+(q.allowOther?'<option value="__other__">기타(직접 입력)</option>':'')+'</select>'+(q.allowOther?'<input type="text" class="other-text hidden" data-other="'+esc(q.id)+'" maxlength="100" placeholder="기타 내용" style="margin-left:0;width:100%">':'');
+  }
+  if(q.type==='척도'){
+    const ends=(q.scaleMinLabel||q.scaleMaxLabel)?'<div class="scale-ends"><span>'+esc(q.scaleMinLabel)+'</span><span>'+esc(q.scaleMaxLabel)+'</span></div>':'';
+    return '<div class="scale">'+opts.map(o=>'<label><input type="radio" name="'+esc(q.id)+'" value="'+esc(o)+'">'+esc(o)+'</label>').join('')+'</div>'+ends;
+  }
+  const kind=q.type==='복수 선택'?'checkbox':'radio';
+  const hint=kind==='checkbox'?'<p class="hint">'+(q.maxChoices>0?'최대 '+q.maxChoices+'개까지 고를 수 있어요.':'해당하는 것을 모두 골라 주세요.')+'</p>':'';
+  return hint+opts.map(o=>optionRow(q,o,kind)).join('')+(q.allowOther?otherRow(q,kind):'');
+}
+function renderForm(questions){
+  const form=el('answerForm');
+  form.innerHTML=questions.map((q,i)=>'<fieldset data-question="'+esc(q.id)+'"><legend>'+(i+1)+'. '+esc(q.text)+(q.optional?'':'<span class="req" aria-label="필수">*</span>')+'</legend>'+(q.description?'<p class="desc">'+esc(q.description)+'</p>':'')+questionBody(q)+'<p class="error" data-error="'+esc(q.id)+'"></p></fieldset>').join('')+'<p class="hint"><span class="req">*</span> 표시는 꼭 답해야 하는 문항입니다.</p><button class="main" id="submitButton">응답 제출</button>';
+  form.querySelectorAll('select[data-select]').forEach(sel=>sel.addEventListener('change',()=>{const other=form.querySelector('[data-other="'+CSS.escape(sel.dataset.select)+'"]');if(other)other.classList.toggle('hidden',sel.value!=='__other__')}));
+  form.onsubmit=submitAnswers;
+  formRendered=true;showOnly('answerForm');
+}
+function otherValue(id){const input=el('answerForm').querySelector('[data-other="'+CSS.escape(id)+'"]');const text=(input?.value||'').trim();return text?'기타: '+text:''}
+function collect(questions){
+  const answers={},multiAnswers={},problems={};
+  const form=el('answerForm');
+  for(const q of questions){
+    const sel=CSS.escape(q.id);
+    if(q.type==='복수 선택'){
+      const picked=[...form.querySelectorAll('input[name="'+sel+'"]:checked')].map(x=>x.value==='__other__'?otherValue(q.id):x.value);
+      if(picked.includes(''))problems[q.id]='기타 내용을 적어 주세요.';
+      const clean=picked.filter(Boolean);
+      if(!clean.length&&!q.optional)problems[q.id]=problems[q.id]||'하나 이상 골라 주세요.';
+      if(q.maxChoices>0&&clean.length>q.maxChoices)problems[q.id]='최대 '+q.maxChoices+'개까지 고를 수 있어요.';
+      if(clean.length)multiAnswers[q.id]=clean;continue;
+    }
+    let value='';
+    if(q.type==='단답'||q.type==='서술')value=(form.querySelector('[data-text="'+sel+'"]')?.value||'').trim();
+    else if(q.type==='목록 선택'){value=form.querySelector('[data-select="'+sel+'"]')?.value||'';if(value==='__other__'){value=otherValue(q.id);if(!value)problems[q.id]='기타 내용을 적어 주세요.'}}
+    else{const checked=form.querySelector('input[name="'+sel+'"]:checked');value=checked?checked.value:'';if(value==='__other__'){value=otherValue(q.id);if(!value)problems[q.id]='기타 내용을 적어 주세요.'}}
+    if(!value&&!q.optional&&!problems[q.id])problems[q.id]='이 문항에 답해 주세요.';
+    if(value)answers[q.id]=value;
+  }
+  return {answers,multiAnswers,problems};
+}
+async function submitAnswers(event){
+  event.preventDefault();
+  const questions=surveyState.questions||[];
+  const {answers,multiAnswers,problems}=collect(questions);
+  const form=el('answerForm');
+  form.querySelectorAll('fieldset').forEach(f=>{const id=f.dataset.question;f.classList.toggle('missing',!!problems[id]);form.querySelector('[data-error="'+CSS.escape(id)+'"]').textContent=problems[id]||''});
+  const first=form.querySelector('fieldset.missing');
+  if(first){first.scrollIntoView({behavior:'smooth',block:'center'});el('pageNotice').textContent='빠진 문항을 확인해 주세요.';return}
+  const button=el('submitButton');button.disabled=true;el('pageNotice').textContent='';
+  try{
+    const r=await fetch(surveyApi+'/answer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({answers,multiAnswers})});
+    if(!r.ok){el('pageNotice').textContent=(await r.text()).trim();button.disabled=false;return}
+    submitted=true;wait('응답을 저장했습니다. 참여해 주셔서 고맙습니다. 이 창을 닫아도 됩니다.');
+  }catch(e){el('pageNotice').textContent='연결을 확인해 주세요. 입력한 내용은 그대로 있습니다.';button.disabled=false}
+}
+async function refreshState(){
+  let r;
+  try{r=await fetch(surveyApi+'/state',{cache:'no-store'})}catch(e){return}
+  if(!r.ok)return;
+  surveyState=await r.json();
+  el('surveyTitle').textContent=surveyState.title;
+  const lead=el('surveyLead');lead.textContent=surveyState.description||'';lead.classList.toggle('hidden',!surveyState.description);
+  if(submitted||surveyState.responded){wait('응답을 저장했습니다. 참여해 주셔서 고맙습니다. 이 창을 닫아도 됩니다.');return}
+  if(surveyState.closed){wait('설문이 마감되었습니다.');return}
+  if(!surveyState.authenticated){if(el('loginPanel').classList.contains('hidden')||!el('joinButton'))renderLogin(surveyState.identity);return}
+  if(surveyState.paused&&!formRendered){wait('선생님이 잠시 멈췄습니다. 조금만 기다려 주세요.');return}
+  if(!surveyState.started){wait('참여 확인이 끝났습니다. 선생님이 설문을 시작할 때까지 기다려 주세요.');return}
+  if(!formRendered)renderForm(surveyState.questions||[]);
+}
+refreshState();
+setInterval(refreshState,2000);
+</script>
+</body>
+</html>

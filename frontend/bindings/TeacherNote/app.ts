@@ -15,6 +15,13 @@ import { Call as $Call, CancellablePromise as $CancellablePromise } from "@wails
 import * as $models from "./models.js";
 
 /**
+ * AddBudgetReceipt는 영수증 사진(화면에서 고른 파일의 base64)을 암호화해 붙입니다.
+ */
+export function AddBudgetReceipt(entryID: string, fileName: string, dataBase64: string): $CancellablePromise<$models.BudgetEntry> {
+    return $Call.ByID(2041346531, entryID, fileName, dataBase64);
+}
+
+/**
  * AddStudent는 전입 학생 등 수기로 추가한 학생을 저장합니다.
  */
 export function AddStudent(student: $models.Student): $CancellablePromise<$models.Student> {
@@ -34,6 +41,13 @@ export function AdvanceSeatingPreferenceRound(planID: string): $CancellablePromi
 
 export function AnswerAssessmentObjection(assessmentID: string, objectionID: string, answer: string): $CancellablePromise<$models.Assessment> {
     return $Call.ByID(1988928124, assessmentID, objectionID, answer);
+}
+
+/**
+ * ArchiveDoneTodos는 완료한 할 일을 한꺼번에 보관합니다.
+ */
+export function ArchiveDoneTodos(): $CancellablePromise<number> {
+    return $Call.ByID(1891279382);
 }
 
 /**
@@ -123,6 +137,27 @@ export function DeleteAttendanceTemplate(id: string): $CancellablePromise<void> 
 }
 
 /**
+ * DeleteBudgetEntry는 내역과 영수증을 지웁니다.
+ */
+export function DeleteBudgetEntry(id: string, ledgerID: string): $CancellablePromise<void> {
+    return $Call.ByID(3287246557, id, ledgerID);
+}
+
+/**
+ * DeleteBudgetLedger는 확인 문구("장부 삭제")를 받은 뒤 장부와 내역·영수증을 지웁니다.
+ */
+export function DeleteBudgetLedger(id: string, confirmation: string): $CancellablePromise<void> {
+    return $Call.ByID(1160709618, id, confirmation);
+}
+
+/**
+ * DeleteBudgetReceipt는 영수증 하나를 지웁니다.
+ */
+export function DeleteBudgetReceipt(entryID: string, receiptID: string): $CancellablePromise<$models.BudgetEntry> {
+    return $Call.ByID(2834205973, entryID, receiptID);
+}
+
+/**
  * DeleteCleaningPlan은 청소구역 편성 이력을 삭제합니다.
  */
 export function DeleteCleaningPlan(id: string): $CancellablePromise<void> {
@@ -141,6 +176,13 @@ export function DeleteConsultation(id: string): $CancellablePromise<number> {
  */
 export function DeleteGroupPlan(id: string): $CancellablePromise<void> {
     return $Call.ByID(4262480354, id);
+}
+
+/**
+ * DeleteMemoItem은 항목을 지웁니다.
+ */
+export function DeleteMemoItem(id: string): $CancellablePromise<void> {
+    return $Call.ByID(693523615, id);
 }
 
 /**
@@ -172,6 +214,13 @@ export function DeleteRecordYear(schoolYear: string, confirmation: string): $Can
 }
 
 /**
+ * DeleteScheduleEvent는 일정을 지웁니다.
+ */
+export function DeleteScheduleEvent(id: string): $CancellablePromise<void> {
+    return $Call.ByID(4279615429, id);
+}
+
+/**
  * DeleteSeatingPlan은 자리 배치 이력을 삭제합니다.
  */
 export function DeleteSeatingPlan(id: string): $CancellablePromise<void> {
@@ -199,8 +248,22 @@ export function DeleteSurvey(surveyID: string, confirmation: string): $Cancellab
     return $Call.ByID(1418203492, surveyID, confirmation);
 }
 
+/**
+ * DismissReminder는 알림을 확인 처리합니다(빈 번호면 모두).
+ */
+export function DismissReminder(key: string): $CancellablePromise<void> {
+    return $Call.ByID(3957264825, key);
+}
+
 export function ExportAttendanceHWPX(templateID: string, studentID: string, date: string): $CancellablePromise<$models.AttendanceHWPXExportResult> {
     return $Call.ByID(2738984217, templateID, studentID, date);
+}
+
+/**
+ * ExportBudgetCSV는 장부 집행 내역을 CSV 파일로 저장합니다(파일은 암호화되지 않습니다).
+ */
+export function ExportBudgetCSV(ledgerID: string): $CancellablePromise<string> {
+    return $Call.ByID(3628904086, ledgerID);
 }
 
 /**
@@ -251,6 +314,27 @@ export function GetAttendanceDocumentPeriod(studentID: string, date: string): $C
 }
 
 /**
+ * GetBackgroundSettings는 알림·트레이·자동 시작 설정을 돌려줍니다.
+ */
+export function GetBackgroundSettings(): $CancellablePromise<$models.BackgroundInfo> {
+    return $Call.ByID(143680750);
+}
+
+/**
+ * GetBudgetBook은 장부와 내역 전체를 돌려줍니다.
+ */
+export function GetBudgetBook(): $CancellablePromise<$models.BudgetBook> {
+    return $Call.ByID(2942917799);
+}
+
+/**
+ * GetBudgetReceipt는 영수증 사진을 보여 줄 data URL을 돌려줍니다.
+ */
+export function GetBudgetReceipt(entryID: string, receiptID: string): $CancellablePromise<string> {
+    return $Call.ByID(3108224810, entryID, receiptID);
+}
+
+/**
  * GetGroupingBook은 모둠 편성 이력과 반별 편성 조건을 반환합니다.
  */
 export function GetGroupingBook(): $CancellablePromise<$models.GroupingBook> {
@@ -262,6 +346,13 @@ export function GetGroupingBook(): $CancellablePromise<$models.GroupingBook> {
  */
 export function GetGroupingSessionInfo(): $CancellablePromise<$models.GroupSessionInfo> {
     return $Call.ByID(647980126);
+}
+
+/**
+ * GetMemoBook은 메모·할 일 전체를 돌려줍니다.
+ */
+export function GetMemoBook(): $CancellablePromise<$models.MemoBook> {
+    return $Call.ByID(1373761420);
 }
 
 /**
@@ -277,6 +368,20 @@ export function GetParticipationSafetyState(): $CancellablePromise<$models.Parti
  */
 export function GetRecordBook(): $CancellablePromise<$models.RecordBook> {
     return $Call.ByID(3168103019);
+}
+
+/**
+ * GetReminderInbox는 프로그램 안 '확인할 알림' 목록을 돌려줍니다.
+ */
+export function GetReminderInbox(): $CancellablePromise<$models.ReminderInboxItem[] | null> {
+    return $Call.ByID(1722252235);
+}
+
+/**
+ * GetScheduleBook은 일정 전체를 돌려줍니다.
+ */
+export function GetScheduleBook(): $CancellablePromise<$models.ScheduleBook> {
+    return $Call.ByID(495848163);
 }
 
 /**
@@ -582,6 +687,13 @@ export function ResetStudents(confirmation: string): $CancellablePromise<number>
 }
 
 /**
+ * ResetSurveyStudentAccess는 한 학생의 기기 연결을 풀어 다른 기기로 다시 들어올 수 있게 합니다(낸 응답은 그대로).
+ */
+export function ResetSurveyStudentAccess(surveyID: string, participantID: string): $CancellablePromise<$models.SurveySessionInfo> {
+    return $Call.ByID(453658747, surveyID, participantID);
+}
+
+/**
  * RestoreEncryptedBackup은 백업 당시 마스터 비밀번호로 백업 파일을 열어 보관함을 되살립니다.
  */
 export function RestoreEncryptedBackup(path: string, password: string): $CancellablePromise<$models.RestoreResult> {
@@ -661,6 +773,27 @@ export function SaveAttendanceTemplateMappings(id: string, mappings: $models.Att
 }
 
 /**
+ * SaveBackgroundSettings는 설정을 저장하고 자동 시작·트레이에 바로 적용합니다.
+ */
+export function SaveBackgroundSettings(next: $models.BackgroundSettings): $CancellablePromise<$models.BackgroundInfo> {
+    return $Call.ByID(621637817, next);
+}
+
+/**
+ * SaveBudgetEntry는 수입·지출 내역을 만들거나 고칩니다.
+ */
+export function SaveBudgetEntry(entry: $models.BudgetEntry): $CancellablePromise<$models.BudgetEntry> {
+    return $Call.ByID(3833304863, entry);
+}
+
+/**
+ * SaveBudgetLedger는 장부를 만들거나 고칩니다.
+ */
+export function SaveBudgetLedger(ledger: $models.BudgetLedger): $CancellablePromise<$models.BudgetLedger> {
+    return $Call.ByID(2187313648, ledger);
+}
+
+/**
  * SaveCleaningPlan은 청소구역 편성표를 암호화해 저장합니다.
  */
 export function SaveCleaningPlan(plan: $models.CleaningPlan): $CancellablePromise<$models.CleaningPlan> {
@@ -686,6 +819,13 @@ export function SaveGroupPlan(plan: $models.GroupPlan): $CancellablePromise<$mod
  */
 export function SaveGroupRules(rules: $models.GroupRules): $CancellablePromise<$models.GroupRules> {
     return $Call.ByID(3098718522, rules);
+}
+
+/**
+ * SaveMemoItem은 메모·할 일을 만들거나 고칩니다.
+ */
+export function SaveMemoItem(item: $models.MemoItem): $CancellablePromise<$models.MemoItem> {
+    return $Call.ByID(2162583697, item);
 }
 
 /**
@@ -721,6 +861,13 @@ export function SaveRecordPhrase(phrase: $models.RecordPhrase): $CancellableProm
  */
 export function SaveRecordPhrases(phrases: $models.RecordPhrase[] | null): $CancellablePromise<$models.RecordPhraseBulkResult> {
     return $Call.ByID(4258765393, phrases);
+}
+
+/**
+ * SaveScheduleEvent는 일정을 만들거나 고칩니다.
+ */
+export function SaveScheduleEvent(event: $models.ScheduleEvent): $CancellablePromise<$models.ScheduleEvent> {
+    return $Call.ByID(3842019767, event);
 }
 
 /**
@@ -812,6 +959,13 @@ export function SelectStudentPhoto(): $CancellablePromise<string> {
 }
 
 /**
+ * SendTestNotification은 Windows 알림이 보이는지 확인하는 시험 알림을 보냅니다.
+ */
+export function SendTestNotification(): $CancellablePromise<void> {
+    return $Call.ByID(675750284);
+}
+
+/**
  * SetConsultationFollowUpDone은 후속 기록 없이 상담 후속 확인을 완료로 표시하거나 취소합니다.
  */
 export function SetConsultationFollowUpDone(id: string, done: boolean): $CancellablePromise<$models.Consultation> {
@@ -826,6 +980,20 @@ export function SetGroupingPots(pots: (string[] | null)[] | null): $CancellableP
 }
 
 /**
+ * SetMemoArchived는 항목을 보관하거나 꺼냅니다.
+ */
+export function SetMemoArchived(id: string, archived: boolean): $CancellablePromise<$models.MemoItem> {
+    return $Call.ByID(2757230755, id, archived);
+}
+
+/**
+ * SetMemoDone은 할 일 완료를 켜고 끕니다.
+ */
+export function SetMemoDone(id: string, done: boolean): $CancellablePromise<$models.MemoItem> {
+    return $Call.ByID(2283463905, id, done);
+}
+
+/**
  * SetPin은 간편 숫자 PIN 번호를 등록하거나 변경합니다.
  */
 export function SetPin(pin: string): $CancellablePromise<void> {
@@ -837,6 +1005,13 @@ export function SetPin(pin: string): $CancellablePromise<void> {
  */
 export function SetSurveyResultsPublic(surveyID: string, enabled: boolean): $CancellablePromise<$models.SurveySessionInfo> {
     return $Call.ByID(523777884, surveyID, enabled);
+}
+
+/**
+ * SnoozeReminder는 알림을 minutes분 뒤에 다시 울리게 합니다.
+ */
+export function SnoozeReminder(key: string, minutes: number): $CancellablePromise<void> {
+    return $Call.ByID(990192317, key, minutes);
 }
 
 /**

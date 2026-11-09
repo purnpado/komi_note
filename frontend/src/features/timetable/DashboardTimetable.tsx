@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { GetTimetableBook, ListCourseRosters } from "../../../wailsjs/go/main/App";
+import { changeEvents } from "../shared/changeEvents";
+import { useVaultChanges } from "../shared/useVaultChanges";
 import { main as models } from "../../../wailsjs/go/models";
 import type { PageKey } from "../navigation/menuTypes";
 import { setPageFocus } from "../shared/pageFocus";
@@ -15,6 +17,12 @@ export function DashboardTimetable({ today, isHomeroomTeacher, navigate }: { tod
   const [book, setBook] = useState<models.TimetableBook | null>(null);
   const [rosters, setRosters] = useState<models.CourseRoster[]>([]);
   const [nowMinutes, setNowMinutes] = useState(() => new Date().getHours() * 60 + new Date().getMinutes());
+
+  // 시간표·수업 명렬이 바뀌었다는 알림을 받으면 다시 읽는다.
+  useVaultChanges([changeEvents.timetable, changeEvents.courseRoster], () => {
+    GetTimetableBook().then((value) => setBook(new models.TimetableBook(value))).catch(() => undefined);
+    ListCourseRosters().then((items) => setRosters(items || [])).catch(() => undefined);
+  });
 
   useEffect(() => {
     let active = true;

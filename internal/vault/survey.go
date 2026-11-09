@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"TeacherNote/internal/survey"
 )
@@ -79,32 +80,25 @@ func (s *VaultStore) SaveSurvey(item Survey) (Survey, error) {
 	} else {
 		item.StaffIdentityMode = ""
 	}
-	questions := make([]SurveyQuestion, 0, len(item.Questions))
-	for _, question := range item.Questions {
-		question.Text = strings.TrimSpace(question.Text)
-		options := make([]string, 0, len(question.Options))
-		for _, option := range question.Options {
-			if text := strings.TrimSpace(option); text != "" {
-				options = append(options, text)
-			}
-		}
-		if question.Type == "" {
-			question.Type = "단일 선택"
-		}
-		if question.Text == "" {
-			return Survey{}, errors.New("각 문항의 질문을 입력해 주세요")
-		}
-		if (question.Type == "단일 선택" || question.Type == "복수 선택" || question.Type == "5점 척도") && len(options) < 2 {
-			return Survey{}, errors.New("선택형 문항에는 선택지 두 개 이상이 필요합니다")
-		}
-		if question.ID == "" {
-			question.ID, _ = newSurveyID()
-		}
-		question.Options = options
-		questions = append(questions, question)
+	if utf8.RuneCountInString(item.Title) > 100 {
+		return Survey{}, errors.New("설문 제목은 100자까지 쓸 수 있습니다")
 	}
-	if len(questions) == 0 {
-		return Survey{}, errors.New("설문 문항을 한 개 이상 입력해 주세요")
+	item.Description = strings.TrimSpace(item.Description)
+	if utf8.RuneCountInString(item.Description) > 1000 {
+		return Survey{}, errors.New("설문 설명은 1000자까지 쓸 수 있습니다")
+	}
+	item.TargetRosterID = strings.TrimSpace(item.TargetRosterID)
+	if item.Scope != "수업용" {
+		item.TargetRosterID = ""
+	} else if item.TargetRosterID != "" && s.courseRosterLocked(item.TargetRosterID) == nil {
+		return Survey{}, errors.New("고른 수업 반 명렬을 찾지 못했습니다. 수업 반을 다시 골라 주세요")
+	}
+	questions, err := survey.NormalizeQuestions(item.Questions, func() string {
+		id, _ := newSurveyID()
+		return id
+	})
+	if err != nil {
+		return Survey{}, err
 	}
 	item.Questions = questions
 	if item.ExpectedParticipants < 0 {
@@ -217,34 +211,18 @@ func (s *VaultStore) SubmitSurvey(id, studentID, respondentName string, answers 
 	if item.Status != "진행 중" {
 		return errors.New("현재 참여할 수 없는 설문입니다")
 	}
-	allowed := map[string]bool{}
-	for _, question := range item.Questions {
-		for _, option := range question.Options {
-			allowed[question.ID+"\x00"+option] = true
+	cleanAnswers, cleanMulti, err := survey.ValidateAnswers(item.Questions, answers, multiAnswers)
+	if err != nil {
+		return err
+	}
+	if !strings.HasPrefix(studentID, "staff-anon-") {
+		for _, previous := range item.Responses {
+			if previous.StudentID == studentID {
+				return errors.New("이미 응답을 제출했습니다")
+			}
 		}
 	}
-	for _, question := range item.Questions {
-		if question.Type == "단답" || question.Type == "서술" {
-			if strings.TrimSpace(answers[question.ID]) == "" {
-				return errors.New("모든 문항에 답해 주세요")
-			}
-			continue
-		}
-		if question.Type == "복수 선택" {
-			if len(multiAnswers[question.ID]) == 0 {
-				return errors.New("모든 문항에 답해 주세요")
-			}
-			for _, answer := range multiAnswers[question.ID] {
-				if !allowed[question.ID+"\x00"+answer] {
-					return errors.New("선택지를 확인해 주세요")
-				}
-			}
-			continue
-		}
-		if !allowed[question.ID+"\x00"+answers[question.ID]] {
-			return errors.New("모든 문항에 답해 주세요")
-		}
-	}
+	answers, multiAnswers = cleanAnswers, cleanMulti
 	response := SurveyResponse{StudentID: studentID, RespondentName: respondentName, Answers: answers, MultiAnswers: multiAnswers, SubmittedAt: time.Now().In(time.Local).Format(time.RFC3339)}
 	item.Responses = append(item.Responses, response)
 	item.UpdatedAt = response.SubmittedAt
@@ -254,4 +232,42 @@ func (s *VaultStore) SubmitSurvey(id, studentID, respondentName string, answers 
 
 func (s *VaultStore) submitSurvey(id, studentID, respondentName string, answers map[string]string, multiAnswers map[string][]string) error {
 	return s.SubmitSurvey(id, studentID, respondentName, answers, multiAnswers)
+}
+
+func (s *VaultStore) courseRosterLocked(id string) *CourseRoster {
+	for index := range s.session.CourseRosters {
+		if s.session.CourseRosters[index].ID == id {
+			return &s.session.CourseRosters[index]
+		}
+	}
+	return nil
+}
+
+// SurveyParticipants는 학생 설문의 참여 대상을 돌려준다.
+// 수업용 설문은 고른 수업 반 명렬(재학 학생)을, 그 밖에는 담임 학급 학생을 쓴다.
+func (s *VaultStore) SurveyParticipants(id string) ([]survey.Participant, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	item, _, err := s.surveyByIDLocked(id)
+	if err != nil {
+		return nil, err
+	}
+	result := []survey.Participant{}
+	if item.Scope == "수업용" && item.TargetRosterID != "" {
+		roster := s.courseRosterLocked(item.TargetRosterID)
+		if roster == nil {
+			return nil, errors.New("설문에 연결한 수업 반 명렬을 찾지 못했습니다")
+		}
+		for _, student := range roster.Students {
+			if student.Status != "" && student.Status != "재학" {
+				continue
+			}
+			result = append(result, survey.Participant{ID: survey.CourseParticipantID(roster.ID, student.Number, student.Name), Number: student.Number, Name: student.Name})
+		}
+		return result, nil
+	}
+	for _, student := range s.session.Students {
+		result = append(result, survey.Participant{ID: student.ID, Number: fmt.Sprint(student.Number), Name: student.Name})
+	}
+	return result, nil
 }

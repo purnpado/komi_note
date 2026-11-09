@@ -1,0 +1,25 @@
+/* 확인할 알림 · 알림 설정 전용 스타일 */
+.reminder-bell { position: relative; min-width: 44px; }
+.reminder-bell b { position: absolute; top: -6px; right: -6px; display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: #c4421c; color: #fff; font-size: 11px; font-weight: 800; }
+.reminder-dialog { width: min(520px, calc(100vw - 32px)); }
+.reminder-help { margin: 0 0 10px; color: #806b5b; font-size: 12px; }
+.reminder-list { display: grid; gap: 6px; max-height: 50vh; margin: 0; padding: 0; overflow: auto; list-style: none; }
+.reminder-list li { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid #f0e2d2; border-left: 4px solid #d4772f; border-radius: 10px; background: #fffdf9; }
+.reminder-list li.missed { border-left-color: #a58a74; }
+.reminder-main { display: grid; flex: 1; gap: 2px; padding: 0; border: 0; background: transparent; color: #3e2d22; font: inherit; text-align: left; cursor: pointer; }
+.reminder-main small { color: #8a7160; font-size: 12px; }
+.reminder-actions { display: flex; gap: 2px; white-space: nowrap; }
+.reminder-dialog .form-error { color: #b23b16; font-weight: 700; }
+
+.background-form { display: grid; gap: 12px; }
+.background-toggle { display: flex !important; align-items: flex-start; gap: 10px; cursor: pointer; }
+.background-toggle input { width: 20px; height: 20px; margin-top: 2px; accent-color: #d4772f; }
+.background-toggle span { display: grid; gap: 3px; }
+.background-toggle small { color: #806b5b; font-size: 12px; font-weight: 500; line-height: 1.5; }
+.background-choice { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 0; padding: 10px 12px; border: 1px solid #ead3bd; border-radius: 10px; }
+.background-choice:disabled { opacity: .55; }
+.background-choice legend { padding: 0 4px; color: #6f5644; font-size: 12px; font-weight: 800; }
+.background-choice label { display: inline-flex !important; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; }
+.background-choice input[type=time] { min-height: 34px; padding: 4px 8px; border: 1px solid #e3c4a3; border-radius: 8px; font: inherit; }
+.settings-extra-note { margin: 0 0 10px; padding: 10px 12px; border-radius: 10px; background: #fff4e5; color: #8b5428; font-size: 13px; }
+.theme-classic .background-toggle input { accent-color: #237b64; }

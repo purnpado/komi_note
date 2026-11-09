@@ -1,0 +1,84 @@
+/* 일정 전용 스타일 */
+.schedule-add { min-height: 42px; padding: 10px 18px; border-radius: 10px; font-weight: 800; }
+.schedule-panel { display: grid; gap: 14px; }
+.schedule-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.schedule-nav { display: flex; align-items: center; gap: 8px; }
+.schedule-nav h3 { min-width: 9em; margin: 0; color: #3e2d22; font-size: 20px; text-align: center; }
+.schedule-panel .icon-button { min-width: 36px; min-height: 36px; border: 1px solid #e6cfb7; border-radius: 9px; background: #fffdf9; color: #6f5644; font: inherit; font-size: 18px; font-weight: 800; cursor: pointer; }
+.schedule-view { display: flex; padding: 3px; border: 1px solid #ecd7c1; border-radius: 10px; background: #fffdf9; }
+.schedule-view button { min-width: 52px; min-height: 34px; border: 0; border-radius: 8px; background: transparent; color: #785c47; font: inherit; font-weight: 800; cursor: pointer; }
+.schedule-view button.active { background: #ffe6c7; color: #8a481f; }
+.schedule-show { display: flex; flex-wrap: wrap; gap: 12px; }
+.schedule-panel .inline-check, .event-form .inline-check { display: inline-flex; align-items: center; gap: 6px; color: #5a4535; font-size: 13px; font-weight: 700; cursor: pointer; }
+.schedule-panel .inline-check input, .event-form .inline-check input { width: 17px; height: 17px; accent-color: #d4772f; }
+
+/* 분류 색 */
+.k-event { --k: #d4772f; --k-bg: #fff0df; }
+.k-meeting { --k: #2f6fb3; --k-bg: #e8f1fb; }
+.k-counsel { --k: #2b806a; --k-bg: #e5f5ee; }
+.k-assess { --k: #8a4fc4; --k-bg: #f2eafb; }
+.k-trip { --k: #b5891a; --k-bg: #fbf3d9; }
+.k-personal { --k: #c2457a; --k-bg: #fbe8f0; }
+.k-etc { --k: #6c7378; --k-bg: #eff1f2; }
+
+.month-calendar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border-top: 1px solid #ecd7c1; border-left: 1px solid #ecd7c1; border-radius: 12px; overflow: hidden; }
+.month-head { padding: 7px 0; border-right: 1px solid #ecd7c1; border-bottom: 1px solid #ecd7c1; background: #fff6ec; color: #6f5644; font-size: 13px; font-weight: 800; text-align: center; }
+.month-head.sun, .month-day.sun { color: #c4421c; }
+.month-head.sat, .month-day.sat { color: #2f6fb3; }
+.month-cell { min-width: 0; overflow: hidden; min-height: 104px; padding: 5px; border-right: 1px solid #ecd7c1; border-bottom: 1px solid #ecd7c1; background: #fffdf9; cursor: pointer; }
+.month-cell.out { background: #faf6f1; }
+.month-cell.out .month-day { opacity: .45; }
+.month-cell.selected { box-shadow: inset 0 0 0 2px #d4772f; }
+.month-cell:focus-visible { outline: 3px solid #f4c796; outline-offset: -3px; }
+.month-day { display: inline-grid; place-items: center; min-width: 24px; height: 24px; color: #4b392c; font-size: 13px; font-weight: 800; }
+.month-cell.today .month-day { border-radius: 50%; background: #d4772f; color: #fff; }
+.month-cell ul { display: grid; gap: 2px; margin: 3px 0 0; padding: 0; list-style: none; }
+.cal-chip { display: block; width: 100%; overflow: hidden; padding: 2px 6px; border: 0; border-left: 3px solid var(--k, #b39276); border-radius: 5px; background: var(--k-bg, #f6efe7); color: #3e2d22; font: inherit; font-size: 12px; text-align: left; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.cal-chip b { font-weight: 800; }
+.cal-chip.event.span-start, .cal-chip.event.span-middle, .cal-chip.event.span-end { background: var(--k); color: #fff; }
+.cal-chip.span-middle, .cal-chip.span-end { border-left-color: transparent; }
+.cal-cont { opacity: .85; }
+.cal-chip.todo { border-left-color: #8a7160; background: transparent; color: #6f5644; }
+.cal-chip.change { border-left-color: #2b806a; background: #eef8f3; color: #1f5a4a; }
+.cal-more { padding: 0 6px; color: #8a7160; font-size: 11px; font-weight: 700; }
+
+.schedule-day-detail { padding-top: 4px; }
+.day-list { display: grid; gap: 12px; }
+.day-block header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.day-block h4 { margin: 0; color: #5a4030; font-size: 15px; }
+.day-block.today h4 { color: #c0601f; }
+.day-block ul { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.day-entry { display: grid; grid-template-columns: 92px minmax(0, 1fr); align-items: center; gap: 10px; width: 100%; padding: 9px 12px; border: 1px solid #f0e2d2; border-left: 4px solid var(--k, #b39276); border-radius: 10px; background: #fffdf9; color: #3e2d22; font: inherit; text-align: left; cursor: pointer; }
+.day-entry.todo { border-left-color: #8a7160; }
+.day-entry.change { border-left-color: #2b806a; }
+.day-time { color: #6f5644; font-size: 13px; font-weight: 800; }
+.day-title { display: grid; gap: 2px; }
+.day-title small { color: #8a7160; font-size: 12px; }
+
+.event-dialog { width: min(600px, calc(100vw - 32px)); }
+.event-form { display: grid; gap: 10px; }
+.event-form input:not([type=checkbox]), .event-form select, .event-form textarea { width: 100%; }
+.event-row { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; }
+.event-row .dialog-label { flex: 1 1 150px; }
+.event-allday { min-height: 40px; }
+.event-reminders { display: flex; flex-wrap: wrap; gap: 12px; margin: 0; padding: 10px 12px; border: 1px solid #ead3bd; border-radius: 10px; }
+.event-reminders legend { padding: 0 4px; color: #6f5644; font-size: 12px; font-weight: 800; }
+.event-form .form-error { margin: 0; color: #b23b16; font-weight: 700; }
+.event-delete { margin-right: auto; }
+
+.schedule-widget ul { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.schedule-widget li button { display: grid; grid-template-columns: 88px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 10px; width: 100%; padding: 8px 12px; border: 1px solid #f0e2d2; border-left: 4px solid var(--k, #b39276); border-radius: 10px; background: #fffdf9; color: #3e2d22; font: inherit; text-align: left; cursor: pointer; }
+.widget-day { grid-row: span 2; align-self: center; color: #a0581f; font-size: 13px; font-weight: 800; }
+.schedule-widget small { color: #8a7160; font-size: 12px; }
+
+.theme-classic .schedule-view button.active { background: #ddf3e9; color: #17664f; }
+.theme-classic .month-cell.selected { box-shadow: inset 0 0 0 2px #2b806a; }
+.theme-classic .month-cell.today .month-day { background: #2b806a; }
+.theme-classic .month-head { background: #f3faf6; }
+
+@media (max-width: 760px) {
+  .month-cell { min-height: 64px; padding: 3px; }
+  .cal-chip { padding: 1px 3px; font-size: 10px; }
+  .cal-chip b { display: none; }
+  .day-entry, .schedule-widget li button { grid-template-columns: 70px minmax(0, 1fr); }
+}

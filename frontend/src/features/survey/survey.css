@@ -12,20 +12,6 @@
 .survey-template-grid button { display: grid; min-height: 78px; gap: 5px; padding: 12px; border: 1px solid #edc99e; border-radius: 12px; color: #714523; background: #fffdf9; text-align: left; transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease; }
 .survey-template-grid button:hover { border-color: #dd873d; box-shadow: 0 7px 15px #b96c211c; transform: translateY(-2px); }
 .survey-template-grid small { color: #856d59; font-size: 11px; line-height: 1.4; }
-.survey-identity-mode { display: grid; gap: 10px; margin: 0; padding: 14px 16px; border: 1px solid #e8cdb0; border-radius: 11px; background: #fffaf3; }
-.survey-identity-mode legend { padding: 0 6px; color: #6f4e38; font-weight: 800; }
-.survey-identity-toggle { display: flex !important; grid-template-columns: none !important; align-items: flex-start; gap: 10px !important; margin: 0 !important; padding: 5px 0 !important; color: #4c392d !important; font-size: 13px !important; }
-.survey-identity-toggle input { flex: 0 0 auto; width: 18px !important; height: 18px; margin-top: 1px; accent-color: #d4772f; }
-.survey-identity-toggle span { display: grid; gap: 3px; }
-.survey-identity-toggle small { color: #806b5b; font-size: 11px; font-weight: 500; line-height: 1.45; }
-.survey-identity-mode > small { color: #8a7160; font-size: 11px; line-height: 1.45; }
-.theme-classic .survey-identity-mode { border-color: #cce2d8; background: #f5fbf8; }
-.theme-classic .survey-identity-mode legend { color: #276050; }
-.theme-classic .survey-identity-toggle input { accent-color: #237b64; }
-.survey-question-tools { margin-top: 9px; padding: 13px; border: 1px solid #ead5b8; border-radius: 12px; background: #fffaf3; }
-.survey-question-tools > div { display: flex; flex-wrap: wrap; gap: 7px; margin: 9px 0; }
-.survey-question-tools button { padding: 7px 10px; border: 1px solid #e2ad78; border-radius: 8px; color: #84471d; background: #fff; font-size: 12px; font-weight: 700; }
-.survey-question-tools textarea { margin-top: 5px; }
 
 @media (max-width: 560px) {
   .survey-template-grid { grid-template-columns: 1fr; }

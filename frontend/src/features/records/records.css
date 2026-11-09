@@ -1,4 +1,0 @@
-/* 아직 실제 자료와 연결되지 않은 예시 화면 표시 */
-.example-banner { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 14px; padding: 12px 16px; border: 2px dashed #d98235; border-radius: 12px; background: #fff3e2; color: #7a3d12; font-weight: 700; }
-.example-banner strong { padding: 2px 10px; border-radius: 999px; background: #d98235; color: #fff; }
-button[disabled][title="준비 중인 기능입니다"] { cursor: not-allowed; opacity: 0.55; }

@@ -1,0 +1,87 @@
+/* 예산 관리 전용 스타일 */
+.budget-empty { text-align: center; }
+.budget-empty h3 { margin: 0 0 6px; }
+.budget-empty p { color: #806b5b; }
+.budget-panel { display: grid; gap: 14px; }
+.budget-ledger-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.budget-ledger-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.budget-ledger-tabs button { min-height: 38px; padding: 8px 14px; border: 1px solid #ecd7c1; border-radius: 999px; background: #fffdf9; color: #785c47; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; }
+.budget-ledger-tabs button.active { border-color: #d4772f; background: #ffe6c7; color: #8a481f; }
+.budget-ledger-actions { display: flex; gap: 4px; }
+
+.budget-summary { display: grid; gap: 8px; }
+.budget-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.budget-stats div { display: grid; gap: 3px; padding: 12px 14px; border: 1px solid #f0e2d2; border-radius: 12px; background: #fffdf9; }
+.budget-stats small { color: #806b5b; font-size: 12px; font-weight: 700; }
+.budget-stats strong { color: #3e2d22; font-size: 20px; }
+.budget-stats .b-income, .budget-table .b-income { color: #1f7a5c; }
+.budget-stats .b-expense, .budget-table .b-expense { color: #b24a1c; }
+.budget-stats .over strong, .budget-widget .over { color: #c4271c; }
+.budget-progress { position: relative; display: block; height: 12px; overflow: hidden; border-radius: 6px; background: #f3e6d6; }
+.budget-progress span, .budget-progress i { display: block; height: 100%; border-radius: 6px; background: #d9833d; }
+.budget-progress span.warn { background: #e0a020; }
+.budget-progress span.over { background: #c4271c; }
+.budget-progress.mini { height: 6px; }
+.budget-progress-label { margin: 0; color: #806b5b; font-size: 12px; font-weight: 700; }
+.budget-categories { display: grid; gap: 4px; margin: 4px 0 0; padding: 0; list-style: none; }
+.budget-categories li { display: grid; grid-template-columns: 90px minmax(0, 1fr) 110px; align-items: center; gap: 10px; font-size: 13px; }
+.budget-cat-bar { height: 10px; overflow: hidden; border-radius: 5px; background: #f6ece0; }
+.budget-cat-bar i { display: block; height: 100%; background: #e9a467; }
+.budget-categories b { text-align: right; }
+
+.budget-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.budget-toolbar button { min-height: 38px; padding: 8px 14px; border-radius: 9px; font-weight: 800; }
+.budget-toolbar select, .budget-toolbar input { min-height: 38px; padding: 6px 10px; border: 1px solid #e3c4a3; border-radius: 9px; background: #fff; font: inherit; font-size: 13px; }
+.budget-toolbar input { flex: 1 1 140px; }
+.budget-toolbar-end { display: flex; gap: 6px; margin-left: auto; }
+.budget-table-wrap { overflow-x: auto; }
+.budget-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.budget-table th, .budget-table td { padding: 8px 10px; border-bottom: 1px solid #f0e2d2; text-align: left; white-space: nowrap; }
+.budget-table th { background: #fff6ec; color: #6f5644; font-size: 12px; }
+.budget-table tbody tr { cursor: pointer; }
+.budget-table tbody tr:hover, .budget-table tbody tr:focus-visible { background: #fff8ef; outline: none; }
+.budget-table .num { text-align: right; font-weight: 800; }
+.budget-table .budget-title { white-space: normal; }
+.budget-table .budget-title small { display: block; color: #8a7160; font-size: 11px; }
+.budget-table tfoot td { background: #fffaf3; color: #6f5644; font-weight: 700; }
+.budget-type { padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 800; }
+.budget-type.b-income { background: #e5f5ee; }
+.budget-type.b-expense { background: #fdeee5; }
+.budget-none { color: #b8a596; font-size: 12px; }
+
+.budget-dialog { width: min(560px, calc(100vw - 32px)); }
+.budget-form { display: grid; gap: 10px; }
+.budget-form input, .budget-form select, .budget-form textarea { width: 100%; }
+.budget-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.budget-row .dialog-label { flex: 1 1 140px; }
+.budget-row .grow { flex: 2 1 220px; }
+.budget-type-switch { display: flex; gap: 6px; }
+.budget-type-switch button { flex: 1; min-height: 40px; border: 1px solid #ecd7c1; border-radius: 10px; background: #fffdf9; color: #785c47; font: inherit; font-weight: 800; cursor: pointer; }
+.budget-type-switch button.active { border-color: #b24a1c; background: #fdeee5; color: #8f3a16; }
+.budget-type-switch button.active.income { border-color: #1f7a5c; background: #e5f5ee; color: #17604a; }
+.budget-receipts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; padding: 10px 12px; border: 1px solid #ead3bd; border-radius: 10px; }
+.budget-receipts legend { padding: 0 4px; color: #6f5644; font-size: 12px; font-weight: 800; }
+.budget-receipt-chip { display: inline-flex; align-items: center; gap: 2px; padding: 2px 4px 2px 8px; border: 1px solid #ead3bd; border-radius: 999px; background: #fffaf3; }
+.budget-receipt-chip .icon-button { min-width: 24px; min-height: 24px; border: 0; background: transparent; cursor: pointer; }
+.budget-attach { position: relative; overflow: hidden; cursor: pointer; }
+.budget-attach input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.budget-hint { flex-basis: 100%; margin: 0; color: #8a7160; font-size: 11px; line-height: 1.5; }
+.budget-form .form-error { margin: 0; color: #b23b16; font-weight: 700; }
+.budget-delete { margin-right: auto; }
+.receipt-viewer { width: min(720px, calc(100vw - 32px)); }
+.receipt-viewer img { display: block; max-width: 100%; max-height: 70vh; margin: 0 auto; border-radius: 8px; }
+
+.budget-widget ul { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.budget-widget li button { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; width: 100%; padding: 8px 12px; border: 1px solid #f0e2d2; border-radius: 10px; background: #fffdf9; color: #3e2d22; font: inherit; text-align: left; cursor: pointer; }
+.budget-widget .budget-progress { grid-column: 1 / -1; }
+
+.theme-classic .budget-ledger-tabs button.active { border-color: #2b806a; background: #ddf3e9; color: #17664f; }
+.theme-classic .budget-progress span, .theme-classic .budget-progress i, .theme-classic .budget-cat-bar i { background: #2b806a; }
+
+@media (max-width: 760px) {
+  .budget-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .budget-categories li { grid-template-columns: 70px minmax(0, 1fr) 90px; }
+  .budget-toolbar-end { margin-left: 0; }
+}
+.budget-table .budget-title { min-width: 160px; }
+.page-intro > .outline-button { min-height: 42px; padding: 10px 16px; border: 1px solid #dfc7b1; border-radius: 10px; background: #fffdfa; color: #75553e; font: inherit; font-weight: 800; cursor: pointer; }

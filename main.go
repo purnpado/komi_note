@@ -3,10 +3,13 @@ package main
 import (
 	"embed"
 	"log"
+	"os"
+	"slices"
 
 	"TeacherNote/internal/system"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
+	"github.com/wailsapp/wails/v3/pkg/events"
 )
 
 //go:embed all:frontend/dist
@@ -24,13 +27,17 @@ func main() {
 	}
 
 	appService := NewApp()
+	services := []application.Service{application.NewService(appService)}
+	if notifier, ok := appService.newNotificationService(); ok {
+		services = append(services, notifier)
+	}
+	// Windows 시작 때 자동 실행이고 '창을 닫으면 트레이로'를 켰으면 창 없이 트레이에서 시작한다.
+	appService.startHidden = slices.Contains(os.Args[1:], system.AutoStartArg) && appService.backgroundSettings().CloseToTray
 
 	app := application.New(application.Options{
 		Name:        "꼬미노트",
 		Description: "선생님을 위한 안전한 중등교사 업무 지원 프로그램",
-		Services: []application.Service{
-			application.NewService(appService),
-		},
+		Services:    services,
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),
 		},
@@ -47,11 +54,19 @@ func main() {
 		MinHeight:        540,
 		Frameless:        true,
 		StartState:       application.WindowStateMaximised,
+		Hidden:           appService.startHidden,
 		BackgroundColour: application.NewRGBA(246, 248, 252, 255),
 		URL:              "/",
 	})
 
 	appService.setMainWindow(win)
+	// Alt+F4 등으로 창을 닫을 때도 트레이 설정이면 숨기기만 한다.
+	win.RegisterHook(events.Common.WindowClosing, func(event *application.WindowEvent) {
+		if appService.hideOnClose() {
+			event.Cancel()
+			win.Hide()
+		}
+	})
 	appService.startup()
 
 	err = app.Run()
