@@ -38,8 +38,10 @@ type ClassConfig struct {
 	Semester2StartDate          string   `json:"semester2StartDate"`
 	Semester2EndDate            string   `json:"semester2EndDate"`
 	Semester2ExperienceLimit    int      `json:"semester2ExperienceLimit"`
-	TermsVersion                string   `json:"termsVersion"`
-	TermsAcceptedAt             string   `json:"termsAcceptedAt"`
+	// Holidays는 학사 일정의 공휴일·학교 휴업일(2026-11-10). 출결 입력을 막고 결석일수에서 뺀다.
+	Holidays        []SchoolHoliday `json:"holidays,omitempty"`
+	TermsVersion    string          `json:"termsVersion"`
+	TermsAcceptedAt string          `json:"termsAcceptedAt"`
 }
 
 // SetupRequest는 최초 설정에 필요한 값입니다.

@@ -82,7 +82,9 @@ export function DashboardPage({
 }) {
   const today = todayLocal();
   const now = new Date();
-  const weekend = now.getDay() === 0 || now.getDay() === 6;
+  // 주말과 학사 일정의 공휴일·휴업일에는 출결 입력을 권하지 않는다(2026-11-10).
+  const holidayName = (config?.holidays || []).find((item) => item.date === today)?.name || "";
+  const weekend = now.getDay() === 0 || now.getDay() === 6 || Boolean(holidayName);
   const [attendance, setAttendance] = useState<models.AttendanceDay | null>(null);
   const [consultations, setConsultations] = useState<models.Consultation[]>([]);
   const [documents, setDocuments] = useState<models.SubmissionDocument[]>([]);
@@ -115,13 +117,13 @@ export function DashboardPage({
   const females = students.filter((student) => ["여", "여자", "여성"].includes(student.gender)).length;
 
   const attendanceSummary = useMemo(() => {
-    if (weekend) return { value: "주말", note: "평일에 출결을 입력합니다" };
+    if (weekend) return holidayName ? { value: holidayName, note: "공휴일·휴업일에는 출결을 입력하지 않습니다" } : { value: "주말", note: "평일에 출결을 입력합니다" };
     if (!attendance || !attendance.savedAt) return { value: "저장 전", note: "오늘 출결을 아직 저장하지 않았습니다" };
     const entries = attendance.entries || [];
     const count = (word: string) => entries.filter((entry) => (entry.status || "").includes(word)).length;
     const present = entries.filter((entry) => !entry.status || entry.status === "출석").length;
     return { value: `${present} / ${entries.length}`, note: `결석 ${count("결석")} · 지각 ${count("지각")} · 조퇴 ${count("조퇴")}` };
-  }, [attendance, weekend]);
+  }, [attendance, weekend, holidayName]);
 
   // 상담 후속 조치: 완료하지 않았고 예정일이 오늘부터 7일 안이거나 이미 지난 기록
   const followUps = useMemo(

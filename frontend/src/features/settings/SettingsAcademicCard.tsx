@@ -1,5 +1,6 @@
 import { isClassicTheme } from "./useSettingsPage";
 import type { SettingsPageView } from "./useSettingsPage";
+import { HolidayEditor } from "./HolidayEditor";
 
 /** SettingsPage.tsx에서 떼어 낸 화면 구역 */
 export function SettingsAcademicCard({ view: hookView }: { view: SettingsPageView }) {
@@ -132,6 +133,11 @@ export function SettingsAcademicCard({ view: hookView }: { view: SettingsPageVie
           단위도 수업일 달력과 정확한 누계를 위해 학기 기간 입력을
           권장합니다.
         </p>
+        <HolidayEditor
+          schoolYear={String(draft.schoolYear || "")}
+          holidays={draft.holidays || []}
+          onChange={(holidays) => update({ holidays })}
+        />
         <div className="settings-theme-divider" />
         <div className="theme-settings">
           <div>

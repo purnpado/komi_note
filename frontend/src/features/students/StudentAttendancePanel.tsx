@@ -32,7 +32,9 @@ export function StudentAttendancePanel({ view }: { view: StudentCardView }) {
             >
               <option value="">전체 학년도</option>
               {attendanceYears.map((year) => (
-                <option key={year}>{year}</option>
+                <option key={year} value={year}>
+                  {year}학년도
+                </option>
               ))}
             </select>
             <select

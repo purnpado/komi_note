@@ -15,6 +15,7 @@ import {
 import { main as models } from "../../../wailsjs/go/models";
 import type { StudentDetailNavigationRequest } from "../shared/featureNavigation";
 import { errorMessage } from "../shared/format";
+import { schoolYearOf } from "../attendance/attendanceUtils";
 
 export function formatPhone(value: string) {
   const digits = value.replace(/\D/g, "").slice(0, 11);
@@ -114,7 +115,8 @@ export function useStudentCard({
   };
   const attendanceYears = useMemo(
     () =>
-      Array.from(new Set(attendanceRecords.map((item) => item.date.slice(0, 4))))
+      // 2026-11-10: 달력 연도가 아니라 학년도(3월~다음 해 2월)로 묶는다
+      Array.from(new Set(attendanceRecords.map((item) => schoolYearOf(item.date)).filter(Boolean)))
         .sort()
         .reverse(),
     [attendanceRecords],
@@ -136,7 +138,7 @@ export function useStudentCard({
   const filteredAttendance = useMemo(
     () =>
       attendanceEntries.filter(({ day }) => {
-        if (attendanceYear && day.date.slice(0, 4) !== attendanceYear) return false;
+        if (attendanceYear && schoolYearOf(day.date) !== attendanceYear) return false;
         if (attendanceMonth !== "전체" && day.date.slice(5, 7) !== attendanceMonth) return false;
         if (attendanceSemester === "전체" || !config) return true;
         const start = attendanceSemester === "1학기" ? config.semester1StartDate : config.semester2StartDate;
@@ -160,7 +162,7 @@ export function useStudentCard({
     () =>
       attendanceEntries.filter(
         ({ day, entry }) =>
-          entry.status === "교외체험학습" && (!config?.schoolYear || day.date.startsWith(`${config.schoolYear}-`)),
+          entry.status === "교외체험학습" && (!config?.schoolYear || schoolYearOf(day.date) === String(config.schoolYear)),
       ).length,
     [attendanceEntries, config?.schoolYear],
   );

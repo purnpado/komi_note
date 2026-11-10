@@ -18,6 +18,9 @@ type AttendanceDay = attendance.AttendanceDay
 // AttendanceDocumentPeriod은 일별 출결 기록에서 계산한 서류 출력용 연속 기간입니다.
 type AttendanceDocumentPeriod = attendance.AttendanceDocumentPeriod
 
+// SchoolHoliday는 학사 일정의 공휴일·휴업일 하루입니다.
+type SchoolHoliday = attendance.SchoolHoliday
+
 var attendanceStatuses = attendance.AttendanceStatuses
 var attendanceReasonCategories = attendance.AttendanceReasonCategories
 
@@ -43,14 +46,44 @@ func (s *VaultStore) GetAttendance(date string) (AttendanceDay, error) {
 			break
 		}
 	}
-	for _, student := range attendanceEligibleStudents(s.session.Students, attendanceDate) {
+	departed := s.departedOnLocked(attendanceDate)
+	for _, student := range s.attendanceRosterLocked(attendanceDate) {
 		entry, found := stored[student.ID]
 		if !found {
 			entry = AttendanceEntry{StudentID: student.ID, Status: "출석"}
 		}
+		if _, gone := departed[student.ID]; gone {
+			entry.DepartedName, entry.DepartedNumber = student.Name, student.Number
+		}
 		result.Entries = append(result.Entries, entry)
 	}
 	return result, nil
+}
+
+// departedOnLocked는 그 날짜에는 재학했지만 뒤에 학적변동으로 명단에서 빠진 학생들입니다(학적 처리일 전날까지 재학).
+func (s *VaultStore) departedOnLocked(date time.Time) map[string]Student {
+	result := map[string]Student{}
+	day := date.Format("2006-01-02")
+	current := map[string]bool{}
+	for _, student := range s.session.Students {
+		current[student.ID] = true
+	}
+	for _, change := range s.session.AcademicChanges {
+		if change.StudentID == "" || current[change.StudentID] || day >= change.ProcessedDate {
+			continue
+		}
+		result[change.StudentID] = Student{ID: change.StudentID, Name: change.Name, Number: change.Number}
+	}
+	return result
+}
+
+// attendanceRosterLocked는 그 날짜의 출결 명단(재학생 + 그날 재학했던 전출 학생)입니다.
+func (s *VaultStore) attendanceRosterLocked(date time.Time) []Student {
+	list := append([]Student{}, s.session.Students...)
+	for _, student := range s.departedOnLocked(date) {
+		list = append(list, student)
+	}
+	return attendanceEligibleStudents(list, date)
 }
 
 // ListStudentAttendance는 학생별로 저장된 비출석 기록을 최신순으로 반환합니다.
@@ -107,15 +140,17 @@ func (s *VaultStore) attendanceDocumentPeriodLocked(studentID, date string) (Att
 	if err != nil {
 		return AttendanceDocumentPeriod{}, errors.New("출결 날짜를 확인해 주세요")
 	}
+	// 공휴일·휴업일은 수업일이 아니므로 건너뛰고 이어서 본다(2026-11-10).
+	holidays := attendance.HolidaySet(s.session.Config.Holidays)
 	start, end := base, base
-	for cursor := previousWeekday(base); ; cursor = previousWeekday(cursor) {
+	for cursor := attendance.PreviousSchoolDay(base, holidays); ; cursor = attendance.PreviousSchoolDay(cursor, holidays) {
 		candidate, found := byDate[cursor.Format("2006-01-02")]
 		if !found || !sameAttendanceDocumentGroup(entry, candidate) {
 			break
 		}
 		start = cursor
 	}
-	for cursor := nextWeekday(base); ; cursor = nextWeekday(cursor) {
+	for cursor := attendance.NextSchoolDay(base, holidays); ; cursor = attendance.NextSchoolDay(cursor, holidays) {
 		candidate, found := byDate[cursor.Format("2006-01-02")]
 		if !found || !sameAttendanceDocumentGroup(entry, candidate) {
 			break
@@ -126,19 +161,11 @@ func (s *VaultStore) attendanceDocumentPeriodLocked(studentID, date string) (Att
 	if !start.Equal(end) {
 		endDate = end.Format("2006-01-02")
 	}
-	return AttendanceDocumentPeriod{Entry: entry, StartDate: start.Format("2006-01-02"), EndDate: endDate, SchoolDays: weekdayCount(start, end)}, nil
+	return AttendanceDocumentPeriod{Entry: entry, StartDate: start.Format("2006-01-02"), EndDate: endDate, SchoolDays: attendance.SchoolDayCount(start, end, holidays)}, nil
 }
 
 func sameAttendanceDocumentGroup(base, candidate AttendanceEntry) bool {
 	return attendance.SameAttendanceDocumentGroup(base, candidate)
-}
-
-func previousWeekday(value time.Time) time.Time {
-	return attendance.PreviousWeekday(value)
-}
-
-func nextWeekday(value time.Time) time.Time {
-	return attendance.NextWeekday(value)
 }
 
 // SaveAttendance는 선택일 재학생 전체의 출결을 암호화 보관함에 저장합니다.
@@ -152,7 +179,11 @@ func (s *VaultStore) SaveAttendance(day AttendanceDay) (AttendanceDay, error) {
 	if err != nil {
 		return AttendanceDay{}, err
 	}
-	eligible := attendanceEligibleStudents(s.session.Students, attendanceDate)
+	eligible := s.attendanceRosterLocked(attendanceDate)
+	numbers := make(map[string]int, len(eligible))
+	for _, student := range eligible {
+		numbers[student.ID] = student.Number
+	}
 	if len(day.Entries) != len(eligible) {
 		return AttendanceDay{}, errors.New("해당 날짜의 재학생 전체 출결을 확인해 주세요")
 	}
@@ -180,6 +211,7 @@ func (s *VaultStore) SaveAttendance(day AttendanceDay) (AttendanceDay, error) {
 		entry.StartDate = ""
 		entry.EndDate = ""
 		entry.SchoolDays = 0
+		entry.DepartedName, entry.DepartedNumber = "", 0
 		if entry.Status == "출석" || entry.Status == "교외체험학습" {
 			entry.ReasonCategory = ""
 			entry.Reason = ""
@@ -194,7 +226,7 @@ func (s *VaultStore) SaveAttendance(day AttendanceDay) (AttendanceDay, error) {
 		}
 	}
 	sort.Slice(entries, func(i, j int) bool {
-		return studentNumber(s.session.Students, entries[i].StudentID) < studentNumber(s.session.Students, entries[j].StudentID)
+		return numbers[entries[i].StudentID] < numbers[entries[j].StudentID]
 	})
 	saved := AttendanceDay{Date: attendanceDate.Format("2006-01-02"), Entries: entries, SavedAt: time.Now().UTC().Format(time.RFC3339)}
 	replaced := false
@@ -215,29 +247,16 @@ func (s *VaultStore) SaveAttendance(day AttendanceDay) (AttendanceDay, error) {
 	return saved, nil
 }
 
-func weekdayCount(start, end time.Time) int {
-	return attendance.WeekdayCount(start, end)
-}
-
 func validateAttendanceDate(value string, config ClassConfig) (time.Time, error) {
 	periods := [][2]string{
 		{config.Semester1StartDate, config.Semester1EndDate},
 		{config.Semester2StartDate, config.Semester2EndDate},
 	}
-	return attendance.ValidateAttendanceDate(value, periods)
+	return attendance.ValidateAttendanceDate(value, periods, attendance.HolidaySet(config.Holidays))
 }
 
 func attendanceEligibleStudents(students []Student, date time.Time) []Student {
 	return attendance.AttendanceEligibleStudents(students, date)
-}
-
-func studentNumber(students []Student, id string) int {
-	for _, student := range students {
-		if student.ID == id {
-			return student.Number
-		}
-	}
-	return 0
 }
 
 func removeAttendanceForStudent(days []AttendanceDay, studentID string) []AttendanceDay {

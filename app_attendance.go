@@ -35,7 +35,7 @@ func (a *App) GetAttendanceDocumentPeriod(studentID, date string) (AttendanceDoc
 }
 
 func (a *App) SelectAttendanceTemplateFile() (string, error) {
-	return a.openFileDialog("결석계 양식 선택", "결석계 양식", "*.hwpx;*.pdf;*.docx;*.xlsx")
+	return a.openFileDialog("결석계 양식 선택", "한글(HWPX) 결석계 양식", "*.hwpx")
 }
 
 func (a *App) ListAttendanceTemplates() ([]AttendanceTemplate, error) {

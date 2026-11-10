@@ -9,6 +9,12 @@ export interface AcademicChange {
     "name": string;
     "status": string;
     "processedDate": string;
+
+    /**
+     * StudentID·Number는 전출 전 출결 기록을 남겨 보여 주려고 2026-11-10부터 함께 남긴다(예전 기록은 비어 있음).
+     */
+    "studentId"?: string;
+    "number"?: number;
 }
 
 /**

@@ -135,10 +135,10 @@ func (s *VaultStore) ProcessAcademicChange(studentID, status, processedDate, con
 	if err != nil {
 		return AcademicChange{}, err
 	}
-	change := AcademicChange{ID: changeID, Name: student.Name, Status: status, ProcessedDate: processedDate}
+	change := AcademicChange{ID: changeID, Name: student.Name, Status: status, ProcessedDate: processedDate, StudentID: student.ID, Number: student.Number}
 	s.session.Students = append(s.session.Students[:index], s.session.Students[index+1:]...)
 	s.session.Consultations = consultations
-	s.session.AttendanceDays = removeAttendanceForStudent(s.session.AttendanceDays, studentID)
+	// 출결 기록은 지우지 않는다(2026-11-10 사용자 결정): 학적 처리일 전 날짜의 출결 화면에 "(전출)" 줄로 남는다.
 	removeStudentReferences(s.session, studentID)
 	s.session.AcademicChanges = append(s.session.AcademicChanges, change)
 	s.session.UpdatedAt = time.Now().UTC()

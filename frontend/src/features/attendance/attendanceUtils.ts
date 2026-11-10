@@ -21,3 +21,17 @@ export function parseHWPXCustomValues(source: string) {
   }
   return values;
 }
+
+/** 학년도: 3월 1일 ~ 다음 해 2월 말. 2027-02-10 → "2026". (2026-11-10: 집계를 달력 연도가 아닌 학년도로) */
+export function schoolYearOf(value: string): string {
+  const year = Number(value.slice(0, 4));
+  const month = Number(value.slice(5, 7));
+  if (!year || !month) return "";
+  return String(month >= 3 ? year : year - 1);
+}
+
+/** 교외체험학습 사용 일수가 허용 일수를 넘는지. 넘으면 안내 문장, 아니면 "". limit 0이면 확인하지 않는다. */
+export function experienceOverLimitMessage(name: string, used: number, limit: number, unitLabel: string): string {
+  if (!limit || used <= limit) return "";
+  return `${name}: 교외체험학습 ${used}일째로 ${unitLabel} 허용 일수 ${limit}일을 넘습니다. 학교 규정을 확인해 주세요.`;
+}

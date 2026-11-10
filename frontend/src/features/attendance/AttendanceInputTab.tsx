@@ -107,7 +107,7 @@ export function AttendanceInputTab(props: any) {
                         key={entry.studentId}
                       >
                         <span>
-                          {String(student?.number || 0).padStart(2, "0")}
+                          {String(student?.number || entry.departedNumber || 0).padStart(2, "0")}
                         </span>
                         {student ? (
                           <button
@@ -116,6 +116,10 @@ export function AttendanceInputTab(props: any) {
                           >
                             {student.name}
                           </button>
+                        ) : entry.departedName ? (
+                          <strong className="attendance-departed" title="학적변동으로 지금은 명단에 없는 학생(이 날은 재학)">
+                            {entry.departedName} <small>(전출)</small>
+                          </strong>
                         ) : (
                           <strong>학생 정보 없음</strong>
                         )}

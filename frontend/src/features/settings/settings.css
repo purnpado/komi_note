@@ -217,3 +217,15 @@
 .settings-extra-notice.ok { background:#eaf8ef; color:#1f5b3c; }
 .settings-extra-path { font-family: inherit; }
 .settings-extra-panel button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+
+/* 공휴일·휴업일 편집(2026-11-10) */
+.holiday-editor { display: grid; gap: 10px; margin: 14px 0 0; padding: 14px; border: 1px solid #ead8c4; border-radius: 12px; }
+.holiday-editor legend { padding: 0 6px; font-weight: 800; }
+.holiday-actions { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; }
+.holiday-actions label { display: grid; gap: 4px; font-size: 12px; font-weight: 700; }
+.holiday-actions input { min-height: 38px; padding: 6px 10px; border: 1px solid #dfc9b3; border-radius: 9px; font: inherit; }
+.holiday-list { display: grid; gap: 4px; max-height: 260px; margin: 0; padding: 0; overflow: auto; list-style: none; }
+.holiday-list li { display: grid; grid-template-columns: 100px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; background: #fffaf3; font-size: 13px; }
+.holiday-list li span { font-variant-numeric: tabular-nums; color: #6e5a4b; }
+.theme-classic .holiday-editor { border-color: #d6e6df; }
+.theme-classic .holiday-list li { background: #f5fbf8; }

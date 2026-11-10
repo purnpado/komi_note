@@ -101,14 +101,14 @@ export function AttendancePage({ students, config, initialDate = "", openStudent
           },
           {
             title: "학교 양식 등록",
-            detail: "출결 서식 탭에서 학교 HWPX 양식을 선택하고, 자동 치환할 항목의 위치와 글자 크기를 지정합니다.",
+            detail: "학교 HWPX 양식 복사본에 {{이름}} 같은 치환자를 넣어 저장한 뒤, 출결 서식 탭에서 등록합니다.",
           },
           {
             title: "출력 대상 선택",
             detail: "출결 서류 출력 탭에서 그날 기록된 학생 전체 중 실제로 발급할 학생을 한 명씩 선택합니다.",
           },
           {
-            title: "HWPX 또는 PDF 생성",
+            title: "HWPX 생성",
             detail: "자동값과 학교별 추가값을 확인한 뒤 새 파일로 저장합니다. 원본 양식은 수정하지 않습니다.",
           },
         ]}

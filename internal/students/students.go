@@ -35,6 +35,9 @@ type AcademicChange struct {
 	Name          string `json:"name"`
 	Status        string `json:"status"`
 	ProcessedDate string `json:"processedDate"`
+	// StudentID·Number는 전출 전 출결 기록을 남겨 보여 주려고 2026-11-10부터 함께 남긴다(예전 기록은 비어 있음).
+	StudentID string `json:"studentId,omitempty"`
+	Number    int    `json:"number,omitempty"`
 }
 
 // RosterPreview는 가져오기 전 확인할 명렬표 미리보기입니다.
@@ -94,4 +97,3 @@ func StudentNumber(students []Student, id string) int {
 func NormalizeBirthDate(value string) string {
 	return strings.NewReplacer("-", "", ".", "", "/", "", " ", "").Replace(strings.TrimSpace(value))
 }
-

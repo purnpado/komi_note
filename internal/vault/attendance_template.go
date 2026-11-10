@@ -60,8 +60,9 @@ func (s *VaultStore) SaveAttendanceTemplate(name, path string, statuses []string
 		return AttendanceTemplate{}, errors.New("적용할 출결 상태를 하나 이상 선택해 주세요")
 	}
 	ext := strings.ToLower(filepath.Ext(path))
-	if ext != ".hwpx" && ext != ".pdf" && ext != ".docx" && ext != ".xlsx" {
-		return AttendanceTemplate{}, errors.New("HWPX, PDF, DOCX, XLSX 양식만 등록할 수 있습니다")
+	// 2026-11-10 사용자 결정: 학교 대부분이 쓰는 HWPX 서식만 새로 등록한다(이미 등록한 다른 형식은 목록에 남음).
+	if ext != ".hwpx" {
+		return AttendanceTemplate{}, errors.New("한글(HWPX) 서식만 등록할 수 있습니다. 한글에서 '다른 이름으로 저장 → HWPX'로 저장한 파일을 골라 주세요")
 	}
 	contents, err := os.ReadFile(path)
 	if err != nil {
@@ -239,7 +240,7 @@ func (s *VaultStore) SaveAttendanceTemplateCustomValues(id string, values map[st
 
 func attendanceReservedToken(key string) bool {
 	for _, prefix := range []string{"기준", "시작", "종료", "작성"} {
-		if key == prefix || key == prefix+"년" || key == prefix+"월" || key == prefix+"일자" {
+		if key == prefix || key == prefix+"일" || key == prefix+"년" || key == prefix+"월" || key == prefix+"일자" {
 			return true
 		}
 	}
@@ -247,19 +248,51 @@ func attendanceReservedToken(key string) bool {
 	return reserved[key]
 }
 
-// documentGuardianName은 결석 신고서에 넣을 보호자 성명을 결정한다.
-// 교사가 학생별로 지정한 문서용 보호자를 우선하고, 미지정이면 모·부·기타 보호자 순서로 찾는다.
-func documentGuardianName(student Student) string {
-	bySelection := map[string]string{"모": student.MotherName, "부": student.FatherName, "기타 보호자": student.GuardianName}
-	if selected := strings.TrimSpace(bySelection[student.DocumentGuardian]); selected != "" {
-		return selected
+// documentGuardian은 결석 신고서에 넣을 보호자의 성명·관계·연락처를 같은 사람으로 고른다.
+// 교사가 학생별로 지정한 문서용 보호자를 우선하고, 미지정이면 모 → 부 → 기타 보호자 순서로 성명이 있는 사람을 찾는다.
+// (2026-11-10 점검: 예전에는 성명과 연락처를 다른 순서로 골라 엄마 이름 + 아빠 번호가 들어갈 수 있었다.)
+func documentGuardian(student Student) (name, relation, phone string) {
+	type person struct{ key, name, relation, phone string }
+	other := strings.TrimSpace(student.GuardianRelationship)
+	if other == "" {
+		other = "보호자"
 	}
-	for _, name := range []string{student.MotherName, student.FatherName, student.GuardianName} {
-		if name = strings.TrimSpace(name); name != "" {
-			return name
+	people := []person{
+		{"모", student.MotherName, "모", student.MotherPhone},
+		{"부", student.FatherName, "부", student.FatherPhone},
+		{"기타 보호자", student.GuardianName, other, student.GuardianPhone},
+	}
+	for _, p := range people {
+		if p.key == student.DocumentGuardian && strings.TrimSpace(p.name) != "" {
+			return strings.TrimSpace(p.name), p.relation, strings.TrimSpace(p.phone)
 		}
 	}
-	return ""
+	for _, p := range people {
+		if strings.TrimSpace(p.name) != "" {
+			return strings.TrimSpace(p.name), p.relation, strings.TrimSpace(p.phone)
+		}
+	}
+	return "", "", ""
+}
+
+// documentGuardianName은 결석 신고서에 넣을 보호자 성명만 돌려준다.
+func documentGuardianName(student Student) string {
+	name, _, _ := documentGuardian(student)
+	return name
+}
+
+// decodeAttendanceTemplatePayload는 암호화 보관한 서식 포장(파일 이름 + base64 내용)에서 HWPX 바이트를 꺼낸다.
+func decodeAttendanceTemplatePayload(payload []byte) ([]byte, error) {
+	var wrapped encryptedTemplate
+	if err := json.Unmarshal(payload, &wrapped); err != nil || wrapped.Data == "" {
+		// 포장이 없는 형식이면 그대로 쓴다.
+		return append([]byte(nil), payload...), nil
+	}
+	data, err := base64.StdEncoding.DecodeString(wrapped.Data)
+	if err != nil {
+		return nil, errors.New("보관한 HWPX 서식을 읽지 못했습니다. 서식을 다시 등록해 주세요")
+	}
+	return data, nil
 }
 
 func hwpxPreview(contents []byte) (string, error) {
@@ -315,6 +348,11 @@ func (s *VaultStore) BuildAttendanceHWPX(templateID, studentID, date string) (At
 		}
 	}
 	if student.ID == "" {
+		for _, change := range s.session.AcademicChanges {
+			if change.StudentID == studentID {
+				return AttendanceHWPXBuildResult{}, errors.New("학적변동(" + change.Status + ")으로 보호자 정보가 지워진 학생이라 출결 서류를 새로 만들 수 없습니다")
+			}
+		}
 		return AttendanceHWPXBuildResult{}, errors.New("학생 정보를 찾지 못했습니다")
 	}
 	period, err := s.attendanceDocumentPeriodLocked(studentID, date)
@@ -338,12 +376,19 @@ func (s *VaultStore) BuildAttendanceHWPX(templateID, studentID, date string) (At
 	if err := readJSON(s.attendanceTemplatePath(template.ID), &encrypted); err != nil {
 		return AttendanceHWPXBuildResult{}, errors.New("암호화된 HWPX 서식을 읽지 못했습니다")
 	}
-	source, err := open(s.sessionKey, encrypted, "attendance-template-v1")
+	payload, err := open(s.sessionKey, encrypted, "attendance-template-v1")
 	if err != nil {
 		return AttendanceHWPXBuildResult{}, errors.New("HWPX 서식을 복호화하지 못했습니다")
 	}
+	defer zeroBytes(payload)
+	// 등록할 때 '파일 이름 + 내용(base64)'으로 포장해 암호화했으므로 포장을 풀어 원래 HWPX를 꺼낸다.
+	// (2026-11-10 점검: 예전에는 포장을 풀지 않아 서류 만들기가 늘 실패했다.)
+	source, err := decodeAttendanceTemplatePayload(payload)
+	if err != nil {
+		return AttendanceHWPXBuildResult{}, err
+	}
 	defer zeroBytes(source)
-	guardianName := documentGuardianName(student)
+	guardianName, guardianRelation, guardianPhone := documentGuardian(student)
 	if guardianName == "" {
 		hasMarker, err := attendance.AttendanceHWPXContainsMarker(source, "보호자성명")
 		if err != nil {
@@ -353,14 +398,7 @@ func (s *VaultStore) BuildAttendanceHWPX(templateID, studentID, date string) (At
 			return AttendanceHWPXBuildResult{}, errors.New("학생 정보에 결석신고서용 보호자 성명을 입력하거나 선택해 주세요")
 		}
 	}
-	guardianPhone := student.GuardianPhone
-	if guardianPhone == "" {
-		guardianPhone = student.FatherPhone
-	}
-	if guardianPhone == "" {
-		guardianPhone = student.MotherPhone
-	}
-	values := map[string]string{"이름": student.Name, "학번": student.StudentID, "학년": s.session.Config.Grade, "반": s.session.Config.ClassNumber, "번호": fmt.Sprintf("%d", student.Number), "출결상태": entry.Status, "사유구분": entry.ReasonCategory, "상세사유": entry.Reason, "교시": entry.Period, "보호자성명": guardianName, "보호자관계": student.GuardianRelationship, "보호자연락처": guardianPhone, "담임교사": s.session.Config.TeacherLabel, "결석일수": fmt.Sprintf("%d일간", period.SchoolDays)}
+	values := map[string]string{"이름": student.Name, "학번": student.StudentID, "학년": s.session.Config.Grade, "반": s.session.Config.ClassNumber, "번호": fmt.Sprintf("%d", student.Number), "출결상태": entry.Status, "사유구분": entry.ReasonCategory, "상세사유": entry.Reason, "교시": entry.Period, "보호자성명": guardianName, "보호자관계": guardianRelation, "보호자연락처": guardianPhone, "담임교사": s.session.Config.TeacherLabel, "결석일수": fmt.Sprintf("%d", period.SchoolDays)}
 	for key, value := range attendance.AttendanceDateTokens("기준", date) {
 		values[key] = value
 	}

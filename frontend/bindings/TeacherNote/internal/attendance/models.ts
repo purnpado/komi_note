@@ -32,6 +32,12 @@ export interface AttendanceEntry {
     "startDate": string;
     "endDate": string;
     "schoolDays": number;
+
+    /**
+     * DepartedName·DepartedNumber는 화면 표시용(저장하지 않음): 학적변동으로 명단에서 빠진 학생의 그날 줄.
+     */
+    "departedName"?: string;
+    "departedNumber"?: number;
 }
 
 /**
@@ -61,4 +67,13 @@ export interface AttendanceTemplate {
     "mappings": AttendanceFieldPoint[] | null;
     "customValues": { [_ in string]?: string } | null;
     "createdAt": string;
+}
+
+/**
+ * SchoolHoliday는 학사 일정의 공휴일·학교 휴업일 하루입니다(2026-11-10).
+ * 이 날은 출결을 입력하지 않고, 결석일수·연속 기간 계산에서도 수업일로 세지 않습니다.
+ */
+export interface SchoolHoliday {
+    "date": string;
+    "name": string;
 }

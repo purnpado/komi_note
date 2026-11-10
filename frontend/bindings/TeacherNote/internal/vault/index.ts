@@ -33,6 +33,7 @@ export type {
     RosterPreview,
     ScheduleBook,
     ScheduleEvent,
+    SchoolHoliday,
     SessionResult,
     SetupRequest,
     TimetableBook

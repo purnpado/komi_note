@@ -1,14 +1,16 @@
 import { copyText } from "../shared/desktopActions";
 import { useState } from "react";
 
+// 프로그램이 실제로 채우는 치환자 목록(Go internal/vault/attendance_template.go, internal/attendance/tokens.go와 같게 유지).
 const hwpxTokens = [
   ["학생 기본", "{{이름}} {{학번}} {{학년}} {{반}} {{번호}}"],
-  ["출결 내용", "{{출결상태}} {{사유구분}} {{상세사유}} {{교시}}"],
-  ["날짜", "{{기준일}} {{시작일}} {{종료일}} {{작성일}} {{결석일수}}"],
-  ["결석신고서", "{{보호자성명}} {{담임교사}}"],
+  ["출결 내용", "{{출결상태}} {{사유구분}} {{상세사유}} {{교시}} {{결석일수}}"],
+  ["날짜", "{{기준일}} {{시작일}} {{종료일}} {{작성일}}"],
+  ["날짜 나눠 쓰기", "{{시작년}} {{시작월}} {{시작일자}} {{종료년}} {{종료월}} {{종료일자}}"],
+  ["보호자·담임", "{{보호자성명}} {{보호자관계}} {{보호자연락처}} {{담임교사}}"],
 ] as const;
 
-function HWPXPlaceholderGuide() {
+function HWPXPlaceholderGuide({ defaultOpen }: { defaultOpen: boolean }) {
   const [notice, setNotice] = useState("");
 
   async function copyToken(text: string, label: string) {
@@ -21,7 +23,7 @@ function HWPXPlaceholderGuide() {
   }
 
   return (
-    <details className="hwpx-placeholder-guide">
+    <details className="hwpx-placeholder-guide" open={defaultOpen}>
       <summary>HWPX 치환자 넣는 방법</summary>
       <div className="hwpx-placeholder-guide-body">
         <p>
@@ -47,8 +49,15 @@ function HWPXPlaceholderGuide() {
           ))}
         </div>
         <p className="hwpx-placeholder-note">
+          날짜는 &quot;2026년 1월 5일&quot;처럼 들어갑니다. <b>{"{{기준일}}"}</b>은 서류를 만드는 출결 날짜,{" "}
+          <b>{"{{시작일}}"}</b>·<b>{"{{종료일}}"}</b>은 같은 사유가 이어진 기간, <b>{"{{작성일}}"}</b>은 서류를 만드는 날입니다.
+          연·월·일 칸이 따로 있는 서식은 <b>{"{{시작년}}"}</b>·<b>{"{{시작월}}"}</b>·<b>{"{{시작일자}}"}</b>처럼 나눠 쓰세요(기준·종료·작성도
+          같은 방식). <b>{"{{결석일수}}"}</b>는 숫자만 들어가니 서식의 &quot;( )일간&quot; 글자는 그대로 두세요.
+        </p>
+        <p className="hwpx-placeholder-note">
           <b>{"{{보호자성명}}"}</b>은 학생 상세의 결석신고서 보호자 설정을 사용합니다. 지정하지 않으면 모 → 부 → 기타
-          보호자 성명 순으로 찾으며, 성명이 없으면 빈 문서를 만들지 않고 먼저 입력을 안내합니다.
+          보호자 성명 순으로 찾으며, 성명이 없으면 빈 문서를 만들지 않고 먼저 입력을 안내합니다. 보호자 관계·연락처도 같은
+          사람의 것이 들어갑니다.
         </p>
         <p className="hwpx-placeholder-note">
           실제 학생 이름·출결 사유·학교 원본 양식은 외부에 공유하거나 저장소에 올리지 마세요. 여러 건·주간 표처럼 행을
@@ -95,27 +104,18 @@ export function AttendanceTemplateTab(props: any) {
       <div className="panel-heading">
         <div>
           <p className="eyebrow">학교별 출결 서식</p>
-          <h3>양식 등록 · 좌표 지정</h3>
+          <h3>한글(HWPX) 서식 등록</h3>
         </div>
         <button className="quiet-button" onClick={() => void chooseTemplate()}>
-          양식 파일 선택
+          HWPX 서식 파일 선택
         </button>
       </div>
       <ol className="template-steps">
-        <li className={!templatePath && !template ? "current" : "done"}>1. 신고서 업로드</li>
-        <li
-          className={
-            template && (template.mappings || []).length === 0
-              ? "current"
-              : (template?.mappings || []).length > 0
-                ? "done"
-                : ""
-          }
-        >
-          2. 채움 좌표 지정
-        </li>
+        <li className={templates.length ? "done" : "current"}>1. 한글에서 치환자 넣기</li>
+        <li className={templatePath ? "current" : templates.length ? "done" : ""}>2. HWPX 서식 등록</li>
+        <li className={templates.length && !templatePath ? "current" : ""}>3. 서류 출력 탭에서 만들기</li>
       </ol>
-      <HWPXPlaceholderGuide />
+      <HWPXPlaceholderGuide defaultOpen={templates.length === 0} />
       {templatePath && (
         <div className="template-register">
           <input
@@ -158,11 +158,33 @@ export function AttendanceTemplateTab(props: any) {
           </span>
         ))}
       </div>
-      {template && (
+      {template && template.format === "hwpx" && (
         <div className="template-workspace">
           <div className="template-side">
             <strong>{template.name}</strong>
-            <p>학교 양식에 필요한 항목을 골라 위치를 지정하세요. 이 화면에서는 학생 정보 대신 항목명만 표시됩니다.</p>
+            <p>
+              치환자로 채우는 서식이라 위치를 따로 지정하지 않습니다. 적용 출결: {(template.statuses || []).join("·")}.
+              [출결 서류 출력] 탭에서 학생을 고르고 새 HWPX 파일을 만드세요.
+            </p>
+            <p className="hwpx-placeholder-note">
+              서식을 고쳤다면 이 서식을 지우고 고친 파일을 다시 등록해 주세요. 원본 파일은 바뀌지 않습니다.
+            </p>
+          </div>
+          {template.previewData && (
+            <div className="template-canvas">
+              <img src={template.previewData} alt="등록한 HWPX 서식 미리보기" />
+            </div>
+          )}
+        </div>
+      )}
+      {template && template.format !== "hwpx" && (
+        <div className="template-workspace">
+          <div className="template-side">
+            <strong>{template.name}</strong>
+            <p>
+              예전에 등록한 {String(template.format).toUpperCase()} 서식입니다. 항목을 골라 위치를 지정하면 PDF로 만들 수
+              있습니다. 새 서식은 HWPX로 등록해 주세요.
+            </p>
             <label>
               배치할 항목
               <select value={mapField} onChange={(event) => setMapField(event.target.value)}>

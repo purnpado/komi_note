@@ -6,5 +6,6 @@ export type {
     AttendanceDocumentPeriod,
     AttendanceEntry,
     AttendanceFieldPoint,
-    AttendanceTemplate
+    AttendanceTemplate,
+    SchoolHoliday
 } from "./models.js";

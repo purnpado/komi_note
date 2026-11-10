@@ -122,6 +122,11 @@ export interface ClassConfig {
     "semester2StartDate": string;
     "semester2EndDate": string;
     "semester2ExperienceLimit": number;
+
+    /**
+     * Holidays는 학사 일정의 공휴일·학교 휴업일(2026-11-10). 출결 입력을 막고 결석일수에서 뺀다.
+     */
+    "holidays"?: SchoolHoliday[] | null;
     "termsVersion": string;
     "termsAcceptedAt": string;
 }
@@ -282,6 +287,11 @@ export type ScheduleBook = schedule$0.Book;
  * ScheduleEvent는 일정 하나입니다.
  */
 export type ScheduleEvent = schedule$0.Event;
+
+/**
+ * SchoolHoliday는 학사 일정의 공휴일·휴업일 하루입니다.
+ */
+export type SchoolHoliday = attendance$0.SchoolHoliday;
 
 /**
  * SessionResult는 잠금 해제 뒤에만 화면에 제공하는 설정입니다.

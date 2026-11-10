@@ -19,6 +19,9 @@ type AttendanceEntry struct {
 	StartDate      string `json:"startDate"`
 	EndDate        string `json:"endDate"`
 	SchoolDays     int    `json:"schoolDays"`
+	// DepartedName·DepartedNumber는 화면 표시용(저장하지 않음): 학적변동으로 명단에서 빠진 학생의 그날 줄.
+	DepartedName   string `json:"departedName,omitempty"`
+	DepartedNumber int    `json:"departedNumber,omitempty"`
 }
 
 // AttendanceDay는 날짜별 출결 기록입니다.
@@ -155,13 +158,19 @@ func RemoveAttendanceForStudent(days []AttendanceDay, studentID string) []Attend
 // ValidateAttendanceDate는 입력된 출결 날짜 형식 및 평일 여부를 검증합니다.
 // 학기 기간은 교사가 입력한 정보로 "확실히 수업이 없는 날"(1학기 시작 전, 1·2학기 사이 방학,
 // 2학기 종료 뒤)만 막습니다. 2학기 기간을 아직 입력하지 않았다면 1학기 뒤 날짜는 막지 않습니다.
-func ValidateAttendanceDate(value string, semesterPeriods [][2]string) (time.Time, error) {
+// holidays(선택)는 학사 일정의 공휴일·휴업일 표(날짜 → 이름)이며, 그날도 막습니다.
+func ValidateAttendanceDate(value string, semesterPeriods [][2]string, holidays ...map[string]string) (time.Time, error) {
 	date, err := time.Parse("2006-01-02", strings.TrimSpace(value))
 	if err != nil {
 		return time.Time{}, errors.New("출결 날짜를 확인해 주세요")
 	}
 	if date.Weekday() == time.Saturday || date.Weekday() == time.Sunday {
 		return time.Time{}, errors.New("주말에는 출결을 입력할 수 없습니다")
+	}
+	for _, set := range holidays {
+		if name, found := set[date.Format("2006-01-02")]; found {
+			return time.Time{}, errors.New(koreanMonthDay(date) + "은 " + name + "(공휴일·휴업일)이라 출결을 입력할 수 없습니다. 환경 설정의 \"학사 일정\"에서 바꿀 수 있습니다.")
+		}
 	}
 	if reason := outsideSemesterReason(date, semesterPeriods); reason != "" {
 		return time.Time{}, errors.New(reason)

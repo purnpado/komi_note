@@ -120,13 +120,17 @@ func ReplaceXMLMarker(source []byte, key, escapedValue string) []byte {
 	return attendanceXMLMarkerPattern(key).ReplaceAll(source, []byte(escapedValue))
 }
 
+// attendanceXMLMarkerPattern은 {{치환자}}를 찾는 패턴이다. 한글이 글자 사이에 태그를 끼워 넣어도,
+// 중괄호 안쪽 앞뒤에 띄어쓰기가 있어도({{ 이름 }}) 찾는다.
 func attendanceXMLMarkerPattern(key string) *regexp.Regexp {
-	marker := "{{" + key + "}}"
-	parts := make([]string, 0, len([]rune(marker)))
-	for _, char := range []rune(marker) {
-		parts = append(parts, regexp.QuoteMeta(string(char)))
+	const tags = `(?:<[^>]+>)*`
+	const space = `(?:<[^>]+>|\s)*`
+	chars := make([]string, 0, len([]rune(key)))
+	for _, char := range []rune(key) {
+		chars = append(chars, regexp.QuoteMeta(string(char)))
 	}
-	return regexp.MustCompile(strings.Join(parts, `(?:<[^>]+>)*`))
+	pattern := `\{` + tags + `\{` + space + strings.Join(chars, tags) + space + `\}` + tags + `\}`
+	return regexp.MustCompile(pattern)
 }
 
 // XMLEscape는 XML 특수 문자를 이스케이프합니다.
@@ -134,4 +138,3 @@ func XMLEscape(value string) string {
 	replacer := strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "'", "&apos;")
 	return replacer.Replace(value)
 }
-

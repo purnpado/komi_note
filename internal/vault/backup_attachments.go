@@ -17,7 +17,7 @@ type backupFile struct {
 	Attachments map[string]encryptedBlob `json:"attachments,omitempty"`
 }
 
-var attachmentName = regexp.MustCompile(`^(photos/[0-9a-zA-Z_-]+\.photo|receipts/[0-9a-f]+\.receipt)$`)
+var attachmentName = regexp.MustCompile(`^(photos/[0-9a-zA-Z_-]+\.photo|receipts/[0-9a-f]+\.receipt|attendance-templates/[0-9a-zA-Z_-]+\.template)$`)
 
 // collectAttachmentsLocked는 보관함 자료가 가리키는 사진·영수증 암호문을 모은다(파일이 없으면 건너뜀).
 func (s *VaultStore) collectAttachmentsLocked() map[string]encryptedBlob {
@@ -32,6 +32,10 @@ func (s *VaultStore) collectAttachmentsLocked() map[string]encryptedBlob {
 		if student.HasPhoto {
 			add("photos/"+student.ID+".photo", s.photoPath(student.ID))
 		}
+	}
+	// 출결 서식 파일(2026-11-10 점검: 예전에는 백업에 빠져 새 PC에서 서류를 만들 수 없었다)
+	for _, template := range s.session.AttendanceTemplates {
+		add("attendance-templates/"+template.ID+".template", s.attendanceTemplatePath(template.ID))
 	}
 	if s.session.Budget != nil {
 		for _, entry := range s.session.Budget.Entries {

@@ -1,6 +1,7 @@
 package vault
 
 import (
+	"TeacherNote/internal/attendance"
 	"errors"
 	"fmt"
 	"strings"
@@ -52,6 +53,9 @@ func validateConfig(config ClassConfig) error {
 	if err := validateSemesterRange("1학기", config.Semester1StartDate, config.Semester1EndDate); err != nil {
 		return err
 	}
+	if _, ok := attendance.NormaliseHolidays(config.Holidays); !ok {
+		return errors.New("공휴일·휴업일 날짜를 확인해 주세요")
+	}
 	if err := validateSemesterRange("2학기", config.Semester2StartDate, config.Semester2EndDate); err != nil {
 		return err
 	}
@@ -99,6 +103,10 @@ func normaliseConfig(config ClassConfig) ClassConfig {
 	config.Semester1EndDate = strings.TrimSpace(config.Semester1EndDate)
 	config.Semester2StartDate = strings.TrimSpace(config.Semester2StartDate)
 	config.Semester2EndDate = strings.TrimSpace(config.Semester2EndDate)
+	// 날짜가 틀린 항목이 있으면 정리하지 않고 두어 validateConfig가 알려 주게 한다.
+	if cleaned, ok := attendance.NormaliseHolidays(config.Holidays); ok {
+		config.Holidays = cleaned
+	}
 	config.TermsVersion = strings.TrimSpace(config.TermsVersion)
 	config.TermsAcceptedAt = strings.TrimSpace(config.TermsAcceptedAt)
 	if config.AutoLockMinutes == 0 {

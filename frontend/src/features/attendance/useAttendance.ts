@@ -8,6 +8,7 @@ import {
   GetAttendance,
   GetAttendanceDocumentPeriod,
   ListAttendanceTemplates,
+  ListStudentAttendance,
   SaveAttendance,
   SaveAttendancePDF,
   SaveAttendanceTemplate,
@@ -17,7 +18,7 @@ import {
 } from "../../../wailsjs/go/main/App";
 import { main as models } from "../../../wailsjs/go/models";
 import type { DocumentPointLayout } from "./attendanceTypes";
-import { koreanDate, parseHWPXCustomValues } from "./attendanceUtils";
+import { experienceOverLimitMessage, koreanDate, parseHWPXCustomValues, schoolYearOf } from "./attendanceUtils";
 
 import { errorMessage, toLocalDateString, todayLocal } from "../shared/format";
 import { useAttendanceDocuments } from "./useAttendanceDocuments";
@@ -27,10 +28,12 @@ export type UseAttendanceParams = {
   initialDate?: string;
 };
 
-// 주말 날짜는 출결을 입력하지 않으므로, 주말이면 방향(-1: 이전, 1: 다음)으로 가장 가까운 평일을 고릅니다.
-export function nearestWeekday(value: string, direction: -1 | 1 = -1): string {
+// 주말·공휴일·휴업일은 출결을 입력하지 않으므로, 그런 날이면 방향(-1: 이전, 1: 다음)으로 가장 가까운 수업일을 고릅니다.
+export function nearestWeekday(value: string, direction: -1 | 1 = -1, holidays: Set<string> = new Set()): string {
   const next = new Date(`${value}T12:00:00`);
-  while (next.getDay() === 0 || next.getDay() === 6) next.setDate(next.getDate() + direction);
+  for (let i = 0; i < 400 && (next.getDay() === 0 || next.getDay() === 6 || holidays.has(toLocalDateString(next))); i++) {
+    next.setDate(next.getDate() + direction);
+  }
   return toLocalDateString(next);
 }
 
@@ -57,6 +60,12 @@ export function useAttendance({ students, config, initialDate = "" }: UseAttenda
   const [attendanceTab, setAttendanceTab] = useState<"출결 입력" | "출결 서식" | "출결 서류 출력">("출결 입력");
   const dateInputRef = useRef<HTMLInputElement>(null);
   const studentByID = useMemo(() => new Map((students || []).map((student) => [student.id, student])), [students]);
+  // 학사 일정의 공휴일·휴업일(2026-11-10): 날짜 이동 때 건너뛴다.
+  const holidaySet = useMemo(() => new Set((config?.holidays || []).map((item) => item.date)), [config?.holidays]);
+  useEffect(() => {
+    if (holidaySet.has(date) && !initialDate) setDate(nearestWeekday(date, -1, holidaySet));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [holidaySet]);
   const weekday = (value: string) => {
     const labels = ["일", "월", "화", "수", "목", "금", "토"];
     return labels[new Date(`${value}T12:00:00`).getDay()];
@@ -115,7 +124,7 @@ export function useAttendance({ students, config, initialDate = "" }: UseAttenda
   function moveDate(offset: number) {
     const next = new Date(`${date}T12:00:00`);
     next.setDate(next.getDate() + offset);
-    setDate(nearestWeekday(toLocalDateString(next), offset < 0 ? -1 : 1));
+    setDate(nearestWeekday(toLocalDateString(next), offset < 0 ? -1 : 1, holidaySet));
   }
   function updateEntry(studentID: string, updates: Partial<models.AttendanceEntry>) {
     if (!day) return;
@@ -133,6 +142,30 @@ export function useAttendance({ students, config, initialDate = "" }: UseAttenda
         }),
       }),
     );
+    if (updates.status === "교외체험학습") void warnExperienceLimit(studentID);
+  }
+  // 교외체험학습을 고르면 이 학생의 학년도(또는 학기) 사용 일수가 허용 일수를 넘는지 알려 준다(저장은 막지 않음).
+  async function warnExperienceLimit(studentID: string) {
+    try {
+      const records = (await ListStudentAttendance(studentID)) || [];
+      const byLimit =
+        config?.experienceLearningUnit === "학기"
+          ? (() => {
+              const first = config.semester1StartDate && date >= config.semester1StartDate && date <= (config.semester1EndDate || "");
+              const start = first ? config.semester1StartDate : config?.semester2StartDate || "";
+              const end = first ? config.semester1EndDate : config?.semester2EndDate || "";
+              return { start, end, limit: (first ? config.semester1ExperienceLimit : config.semester2ExperienceLimit) || 0, label: first ? "1학기" : "2학기" };
+            })()
+          : { start: "", end: "", limit: config?.experienceLearningYearLimit || 0, label: `${schoolYearOf(date)}학년도` };
+      const inRange = (value: string) =>
+        byLimit.start && byLimit.end ? value >= byLimit.start && value <= byLimit.end : schoolYearOf(value) === schoolYearOf(date);
+      const used =
+        records.filter((record) => record.date !== date && record.entries?.[0]?.status === "교외체험학습" && inRange(record.date)).length + 1;
+      const message = experienceOverLimitMessage(studentByID.get(studentID)?.name || "학생", used, byLimit.limit, byLimit.label);
+      if (message) setNotice(message);
+    } catch {
+      // 확인하지 못해도 입력은 그대로 둔다
+    }
   }
   function markAllPresent() {
     if (!day) return;
@@ -169,6 +202,7 @@ export function useAttendance({ students, config, initialDate = "" }: UseAttenda
       지각: 0,
       조퇴: 0,
       결과: 0,
+      교외체험학습: 0,
     };
     for (const entry of day?.entries || []) counts[entry.status] = (counts[entry.status] || 0) + 1;
     return counts;

@@ -5,6 +5,8 @@ export namespace main {
 	    name: string;
 	    status: string;
 	    processedDate: string;
+	    studentId?: string;
+	    number?: number;
 
 	    static createFrom(source: any = {}) {
 	        return new AcademicChange(source);
@@ -16,6 +18,8 @@ export namespace main {
 	        this.name = source["name"];
 	        this.status = source["status"];
 	        this.processedDate = source["processedDate"];
+	        this.studentId = source["studentId"];
+	        this.number = source["number"];
 	    }
 	}
 	export class Student {
@@ -493,6 +497,8 @@ export namespace main {
 	    startDate: string;
 	    endDate: string;
 	    schoolDays: number;
+	    departedName?: string;
+	    departedNumber?: number;
 
 	    static createFrom(source: any = {}) {
 	        return new AttendanceEntry(source);
@@ -508,6 +514,8 @@ export namespace main {
 	        this.startDate = source["startDate"];
 	        this.endDate = source["endDate"];
 	        this.schoolDays = source["schoolDays"];
+	        this.departedName = source["departedName"];
+	        this.departedNumber = source["departedNumber"];
 	    }
 	}
 	export class AttendanceDay {
@@ -686,6 +694,7 @@ export namespace main {
 	    semester2StartDate: string;
 	    semester2EndDate: string;
 	    semester2ExperienceLimit: number;
+	    holidays?: { date: string; name: string }[];
 	    termsVersion: string;
 	    termsAcceptedAt: string;
 
@@ -713,6 +722,7 @@ export namespace main {
 	        this.semester2StartDate = source["semester2StartDate"];
 	        this.semester2EndDate = source["semester2EndDate"];
 	        this.semester2ExperienceLimit = source["semester2ExperienceLimit"];
+	        this.holidays = source["holidays"];
 	        this.termsVersion = source["termsVersion"];
 	        this.termsAcceptedAt = source["termsAcceptedAt"];
 	    }
