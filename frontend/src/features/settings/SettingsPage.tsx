@@ -11,6 +11,10 @@ import "./settings.css";
 import { useSettingsPage, teachingGradeOptions, teachingClassOptions, isClassicTheme } from "./useSettingsPage";
 import { SettingsAcademicCard } from "./SettingsAcademicCard";
 import { SettingsPrimaryCard } from "./SettingsPrimaryCard";
+import { SettingsDisplayCard } from "./SettingsDisplayCard";
+import { SectionTabs, tabPanelId } from "../shared/SectionTabs";
+import { type SettingsTab, formTabs, readSettingsTab, settingsTabs, storeSettingsTab } from "./settingsTabs";
+import { useState } from "react";
 
 export function SettingsFeaturePage({
   config,
@@ -20,6 +24,12 @@ export function SettingsFeaturePage({
   saveConfig: (config: models.ClassConfig) => Promise<void>;
 }) {
   const hookView = useSettingsPage({ config, saveConfig });
+  const [tab, setTab] = useState<SettingsTab>(readSettingsTab);
+  const changeTab = (next: string) => {
+    setTab(next as SettingsTab);
+    storeSettingsTab(next as SettingsTab);
+  };
+  const panelProps = (id: SettingsTab) => ({ id: tabPanelId(id), role: "tabpanel", "aria-labelledby": `${id}-tab` });
   const {
     draft,
     setDraft,
@@ -61,6 +71,7 @@ export function SettingsFeaturePage({
           <p>교사 역할, 담당 수업, 자동 잠금과 학사 일정을 조정합니다.</p>
         </div>
       </section>
+      <SectionTabs items={settingsTabs} value={tab} onChange={changeTab} label="환경 설정 항목" />
       <HelpGuide
         title="환경 설정하기"
         description="교사 역할·담당 수업과 자동 잠금, 화면 테마, 교사 업무 기준을 한 번에 관리합니다."
@@ -85,22 +96,26 @@ export function SettingsFeaturePage({
         ]}
         note="설정은 이 컴퓨터의 암호화 보관함에만 저장됩니다."
       />
-      <section className="panel settings-panel">
-        <form onSubmit={submit}>
-          <div className="settings-top-grid">
-            <SettingsPrimaryCard view={{ ...hookView, config, saveConfig }} />
-            <SettingsAcademicCard view={{ ...hookView, config, saveConfig }} />
-          </div>
-          {notice && <p className="save-notice">{notice}</p>}
-          <button className="primary-button" disabled={busy} type="submit">
-            {busy ? "저장 중입니다" : "설정 저장"}
-          </button>
-        </form>
-      </section>
-      <PasswordChangePanel />
-      <BackupPanel />
-      <BackgroundPanel />
-      <FeedbackPanel />
+      {formTabs.includes(tab) && (
+        <section className="panel settings-panel" {...panelProps(tab)}>
+          <form onSubmit={submit}>
+            <div className="settings-tab-body">
+              {tab === "settings-basic" && <SettingsPrimaryCard view={{ ...hookView, config, saveConfig }} />}
+              {tab === "settings-academic" && <SettingsAcademicCard view={{ ...hookView, config, saveConfig }} />}
+              {tab === "settings-display" && <SettingsDisplayCard view={{ ...hookView, config, saveConfig }} />}
+            </div>
+            <p className="setting-help settings-save-hint">기본 정보 · 학사 일정 · 화면·메뉴 탭에서 고친 내용은 아래 &apos;설정 저장&apos;을 눌러야 함께 저장됩니다.</p>
+            {notice && <p className="save-notice">{notice}</p>}
+            <button className="primary-button" disabled={busy} type="submit">
+              {busy ? "저장 중입니다" : "설정 저장"}
+            </button>
+          </form>
+        </section>
+      )}
+      {tab === "settings-password" && <div {...panelProps(tab)}><PasswordChangePanel /></div>}
+      {tab === "settings-backup" && <div {...panelProps(tab)}><BackupPanel /></div>}
+      {tab === "settings-background" && <div {...panelProps(tab)}><BackgroundPanel /></div>}
+      {tab === "settings-feedback" && <div {...panelProps(tab)}><FeedbackPanel /></div>}
       <AlertDialog.Root open={pinRemoveOpen} onOpenChange={setPinRemoveOpen}>
         <AlertDialog.Portal>
           <AlertDialog.Overlay className="dialog-overlay" />

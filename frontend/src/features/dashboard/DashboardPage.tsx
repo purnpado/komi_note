@@ -18,6 +18,7 @@ import { MemoWidgets } from "../memo/MemoWidgets";
 import { ScheduleWidget } from "../schedule/ScheduleWidget";
 import { BudgetWidget } from "../budget/BudgetWidget";
 import { ClassOpsWidget } from "./ClassOpsWidget";
+import { JumpTabs, type SectionTabItem } from "../shared/SectionTabs";
 import "./dashboard.css";
 
 type StatProps = { icon: string; title: string; value: string; note: string; color: string; onClick?: () => void };
@@ -190,8 +191,20 @@ export function DashboardPage({
       : "우리 반"
     : config?.teachingSubject || "담당 수업";
 
+  const jumpItems: SectionTabItem[] = [
+    { id: "dash-summary", label: "오늘 요약" },
+    { id: "dash-timetable", label: "시간표" },
+    { id: "dash-schedule", label: "일정" },
+    { id: "dash-memo", label: "메모 · 할 일" },
+    { id: "dash-budget", label: "예산" },
+    ...(isHomeroomTeacher ? [{ id: "dash-classops", label: "학급 운영" }, { id: "dash-today", label: "할 일 · 확인할 학생" }] : []),
+    { id: "dash-quick", label: "자주 쓰는 업무" },
+  ];
+
   return (
     <>
+      <JumpTabs items={jumpItems} label="대시보드 바로가기" />
+      <div id="dash-summary" className="jump-section">
       <section className="hero">
         <div>
           <p className="eyebrow">{greeting(now.getHours())}</p>
@@ -226,19 +239,18 @@ export function DashboardPage({
           </>
         )}
       </section>
-      <DashboardTimetable today={today} isHomeroomTeacher={isHomeroomTeacher} navigate={navigate} />
-      <ScheduleWidget today={today} onOpen={() => navigate("일정")} />
-      <MemoWidgets today={today} onOpen={() => navigate("메모 · 할 일")} />
-      <BudgetWidget onOpen={() => navigate("예산 관리")} />
+      </div>
+      <div id="dash-timetable" className="jump-section"><DashboardTimetable today={today} isHomeroomTeacher={isHomeroomTeacher} navigate={navigate} /></div>
+      <div id="dash-schedule" className="jump-section"><ScheduleWidget today={today} onOpen={() => navigate("일정")} /></div>
+      <div id="dash-memo" className="jump-section"><MemoWidgets today={today} onOpen={() => navigate("메모 · 할 일")} /></div>
+      <div id="dash-budget" className="jump-section"><BudgetWidget onOpen={() => navigate("예산 관리")} /></div>
       {isHomeroomTeacher && (
-        <ClassOpsWidget
-          students={students}
-          onOpenSeating={() => navigate("자리배정")}
-          onOpenCleaning={() => navigate("청소배정")}
-        />
+        <div id="dash-classops" className="jump-section">
+          <ClassOpsWidget students={students} onOpenSeating={() => navigate("자리배정")} onOpenCleaning={() => navigate("청소배정")} />
+        </div>
       )}
       {isHomeroomTeacher && (
-        <section className="two-column">
+        <section id="dash-today" className="two-column jump-section">
           <div className="panel">
             <div className="panel-heading">
               <div>
@@ -292,7 +304,7 @@ export function DashboardPage({
           </div>
         </section>
       )}
-      <section className="panel quick-panel">
+      <section id="dash-quick" className="panel quick-panel jump-section">
         <div className="panel-heading">
           <div>
             <p className="eyebrow">바로 시작</p>

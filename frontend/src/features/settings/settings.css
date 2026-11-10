@@ -63,14 +63,11 @@
   max-width: none;
   box-sizing: border-box;
 }
-.settings-top-grid {
+.settings-tab-body {
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
   gap: 18px;
-  align-items: stretch;
 }
-.settings-primary-card,
-.settings-top-grid .theme-settings {
+.settings-primary-card {
   min-width: 0;
   box-sizing: border-box;
   padding: 24px;
@@ -80,10 +77,6 @@
 }
 .settings-primary-card h3 {
   margin-top: 0;
-}
-.settings-top-grid .theme-settings {
-  margin-top: 0;
-  padding-top: 24px;
 }
 .settings-academic-card {
   margin-top: 0;
@@ -184,9 +177,6 @@
   line-height: 1.6;
 }
 @media (max-width: 680px) {
-  .settings-top-grid {
-    grid-template-columns: 1fr;
-  }
   .term-grid,
   .term-grid fieldset {
     grid-template-columns: 1fr;
@@ -229,3 +219,16 @@
 .holiday-list li span { font-variant-numeric: tabular-nums; color: #6e5a4b; }
 .theme-classic .holiday-editor { border-color: #d6e6df; }
 .theme-classic .holiday-list li { background: #f5fbf8; }
+
+/* 환경 설정 탭(2026-11-10): 한 번에 한 카드, 저장 안내, 메뉴 보이기 목록 */
+.settings-save-hint { margin: 14px 0 0; }
+.menu-visibility { margin: 0; padding: 0; border: 0; min-width: 0; }
+.menu-visibility legend { display: grid; gap: 2px; padding: 0; margin-bottom: 6px; }
+.menu-visibility legend b { font-size: 17px; }
+.menu-visibility-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; margin-top: 12px; }
+.menu-visibility-list .inline-check { display: flex; align-items: center; gap: 8px; min-height: 42px; padding: 6px 12px; border: 1px solid #ead7c5; border-radius: 10px; background: #fff; cursor: pointer; }
+.menu-visibility-list .inline-check:has(input:not(:checked)) { color: #8b7a6c; background: #f8f3ee; }
+.menu-visibility-list small { margin-left: auto; color: #7c6b5d; font-size: 12px; }
+.theme-classic .menu-visibility-list .inline-check { border-color: #d3e7de; }
+.theme-classic .menu-visibility-list .inline-check:has(input:not(:checked)) { color: #5e756d; background: #f3f7f5; }
+.theme-classic .menu-visibility-list small { color: #5e756d; }

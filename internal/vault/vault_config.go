@@ -108,6 +108,7 @@ func normaliseConfig(config ClassConfig) ClassConfig {
 	if cleaned, ok := attendance.NormaliseHolidays(config.Holidays); ok {
 		config.Holidays = cleaned
 	}
+	config.HiddenMenus = normaliseHiddenMenus(config.HiddenMenus)
 	config.TermsVersion = strings.TrimSpace(config.TermsVersion)
 	config.TermsAcceptedAt = strings.TrimSpace(config.TermsAcceptedAt)
 	if config.AutoLockMinutes == 0 {
@@ -121,4 +122,25 @@ func normaliseConfig(config ClassConfig) ClassConfig {
 		config.ExperienceLearningUnit = "학년"
 	}
 	return config
+}
+
+// normaliseHiddenMenus는 숨긴 메뉴 이름을 다듬는다. 대시보드·환경 설정은 늘 보이고, 겹치거나 긴 이름은 뺀다.
+func normaliseHiddenMenus(menus []string) []string {
+	result := []string{}
+	seen := map[string]bool{}
+	for _, menu := range menus {
+		menu = strings.TrimSpace(menu)
+		if menu == "" || menu == "대시보드" || menu == "환경 설정" || seen[menu] || len([]rune(menu)) > 20 {
+			continue
+		}
+		seen[menu] = true
+		result = append(result, menu)
+		if len(result) == 30 {
+			break
+		}
+	}
+	if len(result) == 0 {
+		return nil
+	}
+	return result
 }

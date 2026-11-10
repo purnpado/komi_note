@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import kkomiIcon from "../../assets/images/kkomi-note-icon.png";
 import { main as models } from "../../../wailsjs/go/models";
-import { menuGroups, menus, type MenuGroup, type PageKey } from "./menuTypes";
+import { type MenuGroup, type PageKey } from "./menuTypes";
+import { groupOfPage, isGroupOpen, openGroupForPage, parseOpenGroup, toggleOpenGroup, visibleGroups, visibleMenus } from "./sidebarState";
 import "./sidebar.css";
 
 type SidebarProps = {
@@ -15,12 +16,15 @@ type SidebarProps = {
   onNavigate: (page: PageKey) => void;
 };
 
-const initialExpandedGroups: Record<MenuGroup, boolean> = {
-  오늘: true,
-  담임용: true,
-  수업용: true,
-  업무용: true,
-};
+const openGroupStorageKey = "kkomi.sidebar.openGroup";
+
+function readOpenGroup(): MenuGroup | null {
+  try {
+    return parseOpenGroup(localStorage.getItem(openGroupStorageKey));
+  } catch {
+    return null;
+  }
+}
 
 export function Sidebar({
   active,
@@ -33,28 +37,35 @@ export function Sidebar({
   onNavigate,
 }: SidebarProps) {
   const [classroomExpanded, setClassroomExpanded] = useState(true);
-  const [expandedGroups, setExpandedGroups] = useState(initialExpandedGroups);
-  const groups = menuGroups.filter(
-    (group) => group !== "담임용" || isHomeroomTeacher,
-  );
+  // 한 번에 한 묶음만 펼친다('오늘'은 늘 펼침). 지금 화면이 든 묶음은 저절로 펼치고, 마지막 상태를 기억한다.
+  const [openGroup, setOpenGroup] = useState<MenuGroup | null>(() => readOpenGroup() ?? groupOfPage(active));
+  const items = visibleMenus(isHomeroomTeacher, config?.hiddenMenus || []);
+  const groups = visibleGroups(items);
+
+  useEffect(() => {
+    setOpenGroup((current) => openGroupForPage(current, active));
+  }, [active]);
+
+  useEffect(() => {
+    try {
+      if (openGroup) localStorage.setItem(openGroupStorageKey, openGroup);
+      else localStorage.removeItem(openGroupStorageKey);
+    } catch {
+      // 펼친 묶음을 기억하지 못해도 지금 화면은 그대로 쓴다.
+    }
+  }, [openGroup]);
 
   function toggleGroup(group: MenuGroup) {
     if (collapsed) {
       onCollapsedChange(false);
-      setExpandedGroups((current) => ({ ...current, [group]: true }));
+      setOpenGroup((current) => (isGroupOpen(group, current) ? current : group));
       return;
     }
-    setExpandedGroups((current) => ({ ...current, [group]: !current[group] }));
+    setOpenGroup((current) => toggleOpenGroup(current, group));
   }
 
   function groupContainsActive(group: MenuGroup) {
-    return menus.some(
-      (item) =>
-        item.group === group &&
-        (item.key === active ||
-          (item.key === "학급 운영" &&
-            (active === "자리배정" || active === "청소배정"))),
-    );
+    return groupOfPage(active) === group;
   }
 
   return (
@@ -95,20 +106,16 @@ export function Sidebar({
               <button
                 type="button"
                 className={`menu-group-toggle ${groupContainsActive(group) ? "contains-active" : ""}`}
-                aria-expanded={!collapsed && expandedGroups[group]}
+                aria-expanded={!collapsed && isGroupOpen(group, openGroup)}
                 title={collapsed ? `${group} 메뉴 펼치기` : undefined}
                 onClick={() => toggleGroup(group)}
               >
                 <span>{group}</span>
-                <b>{expandedGroups[group] ? "⌃" : "⌄"}</b>
+                {group !== "오늘" && <b aria-hidden="true">{isGroupOpen(group, openGroup) ? "⌃" : "⌄"}</b>}
               </button>
-              {!collapsed && expandedGroups[group] &&
-                menus
-                  .filter(
-                    (menu) =>
-                      menu.group === group &&
-                      (isHomeroomTeacher || !menu.homeroomOnly),
-                  )
+              {!collapsed && isGroupOpen(group, openGroup) &&
+                items
+                  .filter((menu) => menu.group === group)
                   .map((menu) =>
                     menu.key === "학급 운영" ? (
                       <div className="classroom-menu" key={menu.key}>

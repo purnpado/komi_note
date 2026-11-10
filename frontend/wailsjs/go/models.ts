@@ -696,6 +696,7 @@ export namespace main {
 	    semester2EndDate: string;
 	    semester2ExperienceLimit: number;
 	    holidays?: { date: string; name: string }[];
+	    hiddenMenus?: string[];
 	    termsVersion: string;
 	    termsAcceptedAt: string;
 
@@ -725,6 +726,7 @@ export namespace main {
 	        this.semester2EndDate = source["semester2EndDate"];
 	        this.semester2ExperienceLimit = source["semester2ExperienceLimit"];
 	        this.holidays = source["holidays"];
+	        this.hiddenMenus = source["hiddenMenus"];
 	        this.termsVersion = source["termsVersion"];
 	        this.termsAcceptedAt = source["termsAcceptedAt"];
 	    }

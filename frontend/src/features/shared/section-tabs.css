@@ -1,0 +1,22 @@
+/* 화면 위 탭(환경 설정 진짜 탭·대시보드 바로가기 탭) 공용 모양. 설문 조사 대상 구분 탭과 같은 막대 모양. */
+.section-tabs { display: flex; gap: 6px; margin: 0 0 18px; padding: 6px; overflow-x: auto; border: 1px solid #ecd7c1; border-radius: 13px; background: #fffdf9; scrollbar-width: thin; }
+.section-tabs button { flex: 1 0 auto; min-height: 40px; padding: 8px 14px; border: 0; border-radius: 9px; color: #785c47; background: transparent; font: inherit; font-size: 14px; font-weight: 800; white-space: nowrap; cursor: pointer; }
+.section-tabs button:hover { color: #8a481f; background: #fff1de; }
+.section-tabs button.active { color: #8a481f; background: #ffe6c7; box-shadow: 0 3px 8px #8f552018; }
+.section-tabs button:focus-visible { outline: 3px solid #f0a35e; outline-offset: 1px; }
+
+/* 바로가기 탭은 스크롤해도 제목 표시줄(34px) 바로 아래에 붙어 있다. */
+/* 위쪽 8px 틈은 화면 바탕색 그림자로 덮어 아래 내용이 비치지 않게 한다. */
+.jump-tabs { position: sticky; top: 42px; z-index: 20; box-shadow: 0 -9px 0 1px var(--kkomi-cream, #fffaf3), 0 6px 16px #6b452f14; }
+.jump-section { scroll-margin-top: 110px; }
+
+.theme-classic .section-tabs { border-color: #d2e6dd; background: #fff; }
+.theme-classic .section-tabs button { color: #48675d; }
+.theme-classic .section-tabs button:hover { color: #17664f; background: #eef8f4; }
+.theme-classic .section-tabs button.active { color: #17664f; background: #ddf3e9; }
+.theme-classic .section-tabs button:focus-visible { outline-color: #2b806a; }
+.theme-classic .jump-tabs { box-shadow: 0 -9px 0 1px #f4f6f9, 0 6px 16px #1e574512; }
+
+@media (max-width: 680px) {
+  .section-tabs button { flex: 0 0 auto; padding: 8px 12px; }
+}

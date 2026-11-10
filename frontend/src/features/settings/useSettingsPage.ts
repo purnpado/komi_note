@@ -100,7 +100,7 @@ export function useSettingsPage({
     setBusy(true);
     try {
       await saveConfig(draft);
-      setNotice("학사 일정과 교외체험학습 기준을 암호화 보관함에 저장했습니다.");
+      setNotice("환경 설정을 암호화 보관함에 저장했습니다.");
     } catch (error) {
       setNotice(errorMessage(error));
     } finally {

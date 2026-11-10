@@ -41,9 +41,11 @@ type ClassConfig struct {
 	Semester2EndDate            string   `json:"semester2EndDate"`
 	Semester2ExperienceLimit    int      `json:"semester2ExperienceLimit"`
 	// Holidays는 학사 일정의 공휴일·학교 휴업일(2026-11-10). 출결 입력을 막고 결석일수에서 뺀다.
-	Holidays        []SchoolHoliday `json:"holidays,omitempty"`
-	TermsVersion    string          `json:"termsVersion"`
-	TermsAcceptedAt string          `json:"termsAcceptedAt"`
+	Holidays []SchoolHoliday `json:"holidays,omitempty"`
+	// HiddenMenus는 왼쪽 메뉴에서 숨긴 메뉴 이름(2026-11-10, 환경 설정 '화면·메뉴'). 대시보드·환경 설정은 숨길 수 없다.
+	HiddenMenus     []string `json:"hiddenMenus,omitempty"`
+	TermsVersion    string   `json:"termsVersion"`
+	TermsAcceptedAt string   `json:"termsAcceptedAt"`
 }
 
 // SetupRequest는 최초 설정에 필요한 값입니다.

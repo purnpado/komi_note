@@ -1,4 +1,3 @@
-import { isClassicTheme } from "./useSettingsPage";
 import type { SettingsPageView } from "./useSettingsPage";
 import { HolidayEditor } from "./HolidayEditor";
 
@@ -138,53 +137,6 @@ export function SettingsAcademicCard({ view: hookView }: { view: SettingsPageVie
           holidays={draft.holidays || []}
           onChange={(holidays) => update({ holidays })}
         />
-        <div className="settings-theme-divider" />
-        <div className="theme-settings">
-          <div>
-            <p className="eyebrow">화면 모양</p>
-            <h3>테마 선택</h3>
-            <p>
-              선택하면 바로 미리보기로 적용되며, 설정 저장 후에도
-              유지됩니다.
-            </p>
-          </div>
-          <div className="theme-choice-list">
-            <button
-              type="button"
-              className={
-                !isClassicTheme(draft.theme)
-                  ? "theme-choice selected cheese-choice"
-                  : "theme-choice cheese-choice"
-              }
-              onClick={() => update({ theme: "치즈냥" })}
-            >
-              <span className="theme-choice-preview" aria-hidden="true">
-                <i />
-                <i />
-                <i />
-              </span>
-              <strong>치즈냥 테마</strong>
-              <small>크림 배경과 꼬미의 따뜻한 오렌지 색상</small>
-            </button>
-            <button
-              type="button"
-              className={
-                isClassicTheme(draft.theme)
-                  ? "theme-choice selected classic-choice"
-                  : "theme-choice classic-choice"
-              }
-              onClick={() => update({ theme: "초록" })}
-            >
-              <span className="theme-choice-preview" aria-hidden="true">
-                <i />
-                <i />
-                <i />
-              </span>
-              <strong>초록 테마</strong>
-              <small>차분한 초록 계열의 업무 화면</small>
-            </button>
-          </div>
-        </div>
       </div>
     </>
   );
