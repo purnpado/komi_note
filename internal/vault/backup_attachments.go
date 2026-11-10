@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"TeacherNote/internal/survey"
 )
 
 // 암호화 백업에 학생 사진·영수증 사진을 함께 넣는다.
@@ -17,7 +19,7 @@ type backupFile struct {
 	Attachments map[string]encryptedBlob `json:"attachments,omitempty"`
 }
 
-var attachmentName = regexp.MustCompile(`^(photos/[0-9a-zA-Z_-]+\.photo|receipts/[0-9a-f]+\.receipt|attendance-templates/[0-9a-zA-Z_-]+\.template)$`)
+var attachmentName = regexp.MustCompile(`^(photos/[0-9a-zA-Z_-]+\.photo|receipts/[0-9a-f]+\.receipt|attendance-templates/[0-9a-zA-Z_-]+\.template|survey-images/[0-9a-f]{32}\.image)$`)
 
 // collectAttachmentsLocked는 보관함 자료가 가리키는 사진·영수증 암호문을 모은다(파일이 없으면 건너뜀).
 func (s *VaultStore) collectAttachmentsLocked() map[string]encryptedBlob {
@@ -36,6 +38,12 @@ func (s *VaultStore) collectAttachmentsLocked() map[string]encryptedBlob {
 	// 출결 서식 파일(2026-11-10 점검: 예전에는 백업에 빠져 새 PC에서 서류를 만들 수 없었다)
 	for _, template := range s.session.AttendanceTemplates {
 		add("attendance-templates/"+template.ID+".template", s.attendanceTemplatePath(template.ID))
+	}
+	// 설문 문항 그림·보기 그림
+	for _, item := range s.session.Surveys {
+		for _, id := range survey.ImageIDs(item.Questions) {
+			add("survey-images/"+id+".image", s.surveyImagePath(id))
+		}
 	}
 	if s.session.Budget != nil {
 		for _, entry := range s.session.Budget.Entries {

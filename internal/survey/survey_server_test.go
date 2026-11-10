@@ -41,6 +41,9 @@ func (f *fakeStore) SubmitSurvey(id, studentID, name string, answers map[string]
 	return nil
 }
 func (f *fakeStore) SurveyParticipants(string) ([]Participant, error) { return f.participants, nil }
+func (f *fakeStore) GetSurveyImage(id string) (string, []byte, error) {
+	return "image/png", []byte("그림-" + id), nil
+}
 
 type phone struct {
 	t      *testing.T

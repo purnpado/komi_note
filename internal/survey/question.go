@@ -3,6 +3,7 @@ package survey
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -33,7 +34,38 @@ const (
 	maxLongAnswer     = 2000
 	maxOtherAnswer    = 100
 	defaultScaleSteps = 5
+	// MaxImages는 설문 하나에 넣을 수 있는 그림(문항 그림+보기 그림) 수다.
+	MaxImages = 20
 )
+
+var imageIDPattern = regexp.MustCompile(`^[0-9a-f]{32}$`)
+
+// ValidImageID는 그림 번호 모양이 맞는지 알려 준다(파일 경로에 쓰이므로 꼭 확인).
+func ValidImageID(id string) bool { return imageIDPattern.MatchString(id) }
+
+// OptionImagesAllowed는 보기마다 그림을 붙일 수 있는 유형인지 알려 준다(목록·척도는 그림을 보일 자리가 없음).
+func OptionImagesAllowed(questionType string) bool {
+	return questionType == TypeSingle || questionType == TypeMulti
+}
+
+// ImageIDs는 설문 문항들이 쓰는 그림 번호를 겹치지 않게 모은다.
+func ImageIDs(questions []SurveyQuestion) []string {
+	seen := map[string]bool{}
+	result := []string{}
+	add := func(id string) {
+		if id != "" && !seen[id] {
+			seen[id] = true
+			result = append(result, id)
+		}
+	}
+	for _, question := range questions {
+		add(question.ImageID)
+		for _, id := range question.OptionImages {
+			add(id)
+		}
+	}
+	return result
+}
 
 var legacyScaleOptions = []string{"1점 매우 아쉬움", "2점 아쉬움", "3점 보통", "4점 만족", "5점 매우 만족"}
 
@@ -73,6 +105,7 @@ func NormalizeQuestions(questions []SurveyQuestion, newID func() string) ([]Surv
 	}
 	result := make([]SurveyQuestion, 0, len(questions))
 	seen := map[string]bool{}
+	images := 0
 	for index, question := range questions {
 		label := fmt.Sprintf("%d번 문항", index+1)
 		question.Text = strings.TrimSpace(question.Text)
@@ -92,8 +125,19 @@ func NormalizeQuestions(questions []SurveyQuestion, newID func() string) ([]Surv
 		if tooLong(question.Description, maxDescription) {
 			return nil, fmt.Errorf("%s의 설명은 %d자까지 쓸 수 있습니다", label, maxDescription)
 		}
+		question.ImageID = strings.TrimSpace(question.ImageID)
+		if question.ImageID != "" && !ValidImageID(question.ImageID) {
+			return nil, fmt.Errorf("%s의 그림을 다시 넣어 주세요", label)
+		}
 		if err := normalizeOptions(&question, label); err != nil {
 			return nil, err
+		}
+		images += boolInt(question.ImageID != "")
+		for _, id := range question.OptionImages {
+			images += boolInt(id != "")
+		}
+		if images > MaxImages {
+			return nil, fmt.Errorf("그림은 설문 하나에 %d장까지 넣을 수 있습니다", MaxImages)
 		}
 		if question.ID == "" || seen[question.ID] {
 			question.ID = newID()
@@ -109,7 +153,11 @@ func normalizeOptions(question *SurveyQuestion, label string) error {
 		question.Options = []string{}
 		question.AllowOther, question.MaxChoices, question.ScaleSteps = false, 0, 0
 		question.ScaleMinLabel, question.ScaleMaxLabel = "", ""
+		question.OptionImages = nil
 		return nil
+	}
+	if !OptionImagesAllowed(question.Type) {
+		question.OptionImages = nil
 	}
 	switch question.Type {
 	case TypeScale:
@@ -130,11 +178,23 @@ func normalizeOptions(question *SurveyQuestion, label string) error {
 		}
 	}
 	options := make([]string, 0, len(question.Options))
+	optionImages := make([]string, 0, len(question.Options))
+	hasOptionImage := false
 	seen := map[string]bool{}
-	for _, option := range question.Options {
+	for index, option := range question.Options {
 		text := strings.TrimSpace(option)
+		image := ""
+		if index < len(question.OptionImages) {
+			image = strings.TrimSpace(question.OptionImages[index])
+		}
 		if text == "" {
+			if image != "" {
+				return fmt.Errorf("%s의 그림을 넣은 보기에 글(예: 1번 그림)도 써 주세요", label)
+			}
 			continue
+		}
+		if image != "" && !ValidImageID(image) {
+			return fmt.Errorf("%s의 보기 그림을 다시 넣어 주세요", label)
 		}
 		if tooLong(text, maxOptionText) {
 			return fmt.Errorf("%s의 보기는 %d자까지 쓸 수 있습니다", label, maxOptionText)
@@ -147,6 +207,8 @@ func normalizeOptions(question *SurveyQuestion, label string) error {
 		}
 		seen[text] = true
 		options = append(options, text)
+		optionImages = append(optionImages, image)
+		hasOptionImage = hasOptionImage || image != ""
 	}
 	if len(options) > maxOptions {
 		return fmt.Errorf("%s의 보기는 %d개까지 만들 수 있습니다", label, maxOptions)
@@ -159,6 +221,10 @@ func normalizeOptions(question *SurveyQuestion, label string) error {
 		return fmt.Errorf("%s에는 보기가 두 개 이상 필요합니다", label)
 	}
 	question.Options = options
+	question.OptionImages = nil
+	if hasOptionImage {
+		question.OptionImages = optionImages
+	}
 	question.ScaleSteps, question.ScaleMinLabel, question.ScaleMaxLabel = 0, "", ""
 	if question.Type != TypeMulti {
 		question.MaxChoices = 0

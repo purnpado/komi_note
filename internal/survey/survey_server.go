@@ -159,6 +159,7 @@ func (s *SurveyServer) Start(surveyID string) (SurveySessionInfo, error) {
 	mux.HandleFunc("/api/"+session.token+"/qr", s.qrAPI(session))
 	mux.HandleFunc("/api/"+session.token+"/login", s.loginAPI(session))
 	mux.HandleFunc("/api/"+session.token+"/answer", s.answerAPI(session))
+	mux.HandleFunc("/api/"+session.token+"/image/", s.imageAPI(session))
 	session.server = &http.Server{Handler: system.SecurityHeaders(mux), ReadHeaderTimeout: 5 * time.Second}
 	s.sessions[surveyID] = session
 	if err := s.store.SetSurveyStatus(surveyID, "참여 대기"); err != nil {

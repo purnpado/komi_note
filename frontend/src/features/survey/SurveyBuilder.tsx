@@ -8,6 +8,7 @@ import { QuestionCard } from "./QuestionCard";
 import { SurveyPreview } from "./SurveyPreview";
 import { type BuilderQuestion, type QuestionType, builderProblems, duplicateQuestion, fromSavedQuestion, moveItem, newQuestion, questionTypes, toSavedQuestion } from "./surveyBuilderState";
 import { type SurveyScope, surveyTemplates } from "./surveyTemplates";
+import { MAX_SURVEY_IMAGES, countImages } from "./surveyMediaState";
 import type { SurveyItem } from "./surveyTypes";
 import "./survey-builder.css";
 
@@ -155,6 +156,8 @@ export function SurveyBuilder({ scope, audience, editing, copyFrom, rosters, hom
               locked={busy}
               dragOver={overIndex === index && dragIndex !== null && dragIndex !== index}
               onChange={(next) => setQuestions((list) => list.map((item) => (item.key === question.key ? next : item)))}
+              onUpdate={(update) => setQuestions((list) => list.map((item) => (item.key === question.key ? update(item) : item)))}
+              imagesLeft={MAX_SURVEY_IMAGES - countImages(questions)}
               onMove={(to) => setQuestions((list) => moveItem(list, index, to))}
               onDuplicate={() => setQuestions((list) => duplicateQuestion(list, index, makeKey()))}
               onDelete={() => setDeleteIndex(index)}

@@ -1,5 +1,7 @@
 // 설문 빌더의 순수 계산: 문항 카드 만들기·바꾸기·옮기기·검사, 결과 집계. 화면·Wails 호출은 여기 두지 않는다.
 
+import { MAX_SURVEY_IMAGES, alignedImages, countImages, optionImagesAllowed, savedOptions } from "./surveyMediaState.ts";
+
 export type QuestionType = "단일 선택" | "복수 선택" | "목록 선택" | "단답" | "서술" | "척도" | "5점 척도";
 
 export const questionTypes: { type: QuestionType; label: string; icon: string; hint: string }[] = [
@@ -31,11 +33,15 @@ export type BuilderQuestion = {
   scaleSteps: number;
   scaleMinLabel: string;
   scaleMaxLabel: string;
+  /** 문항 그림 번호(없으면 ""), 보기 그림 번호(보기와 같은 순서). */
+  imageId: string;
+  optionImages: string[];
 };
 
 export type SavedQuestion = {
   id?: string; text: string; type?: string; options?: string[]; description?: string; optional?: boolean;
   allowOther?: boolean; maxChoices?: number; scaleSteps?: number; scaleMinLabel?: string; scaleMaxLabel?: string;
+  imageId?: string; optionImages?: string[];
 };
 
 export const isChoice = (type: string) => ["단일 선택", "복수 선택", "목록 선택", "척도", "5점 척도"].includes(type);
@@ -51,6 +57,7 @@ export function newQuestion(type: QuestionType, key: string): BuilderQuestion {
     key, text: "", type, description: "", optional: false, allowOther: false, maxChoices: 0,
     options: hasOptionList(type) ? ["보기 1", "보기 2"] : [],
     scaleSteps: type === "척도" ? 5 : 0, scaleMinLabel: type === "척도" ? "전혀 아니다" : "", scaleMaxLabel: type === "척도" ? "매우 그렇다" : "",
+    imageId: "", optionImages: [],
   };
 }
 
@@ -62,6 +69,8 @@ export function changeType(question: BuilderQuestion, type: QuestionType): Build
   } else {
     next.options = [];
   }
+  // 보기를 그대로 두는 그림 가능 유형끼리만 보기 그림을 지킨다(목록·척도·글 답으로 바꾸면 비움).
+  next.optionImages = optionImagesAllowed(type) && hasOptionList(question.type) && question.options.length ? alignedImages(next.options, question.optionImages) : [];
   if (type !== "복수 선택") next.maxChoices = 0;
   if (!hasOptionList(type) || type === "5점 척도") next.allowOther = false;
   if (type === "척도") {
@@ -85,7 +94,7 @@ export function moveItem<T>(list: T[], from: number, to: number): T[] {
 export function duplicateQuestion(list: BuilderQuestion[], index: number, key: string): BuilderQuestion[] {
   const source = list[index];
   if (!source) return list;
-  const copy: BuilderQuestion = { ...source, key, id: undefined, options: [...source.options], text: source.text ? `${source.text} (복사)` : "" };
+  const copy: BuilderQuestion = { ...source, key, id: undefined, options: [...source.options], optionImages: [...source.optionImages], text: source.text ? `${source.text} (복사)` : "" };
   return [...list.slice(0, index + 1), copy, ...list.slice(index + 1)];
 }
 
@@ -97,14 +106,18 @@ export function fromSavedQuestion(question: SavedQuestion, key: string): Builder
     options: type === "척도" ? [] : [...(question.options || [])],
     scaleSteps: type === "척도" ? (question.scaleSteps === 10 ? 10 : 5) : 0,
     scaleMinLabel: question.scaleMinLabel || "", scaleMaxLabel: question.scaleMaxLabel || "",
+    imageId: question.imageId || "",
+    optionImages: optionImagesAllowed(type) ? alignedImages(question.options || [], question.optionImages || undefined) : [],
   };
 }
 
 export function toSavedQuestion(question: BuilderQuestion): SavedQuestion {
+  const kept = savedOptions(question.type, question.options, question.optionImages);
   return {
     id: question.id, text: question.text.trim(), type: question.type, description: question.description.trim(),
     optional: question.optional, allowOther: question.allowOther, maxChoices: question.maxChoices,
-    options: question.type === "척도" ? scaleOptions(question.scaleSteps) : question.options.map((option) => option.trim()).filter(Boolean),
+    imageId: question.imageId || "", optionImages: question.type === "척도" ? [] : kept.optionImages,
+    options: question.type === "척도" ? scaleOptions(question.scaleSteps) : kept.options,
     scaleSteps: question.scaleSteps, scaleMinLabel: question.scaleMinLabel.trim(), scaleMaxLabel: question.scaleMaxLabel.trim(),
   };
 }
@@ -123,8 +136,11 @@ export function builderProblems(title: string, questions: BuilderQuestion[]): st
       if (options.length < minimum) problems.push(`${label}에 보기를 두 개 이상 적어 주세요.`);
       if (new Set(options).size !== options.length) problems.push(`${label}에 같은 보기가 있습니다.`);
       if (options.some((option) => option.startsWith("기타:"))) problems.push(`${label}의 보기는 '기타:'로 시작할 수 없습니다. '기타(직접 입력)'를 켜 주세요.`);
+      const images = alignedImages(question.options, question.optionImages);
+      if (optionImagesAllowed(question.type) && question.options.some((option, i) => !option.trim() && images[i])) problems.push(`${label}의 그림을 넣은 보기에 글(예: 1번 그림)도 써 주세요.`);
     }
   });
+  if (countImages(questions) > MAX_SURVEY_IMAGES) problems.push(`그림은 설문 하나에 ${MAX_SURVEY_IMAGES}장까지 넣을 수 있습니다.`);
   return problems;
 }
 

@@ -427,6 +427,13 @@ export function GetStudentStats(baseDate: string): $CancellablePromise<$models.S
 }
 
 /**
+ * GetSurveyImage는 설문 그림을 교사 화면에서 보일 data URL로 돌려줍니다.
+ */
+export function GetSurveyImage(imageID: string): $CancellablePromise<string> {
+    return $Call.ByID(346573642, imageID);
+}
+
+/**
  * GetSurveySessionInfo는 현재 교실 참여 세션의 접속 주소와 현황을 반환합니다.
  */
 export function GetSurveySessionInfo(surveyID: string): $CancellablePromise<$models.SurveySessionInfo> {
@@ -917,6 +924,13 @@ export function SaveSubmissionStatus(documentID: string, studentID: string, stat
  */
 export function SaveSurvey(item: $models.Survey): $CancellablePromise<$models.Survey> {
     return $Call.ByID(256636678, item);
+}
+
+/**
+ * SaveSurveyImage는 설문 문항·보기에 넣을 그림을 암호화 보관함 폴더에 저장하고 그림 번호를 돌려줍니다.
+ */
+export function SaveSurveyImage(dataURL: string): $CancellablePromise<string> {
+    return $Call.ByID(649363339, dataURL);
 }
 
 /**

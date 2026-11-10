@@ -7,6 +7,8 @@ type Store interface {
 	SubmitSurvey(id, studentID, respondentName string, answers map[string]string, multiAnswers map[string][]string) error
 	// SurveyParticipants는 학생 설문의 참여 대상(담임 반 또는 고른 수업 반)을 돌려준다.
 	SurveyParticipants(id string) ([]Participant, error)
+	// GetSurveyImage는 문항 그림·보기 그림의 종류(MIME)와 내용을 돌려준다.
+	GetSurveyImage(id string) (string, []byte, error)
 }
 
 // Participant는 설문 참여 대상 학생 한 명이다. ID는 담임 반이면 학생 ID, 수업 반이면 "course|명렬ID|번호|이름"이다.
@@ -57,6 +59,9 @@ type SurveyQuestion struct {
 	ScaleSteps    int      `json:"scaleSteps,omitempty"`
 	ScaleMinLabel string   `json:"scaleMinLabel,omitempty"`
 	ScaleMaxLabel string   `json:"scaleMaxLabel,omitempty"`
+	// ImageID는 문항 그림(교사 보관함의 암호화 파일 번호), OptionImages는 보기와 같은 순서의 보기 그림(없으면 "").
+	ImageID      string   `json:"imageId,omitempty"`
+	OptionImages []string `json:"optionImages,omitempty"`
 }
 
 // SurveyResponse는 교사용 암호화 보관함에서만 학생별 응답을 확인할 수 있도록 보관합니다.

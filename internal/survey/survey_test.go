@@ -48,4 +48,3 @@ func TestSurveyJSONSerialization(t *testing.T) {
 		t.Fatalf("응답 답변 불일치: %v", parsed.Responses[0].Answers)
 	}
 }
-

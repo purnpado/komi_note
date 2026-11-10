@@ -101,6 +101,9 @@ func (s *VaultStore) SaveSurvey(item Survey) (Survey, error) {
 		return Survey{}, err
 	}
 	item.Questions = questions
+	if err := s.missingSurveyImagesLocked(questions); err != nil {
+		return Survey{}, err
+	}
 	if item.ExpectedParticipants < 0 {
 		return Survey{}, errors.New("참여 대상 인원은 0명 이상으로 입력해 주세요")
 	}
@@ -121,14 +124,23 @@ func (s *VaultStore) SaveSurvey(item Survey) (Survey, error) {
 			if s.session.Surveys[index].Status == "진행 중" {
 				item.Status = "진행 중"
 			}
+			dropped := droppedImages(s.session.Surveys[index].Questions, item.Questions)
 			s.session.Surveys[index] = item
 			s.session.UpdatedAt = time.Now().UTC()
-			return item, s.writeCurrentVaultLocked()
+			if err := s.writeCurrentVaultLocked(); err != nil {
+				return item, err
+			}
+			s.cleanupSurveyImagesLocked(dropped)
+			return item, nil
 		}
 	}
 	s.session.Surveys = append(s.session.Surveys, item)
 	s.session.UpdatedAt = time.Now().UTC()
-	return item, s.writeCurrentVaultLocked()
+	if err := s.writeCurrentVaultLocked(); err != nil {
+		return item, err
+	}
+	s.cleanupSurveyImagesLocked(nil)
+	return item, nil
 }
 
 // DeleteSurvey는 확인 문구를 받은 뒤 설문과 암호화된 응답을 함께 삭제합니다.
@@ -150,7 +162,11 @@ func (s *VaultStore) DeleteSurvey(id, confirmation string) error {
 		}
 		s.session.Surveys = append(s.session.Surveys[:index], s.session.Surveys[index+1:]...)
 		s.session.UpdatedAt = time.Now().UTC()
-		return s.writeCurrentVaultLocked()
+		if err := s.writeCurrentVaultLocked(); err != nil {
+			return err
+		}
+		s.cleanupSurveyImagesLocked(survey.ImageIDs(item.Questions))
+		return nil
 	}
 	return errors.New("설문을 찾지 못했습니다")
 }

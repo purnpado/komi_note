@@ -49,7 +49,7 @@ func (s *SurveyServer) boardPage(session *surveySession) http.HandlerFunc {
 func publicQuestions(questions []SurveyQuestion) []map[string]any {
 	result := make([]map[string]any, 0, len(questions))
 	for _, q := range questions {
-		result = append(result, map[string]any{"id": q.ID, "text": q.Text, "type": q.Type, "options": q.Options, "description": q.Description, "optional": q.Optional, "allowOther": q.AllowOther, "maxChoices": q.MaxChoices, "scaleMinLabel": q.ScaleMinLabel, "scaleMaxLabel": q.ScaleMaxLabel})
+		result = append(result, map[string]any{"id": q.ID, "text": q.Text, "type": q.Type, "options": q.Options, "description": q.Description, "optional": q.Optional, "allowOther": q.AllowOther, "maxChoices": q.MaxChoices, "scaleMinLabel": q.ScaleMinLabel, "scaleMaxLabel": q.ScaleMaxLabel, "imageId": q.ImageID, "optionImages": q.OptionImages})
 	}
 	return result
 }
@@ -59,7 +59,7 @@ func publicResults(item Survey) []map[string]any {
 	result := []map[string]any{}
 	for _, q := range item.Questions {
 		if !IsChoice(q.Type) {
-			result = append(result, map[string]any{"id": q.ID, "text": q.Text, "type": q.Type, "textOnly": true})
+			result = append(result, map[string]any{"id": q.ID, "text": q.Text, "type": q.Type, "textOnly": true, "imageId": q.ImageID})
 			continue
 		}
 		counts := ChoiceCounts(q, item.Responses)
@@ -67,7 +67,14 @@ func publicResults(item Survey) []map[string]any {
 		if q.AllowOther {
 			options = append(options, "기타")
 		}
-		row := map[string]any{"id": q.ID, "text": q.Text, "type": q.Type, "options": options, "counts": counts}
+		row := map[string]any{"id": q.ID, "text": q.Text, "type": q.Type, "options": options, "counts": counts, "imageId": q.ImageID}
+		if len(q.OptionImages) > 0 {
+			images := append([]string{}, q.OptionImages...)
+			if q.AllowOther {
+				images = append(images, "")
+			}
+			row["optionImages"] = images
+		}
 		if q.Type == TypeScale {
 			sum, n := 0, 0
 			for index, option := range q.Options {

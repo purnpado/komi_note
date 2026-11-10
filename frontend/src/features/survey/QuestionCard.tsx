@@ -1,6 +1,8 @@
-import { KeyboardEvent, useRef } from "react";
+import { KeyboardEvent, useRef, useState } from "react";
 import { HelpTip } from "../shared/HelpTip";
-import { type BuilderQuestion, type QuestionType, changeType, legacyScaleLabel, moveItem, questionTypes, scaleOptions } from "./surveyBuilderState";
+import { ImagePickButton, SurveyImage } from "./QuestionMedia";
+import { type BuilderQuestion, type QuestionType, changeType, legacyScaleLabel, questionTypes, scaleOptions } from "./surveyBuilderState";
+import { addOptionAt, alignedImages, imagePrivacyNote, moveOptionAt, optionImagesAllowed, removeOptionAt, setOptionImage } from "./surveyMediaState";
 
 type Props = {
   question: BuilderQuestion;
@@ -9,6 +11,9 @@ type Props = {
   locked: boolean;
   dragOver: boolean;
   onChange: (next: BuilderQuestion) => void;
+  /** 그림 올리기처럼 기다린 뒤 바꿀 때: 그 순간의 문항을 받아 고친다. */
+  onUpdate: (update: (current: BuilderQuestion) => BuilderQuestion) => void;
+  imagesLeft: number;
   onMove: (to: number) => void;
   onDuplicate: () => void;
   onDelete: () => void;
@@ -19,23 +24,24 @@ type Props = {
 
 const optionMark = (type: QuestionType, index: number) => (type === "복수 선택" ? "☐" : type === "목록 선택" ? `${index + 1}.` : "○");
 
-export function QuestionCard({ question, index, total, locked, dragOver, onChange, onMove, onDuplicate, onDelete, onDragStart, onDragEnter, onDragEnd }: Props) {
+export function QuestionCard({ question, index, total, locked, dragOver, onChange, onUpdate, imagesLeft, onMove, onDuplicate, onDelete, onDragStart, onDragEnter, onDragEnd }: Props) {
   const optionRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [imageNotice, setImageNotice] = useState("");
   const set = (patch: Partial<BuilderQuestion>) => onChange({ ...question, ...patch });
   const hasOptions = ["단일 선택", "복수 선택", "목록 선택", "5점 척도"].includes(question.type);
   const optionCount = question.options.length + (question.allowOther ? 1 : 0);
+  const withImages = optionImagesAllowed(question.type);
+  const images = alignedImages(question.options, question.optionImages);
 
   function setOption(position: number, value: string) {
     set({ options: question.options.map((option, i) => (i === position ? value : option)) });
   }
   function addOption(after = question.options.length - 1) {
-    const options = [...question.options];
-    options.splice(after + 1, 0, `보기 ${question.options.length + 1}`);
-    set({ options });
+    set(addOptionAt(question, after, `보기 ${question.options.length + 1}`));
     window.setTimeout(() => optionRefs.current[after + 1]?.select(), 0);
   }
   function removeOption(position: number) {
-    set({ options: question.options.filter((_, i) => i !== position) });
+    set(removeOptionAt(question, position));
   }
   function optionKey(event: KeyboardEvent<HTMLInputElement>, position: number) {
     if (event.key === "Enter") {
@@ -48,7 +54,7 @@ export function QuestionCard({ question, index, total, locked, dragOver, onChang
     } else if (event.altKey && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
       event.preventDefault();
       const to = position + (event.key === "ArrowUp" ? -1 : 1);
-      set({ options: moveItem(question.options, position, to) });
+      set(moveOptionAt(question, position, to));
       window.setTimeout(() => optionRefs.current[to]?.focus(), 0);
     }
   }
@@ -86,11 +92,23 @@ export function QuestionCard({ question, index, total, locked, dragOver, onChang
       </header>
       <input className="question-text" value={question.text} disabled={locked} maxLength={200} placeholder="질문을 입력해 주세요" aria-label={`${index + 1}번 질문`} onChange={(event) => set({ text: event.target.value })} />
       <textarea className="question-description" rows={1} value={question.description} disabled={locked} maxLength={500} placeholder="설명(선택) — 학생에게 보일 도움말" aria-label={`${index + 1}번 설명`} onChange={(event) => set({ description: event.target.value })} />
+      <div className="question-image-row">
+        {question.imageId ? (
+          <>
+            <SurveyImage imageId={question.imageId} alt={`${index + 1}번 문항 그림`} className="question-image" />
+            <button type="button" className="quiet-button danger-text" disabled={locked} onClick={() => set({ imageId: "" })}>그림 빼기</button>
+          </>
+        ) : (
+          <ImagePickButton label="＋ 문항 그림 넣기" ariaLabel={`${index + 1}번 문항 그림 넣기`} disabled={locked} imagesLeft={imagesLeft} onNotice={setImageNotice} onPicked={(imageId) => onUpdate((current) => ({ ...current, imageId }))} />
+        )}
+        {imageNotice && <p className="form-notice" role="alert">{imageNotice}</p>}
+        <HelpTip>{`${imagePrivacyNote} 고른 그림은 휴대폰에서 빨리 열리게 자동으로 줄여 저장합니다.${withImages ? " 보기마다 그림을 붙이면 '그림 보고 고르기' 문항이 됩니다." : ""}`}</HelpTip>
+      </div>
 
       {hasOptions && (
         <div className="question-options">
           {question.options.map((option, position) => (
-            <div className="question-option" key={position}>
+            <div className={`question-option${withImages ? " with-image" : ""}`} key={position}>
               <span className="option-mark" aria-hidden="true">{optionMark(question.type, position)}</span>
               <input
                 ref={(node) => { optionRefs.current[position] = node; }}
@@ -101,6 +119,14 @@ export function QuestionCard({ question, index, total, locked, dragOver, onChang
                 onChange={(event) => setOption(position, event.target.value)}
                 onKeyDown={(event) => optionKey(event, position)}
               />
+              {withImages && (images[position] ? (
+                <span className="option-image">
+                  <SurveyImage imageId={images[position]} alt={`보기 ${position + 1} 그림`} />
+                  <button type="button" className="icon-button" disabled={locked} onClick={() => set(setOptionImage(question, position, ""))} aria-label={`보기 ${position + 1} 그림 빼기`}>⊖</button>
+                </span>
+              ) : (
+                <ImagePickButton label="그림" ariaLabel={`보기 ${position + 1}에 그림 넣기`} className="quiet-button option-image-pick" disabled={locked} imagesLeft={imagesLeft} onNotice={setImageNotice} onPicked={(imageId) => onUpdate((current) => ({ ...current, ...setOptionImage(current, position, imageId) }))} />
+              ))}
               <button type="button" className="icon-button" disabled={locked || question.options.length <= 1} onClick={() => removeOption(position)} aria-label={`보기 ${position + 1} 지우기`}>×</button>
             </div>
           ))}

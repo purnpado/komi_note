@@ -60,3 +60,13 @@ func (a *App) SetSurveyResultsPublic(surveyID string, enabled bool) (SurveySessi
 func (a *App) GetSurveySessionInfo(surveyID string) (SurveySessionInfo, error) {
 	return a.survey.Info(surveyID)
 }
+
+// SaveSurveyImage는 설문 문항·보기에 넣을 그림을 암호화 보관함 폴더에 저장하고 그림 번호를 돌려줍니다.
+func (a *App) SaveSurveyImage(dataURL string) (string, error) {
+	return a.vault.SaveSurveyImage(dataURL)
+}
+
+// GetSurveyImage는 설문 그림을 교사 화면에서 보일 data URL로 돌려줍니다.
+func (a *App) GetSurveyImage(imageID string) (string, error) {
+	return a.vault.GetSurveyImageURL(imageID)
+}

@@ -1,6 +1,14 @@
 import { useMemo } from "react";
+import { SurveyImage } from "./QuestionMedia";
 import { answerText, respondentLabel, summarizeResults, typeLabel } from "./surveyBuilderState";
 import type { SurveyItem } from "./surveyTypes";
+import type { SavedQuestion } from "./surveyBuilderState";
+
+/** 결과 줄의 보기 그림(기타 줄에는 없음). */
+function optionImage(question: SavedQuestion, option: string) {
+  const index = (question.options || []).indexOf(option);
+  return index >= 0 ? question.optionImages?.[index] || "" : "";
+}
 
 type Props = { survey: SurveyItem; nameByStudentID: Map<string, string>; formatRecordedAt: (value: string) => string };
 
@@ -15,10 +23,11 @@ export function SurveyResults({ survey, nameByStudentID, formatRecordedAt }: Pro
         {results.map((result, index) => (
           <article key={result.question.id || index}>
             <b>{index + 1}. {result.question.text} <small>{typeLabel(result.question.type || "")} · 답한 사람 {result.answered}명</small></b>
+            {result.question.imageId && <SurveyImage imageId={result.question.imageId} alt={`${index + 1}번 문항 그림`} className="result-question-image" />}
             {result.average !== null && <p className="survey-scale-average">평균 <strong>{result.average.toFixed(2)}</strong>점</p>}
             {result.rows.map((row) => (
               <div key={row.option} className="survey-result-row">
-                <span>{row.option}</span>
+                <span>{optionImage(result.question, row.option) && <SurveyImage imageId={optionImage(result.question, row.option)} alt={row.option} className="result-option-image" />}{row.option}</span>
                 <span className="survey-result-bar" aria-hidden="true"><i style={{ width: `${row.percent}%` }} /></span>
                 <strong>{row.count}명</strong>
                 <em>{row.percent}%</em>

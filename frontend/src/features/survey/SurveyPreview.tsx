@@ -1,5 +1,7 @@
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
+import { SurveyImage } from "./QuestionMedia";
 import type { SavedQuestion } from "./surveyBuilderState";
+import { alignedImages } from "./surveyMediaState";
 
 type Props = { open: boolean; onOpenChange: (open: boolean) => void; title: string; description: string; questions: SavedQuestion[] };
 
@@ -22,10 +24,19 @@ function PreviewBody({ question, index }: { question: SavedQuestion; index: numb
       );
     default: {
       const kind = question.type === "복수 선택" ? "checkbox" : "radio";
+      const images = alignedImages(options, question.optionImages);
+      const pictured = images.some(Boolean);
       return (
         <>
           {kind === "checkbox" && <p className="preview-hint">{question.maxChoices ? `최대 ${question.maxChoices}개까지 고를 수 있어요.` : "해당하는 것을 모두 골라 주세요."}</p>}
-          {options.map((o) => <label className="preview-option" key={o}><input type={kind} name={name} /> <span>{o}</span></label>)}
+          <div className={pictured ? "preview-option-grid" : undefined}>
+            {options.map((o, i) => (
+              <label className={`preview-option${pictured ? " pictured" : ""}`} key={o}>
+                {images[i] && <SurveyImage imageId={images[i]} alt={o} />}
+                <span><input type={kind} name={name} /> {o}</span>
+              </label>
+            ))}
+          </div>
           {question.allowOther && <label className="preview-option"><input type={kind} name={name} /> <span>기타(직접 입력)</span></label>}
         </>
       );
@@ -50,6 +61,7 @@ export function SurveyPreview({ open, onOpenChange, title, description, question
               <fieldset key={index}>
                 <legend>{index + 1}. {question.text || "(질문 없음)"}{!question.optional && <span className="required-mark" aria-label="필수"> *</span>}</legend>
                 {question.description && <p className="preview-description">{question.description}</p>}
+                {question.imageId && <SurveyImage imageId={question.imageId} alt={`${index + 1}번 문항 그림`} className="preview-question-image" />}
                 <PreviewBody question={question} index={index} />
               </fieldset>
             ))}

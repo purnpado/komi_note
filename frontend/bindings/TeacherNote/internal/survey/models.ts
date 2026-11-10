@@ -48,6 +48,12 @@ export interface SurveyQuestion {
     "scaleSteps"?: number;
     "scaleMinLabel"?: string;
     "scaleMaxLabel"?: string;
+
+    /**
+     * ImageID는 문항 그림(교사 보관함의 암호화 파일 번호), OptionImages는 보기와 같은 순서의 보기 그림(없으면 "").
+     */
+    "imageId"?: string;
+    "optionImages"?: string[] | null;
 }
 
 /**

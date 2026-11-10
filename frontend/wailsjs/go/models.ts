@@ -1404,6 +1404,8 @@ export namespace main {
 	    scaleSteps?: number;
 	    scaleMinLabel?: string;
 	    scaleMaxLabel?: string;
+	    imageId?: string;
+	    optionImages?: string[];
 
 	    static createFrom(source: any = {}) {
 	        return new SurveyQuestion(source);
@@ -1422,6 +1424,8 @@ export namespace main {
 	        this.scaleSteps = source["scaleSteps"];
 	        this.scaleMinLabel = source["scaleMinLabel"];
 	        this.scaleMaxLabel = source["scaleMaxLabel"];
+	        this.imageId = source["imageId"];
+	        this.optionImages = source["optionImages"];
 	    }
 	}
 	export class Survey {
