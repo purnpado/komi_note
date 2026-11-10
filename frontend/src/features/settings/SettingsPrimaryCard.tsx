@@ -92,6 +92,15 @@ export function SettingsPrimaryCard({ view: hookView }: { view: SettingsPageView
             />
           </label>
           <label>
+            담임 교사 성명
+            <input
+              value={draft.teacherName || ""}
+              maxLength={20}
+              placeholder="출결 서류 {{담임교사}} 칸에 들어갈 이름"
+              onChange={(event) => update({ teacherName: event.target.value })}
+            />
+          </label>
+          <label>
             담당 교과
             <input
               value={draft.teachingSubject || ""}

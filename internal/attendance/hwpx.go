@@ -49,8 +49,16 @@ func ReplaceAttendanceHWPX(source []byte, values map[string]string) ([]byte, []s
 			return nil, nil, err
 		}
 		if strings.HasSuffix(strings.ToLower(name), ".xml") {
+			changed := false
 			for key, value := range values {
-				data = ReplaceXMLMarker(data, key, XMLEscape(value))
+				next := ReplaceXMLMarker(data, key, fillMark+XMLEscape(strings.ReplaceAll(value, fillMark, "")))
+				if !bytes.Equal(next, data) {
+					changed = true
+				}
+				data = next
+			}
+			if changed {
+				data = dropFilledLineSegments(data)
 			}
 			plainText := html.UnescapeString(xmlTagPattern.ReplaceAllString(string(data), ""))
 			for _, match := range attendanceMarkerPattern.FindAllStringSubmatch(plainText, -1) {
@@ -137,4 +145,46 @@ func attendanceXMLMarkerPattern(key string) *regexp.Regexp {
 func XMLEscape(value string) string {
 	replacer := strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", "\"", "&quot;", "'", "&apos;")
 	return replacer.Replace(value)
+}
+
+// fillMark는 치환한 자리를 잠깐 표시하는 글자다(XML에 쓸 수 없는 글자라 원래 내용과 겹치지 않음).
+const fillMark = "\x00"
+
+// dropFilledLineSegments는 치환자를 채운 문단의 줄 배치 기록(<hp:linesegarray>)만 지우고 표시를 없앤다.
+// 한글은 이 기록이 없으면 줄 나눔을 다시 계산하므로, 글 길이가 바뀌어도 줄이 어긋나지 않는다(2026-11-10 사용자 결정).
+// 같은 문단 안(다음 문단 시작·끝보다 앞)에 있는 기록만 지워, 표 안 문단 등 다른 문단은 그대로 둔다.
+func dropFilledLineSegments(data []byte) []byte {
+	const open, close = "<hp:linesegarray", "</hp:linesegarray>"
+	rest := string(data)
+	var out strings.Builder
+	out.Grow(len(rest))
+	for {
+		index := strings.Index(rest, fillMark)
+		if index < 0 {
+			out.WriteString(rest)
+			break
+		}
+		out.WriteString(rest[:index])
+		rest = rest[index+len(fillMark):]
+		segment := strings.Index(rest, open)
+		paragraphEnd := strings.Index(rest, "</hp:p>")
+		paragraphStart := strings.Index(rest, "<hp:p ")
+		if segment < 0 || (paragraphEnd >= 0 && paragraphEnd < segment) || (paragraphStart >= 0 && paragraphStart < segment) {
+			continue
+		}
+		tagEnd := strings.Index(rest[segment:], ">")
+		if tagEnd < 0 {
+			continue
+		}
+		if strings.HasSuffix(rest[segment:segment+tagEnd+1], "/>") {
+			rest = rest[:segment] + rest[segment+tagEnd+1:]
+			continue
+		}
+		closing := strings.Index(rest[segment:], close)
+		if closing < 0 {
+			continue
+		}
+		rest = rest[:segment] + rest[segment+closing+len(close):]
+	}
+	return []byte(out.String())
 }

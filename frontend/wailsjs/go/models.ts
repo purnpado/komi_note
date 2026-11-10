@@ -682,6 +682,7 @@ export namespace main {
 	    grade: string;
 	    classNumber: string;
 	    teacherLabel: string;
+	    teacherName?: string;
 	    teachingSubject: string;
 	    teachingClasses: string[];
 	    theme: string;
@@ -710,6 +711,7 @@ export namespace main {
 	        this.grade = source["grade"];
 	        this.classNumber = source["classNumber"];
 	        this.teacherLabel = source["teacherLabel"];
+	        this.teacherName = source["teacherName"];
 	        this.teachingSubject = source["teachingSubject"];
 	        this.teachingClasses = source["teachingClasses"];
 	        this.theme = source["theme"];

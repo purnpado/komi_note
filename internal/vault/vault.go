@@ -20,12 +20,14 @@ const (
 
 // ClassConfig은 암호화 보관함 안에 저장하는 학급 기본 설정입니다.
 type ClassConfig struct {
-	SchoolName                  string   `json:"schoolName"`
-	SchoolYear                  string   `json:"schoolYear"`
-	TeacherRole                 string   `json:"teacherRole"`
-	Grade                       string   `json:"grade"`
-	ClassNumber                 string   `json:"classNumber"`
-	TeacherLabel                string   `json:"teacherLabel"`
+	SchoolName   string `json:"schoolName"`
+	SchoolYear   string `json:"schoolYear"`
+	TeacherRole  string `json:"teacherRole"`
+	Grade        string `json:"grade"`
+	ClassNumber  string `json:"classNumber"`
+	TeacherLabel string `json:"teacherLabel"`
+	// TeacherName은 출결 서류 {{담임교사}}에 들어갈 담임 교사 성명(2026-11-10). 비어 있으면 빈칸.
+	TeacherName                 string   `json:"teacherName,omitempty"`
 	TeachingSubject             string   `json:"teachingSubject"`
 	TeachingClasses             []string `json:"teachingClasses"`
 	Theme                       string   `json:"theme"`

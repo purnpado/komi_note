@@ -87,6 +87,7 @@ func normaliseConfig(config ClassConfig) ClassConfig {
 	config.Grade = strings.TrimSpace(config.Grade)
 	config.ClassNumber = strings.TrimSpace(config.ClassNumber)
 	config.TeacherLabel = strings.TrimSpace(config.TeacherLabel)
+	config.TeacherName = strings.TrimSpace(config.TeacherName)
 	config.TeachingSubject = strings.TrimSpace(config.TeachingSubject)
 	classes := make([]string, 0, len(config.TeachingClasses))
 	seenClasses := map[string]bool{}

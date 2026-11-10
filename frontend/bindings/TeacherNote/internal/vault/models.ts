@@ -110,6 +110,11 @@ export interface ClassConfig {
     "grade": string;
     "classNumber": string;
     "teacherLabel": string;
+
+    /**
+     * TeacherName은 출결 서류 {{담임교사}}에 들어갈 담임 교사 성명(2026-11-10). 비어 있으면 빈칸.
+     */
+    "teacherName"?: string;
     "teachingSubject": string;
     "teachingClasses": string[] | null;
     "theme": string;

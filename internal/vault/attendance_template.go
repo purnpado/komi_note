@@ -245,6 +245,9 @@ func attendanceReservedToken(key string) bool {
 		}
 	}
 	reserved := map[string]bool{"이름": true, "학번": true, "학년": true, "반": true, "번호": true, "출결상태": true, "사유구분": true, "상세사유": true, "교시": true, "보호자성명": true, "보호자관계": true, "보호자연락처": true, "담임교사": true, "결석일수": true}
+	if _, mark := attendance.AttendanceMarkTokens(AttendanceEntry{})[key]; mark {
+		return true
+	}
 	return reserved[key]
 }
 
@@ -398,7 +401,11 @@ func (s *VaultStore) BuildAttendanceHWPX(templateID, studentID, date string) (At
 			return AttendanceHWPXBuildResult{}, errors.New("학생 정보에 결석신고서용 보호자 성명을 입력하거나 선택해 주세요")
 		}
 	}
-	values := map[string]string{"이름": student.Name, "학번": student.StudentID, "학년": s.session.Config.Grade, "반": s.session.Config.ClassNumber, "번호": fmt.Sprintf("%d", student.Number), "출결상태": entry.Status, "사유구분": entry.ReasonCategory, "상세사유": entry.Reason, "교시": entry.Period, "보호자성명": guardianName, "보호자관계": guardianRelation, "보호자연락처": guardianPhone, "담임교사": s.session.Config.TeacherLabel, "결석일수": fmt.Sprintf("%d", period.SchoolDays)}
+	values := map[string]string{"이름": student.Name, "학번": student.StudentID, "학년": s.session.Config.Grade, "반": s.session.Config.ClassNumber, "번호": fmt.Sprintf("%d", student.Number), "출결상태": entry.Status, "사유구분": entry.ReasonCategory, "상세사유": entry.Reason, "교시": entry.Period, "보호자성명": guardianName, "보호자관계": guardianRelation, "보호자연락처": guardianPhone, "담임교사": s.session.Config.TeacherName, "결석일수": fmt.Sprintf("%d", period.SchoolDays)}
+	// 학교 서식의 체크 칸("질병 (  ) 기타 (  ) …")과 교시 칸("( ) 교시 ~ ( ) 교시")용(2026-11-10 실제 서식 점검)
+	for key, value := range attendance.AttendanceMarkTokens(entry) {
+		values[key] = value
+	}
 	for key, value := range attendance.AttendanceDateTokens("기준", date) {
 		values[key] = value
 	}

@@ -1,6 +1,7 @@
 package attendance
 
 import (
+	"regexp"
 	"strings"
 	"time"
 
@@ -43,4 +44,47 @@ func AttendanceOutputStudents(day AttendanceDay, list []students.Student) []stud
 		}
 	}
 	return result
+}
+
+// AttendanceMarkTokens는 학교 서식의 체크 칸과 교시 칸용 치환자를 만듭니다(2026-11-10).
+// {{질병표시}}·{{미인정표시}}·{{기타표시}}·{{출석인정표시}}: 사유 구분에 해당하면 "○", 아니면 빈칸.
+// {{결석표시}}·{{지각표시}}·{{조퇴표시}}·{{결과표시}}: 출결 상태에 해당하면 "○".
+// {{시작교시}}·{{종료교시}}: "1~2교시"·"3교시" 같은 교시 입력에서 나눈 숫자.
+func AttendanceMarkTokens(entry AttendanceEntry) map[string]string {
+	mark := func(ok bool) string {
+		if ok {
+			return "○"
+		}
+		return ""
+	}
+	reason := strings.TrimSpace(entry.ReasonCategory)
+	status := strings.TrimSpace(entry.Status)
+	start, end := splitPeriod(entry.Period)
+	return map[string]string{
+		"질병표시":   mark(reason == "질병"),
+		"미인정표시":  mark(reason == "미인정"),
+		"기타표시":   mark(reason == "기타"),
+		"출석인정표시": mark(reason == "출석인정" || reason == "인정"),
+		"결석표시":   mark(status == "결석"),
+		"지각표시":   mark(status == "지각"),
+		"조퇴표시":   mark(status == "조퇴"),
+		"결과표시":   mark(status == "결과"),
+		"시작교시":   start,
+		"종료교시":   end,
+	}
+}
+
+var periodNumbers = regexp.MustCompile(`\d+`)
+
+// splitPeriod는 "1~2교시"·"1-2"·"3교시"에서 시작·끝 교시 숫자를 꺼냅니다(숫자가 하나면 시작=끝).
+func splitPeriod(value string) (string, string) {
+	numbers := periodNumbers.FindAllString(value, -1)
+	switch len(numbers) {
+	case 0:
+		return "", ""
+	case 1:
+		return numbers[0], numbers[0]
+	default:
+		return numbers[0], numbers[len(numbers)-1]
+	}
 }
