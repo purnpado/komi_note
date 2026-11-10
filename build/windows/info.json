@@ -1,12 +1,12 @@
 {
 	"fixed": {
-		"file_version": "0.1.5",
-		"product_version": "0.1.5"
+		"file_version": "0.1.6",
+		"product_version": "0.1.6"
 	},
 	"info": {
 		"0409": {
-			"FileVersion": "0.1.5",
-			"ProductVersion": "0.1.5",
+			"FileVersion": "0.1.6",
+			"ProductVersion": "0.1.6",
 			"CompanyName": "My Company",
 			"FileDescription": "A sample application",
 			"LegalCopyright": "© 2026, My Company",
