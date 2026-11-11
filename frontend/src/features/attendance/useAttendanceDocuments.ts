@@ -43,11 +43,12 @@ export function useAttendanceDocumentsState(shared: UseAttendanceShared) {
   const dailyDocumentEntry = day?.entries.find((entry) => entry.studentId === documentStudent?.id);
   useEffect(() => {
     setDocumentPeriod(null);
-    if (!documentStudent || !dailyDocumentEntry || dailyDocumentEntry.status === "출석") return;
+    // 날짜를 옮기는 중(아직 앞 날짜 기록)이거나 저장된 적 없는 날에는 묻지 않는다.
+    if (!documentStudent || !dailyDocumentEntry || dailyDocumentEntry.status === "출석" || day?.date !== date || !day?.savedAt) return;
     GetAttendanceDocumentPeriod(documentStudent.id, date)
       .then((item) => setDocumentPeriod(new models.AttendanceDocumentPeriod(item)))
       .catch(() => setDocumentPeriod(null));
-  }, [documentStudent?.id, dailyDocumentEntry?.status, date]);
+  }, [documentStudent?.id, dailyDocumentEntry?.status, date, day?.date, day?.savedAt]);
   const documentEntry = documentPeriod?.entry || dailyDocumentEntry;
   const outputStatus = documentEntry?.status || "";
   const outputTemplates = useMemo(
@@ -61,10 +62,6 @@ export function useAttendanceDocumentsState(shared: UseAttendanceShared) {
       outputTemplates.some((item) => item.id === current?.id) ? current : outputTemplates[0] || null,
     );
   }, [attendanceTab, outputStatus, outputTemplates]);
-  const koreanDate = (value: string) => {
-    const matched = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-    return matched ? `${matched[1]}년 ${matched[2]}월 ${matched[3]}일` : value;
-  };
   const baseDocumentValues: Record<string, string> = {
     성명: documentStudent?.name || "학생 선택 필요",
     "학년·반·번호":

@@ -1,3 +1,4 @@
+import { reasonOptions } from "./attendanceReasonState";
 export function AttendanceInputTab(props: any) {
   const { date, weekday, markAllPresent, day, busy, saveAttendance, notice, moveDate, dateInputRef, setDate, summary, studentByID, openStudent, updateEntry, resizeReason } = props;
   return (
@@ -147,12 +148,9 @@ export function AttendanceInputTab(props: any) {
                             })
                           }
                         >
-                          <option value="">선택 안 함</option>
-                          <option value="질병">질병</option>
-                          <option value="미인정">미인정</option>
-                          <option value="기타">기타</option>
-                          <option value="출석인정">출석인정</option>
-                          <option value="직접 입력">직접 입력</option>
+                          {reasonOptions(entry.reasonCategory).map((option) => (
+                            <option key={option.value} value={option.value}>{option.label}</option>
+                          ))}
                         </select>
                         <input
                           value={entry.period}

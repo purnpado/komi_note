@@ -5,7 +5,7 @@ export function weekday(value: string) {
 
 export function koreanDate(value: string) {
   const matched = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-  return matched ? `${matched[1]}년 ${matched[2]}월 ${matched[3]}일` : value;
+  return matched ? `${matched[1]}년 ${Number(matched[2])}월 ${Number(matched[3])}일` : value;
 }
 
 export function parseHWPXCustomValues(source: string) {

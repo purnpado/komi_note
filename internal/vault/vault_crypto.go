@@ -10,6 +10,8 @@ import (
 	"fmt"
 	"io"
 
+	"TeacherNote/internal/attendance"
+
 	"golang.org/x/crypto/argon2"
 )
 
@@ -25,6 +27,7 @@ func decryptVaultData(key []byte, data encryptedBlob) (vaultData, error) {
 	if err := json.Unmarshal(payload, &result); err != nil {
 		return vaultData{}, err
 	}
+	attendance.UpgradeLegacyReasonCategories(result.AttendanceDays)
 	return result, nil
 }
 

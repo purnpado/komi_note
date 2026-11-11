@@ -52,9 +52,10 @@
 .attendance-student-link:hover { color:#08755a; text-decoration:underline; }
 .attendance-filters { display:flex; gap:7px; flex-wrap:wrap; margin:4px 0 12px; }
 .attendance-filters select { padding:7px 9px; border:1px solid #d8e4e0; border-radius:8px; background:#fff; color:#45655a; font:inherit; font-size:12px; font-weight:700; }
-.student-attendance-summary { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:7px; margin-bottom:11px; }
+.student-attendance-summary { display:grid; grid-template-columns:repeat(auto-fill, minmax(104px, 1fr)); gap:7px; margin-bottom:11px; }
 .student-attendance-summary span { padding:9px 8px; border-radius:8px; background:#f2f7f5; color:#507067; font-size:12px; }
 .student-attendance-summary b { display:block; margin-top:3px; color:#194f40; font-size:15px; }
+.student-attendance-summary small { display:block; margin-top:3px; color:#507067; font-size:12px; line-height:1.35; }
 .student-attendance-list { display:flex; flex-direction:column; gap:6px; max-height:300px; overflow:auto; }
 .student-attendance-record { display:grid; grid-template-columns:135px 42px 1fr auto; align-items:center; gap:8px; width:100%; padding:9px; border:1px solid #e1e9e6; border-radius:8px; background:#fff; color:#3e5258; text-align:left; cursor:pointer; font:inherit; font-size:12px; }
 .student-attendance-record:hover { border-color:#77b9a4; background:#f5fbf8; }

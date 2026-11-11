@@ -57,14 +57,14 @@ func AttendanceMarkTokens(entry AttendanceEntry) map[string]string {
 		}
 		return ""
 	}
-	reason := strings.TrimSpace(entry.ReasonCategory)
+	reason := NormaliseReasonCategory(entry.ReasonCategory)
 	status := strings.TrimSpace(entry.Status)
 	start, end := splitPeriod(entry.Period)
 	return map[string]string{
 		"질병표시":   mark(reason == "질병"),
 		"미인정표시":  mark(reason == "미인정"),
 		"기타표시":   mark(reason == "기타"),
-		"출석인정표시": mark(reason == "출석인정" || reason == "인정"),
+		"출석인정표시": mark(reason == "출석인정"),
 		"결석표시":   mark(status == "결석"),
 		"지각표시":   mark(status == "지각"),
 		"조퇴표시":   mark(status == "조퇴"),

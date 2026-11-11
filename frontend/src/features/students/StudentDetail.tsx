@@ -87,7 +87,7 @@ export function StudentCard({
     attendanceYears,
     attendanceEntries,
     filteredAttendance,
-    attendanceCounts,
+    attendanceSummary,
     experienceUsage,
     semesterExperienceUsage,
     consultationYears,

@@ -16,6 +16,7 @@ import { main as models } from "../../../wailsjs/go/models";
 import type { StudentDetailNavigationRequest } from "../shared/featureNavigation";
 import { errorMessage } from "../shared/format";
 import { schoolYearOf } from "../attendance/attendanceUtils";
+import { summariseAttendance } from "../attendance/attendanceReasonState";
 
 export function formatPhone(value: string) {
   const digits = value.replace(/\D/g, "").slice(0, 11);
@@ -147,17 +148,7 @@ export function useStudentCard({
       }),
     [attendanceEntries, attendanceYear, attendanceMonth, attendanceSemester, config],
   );
-  const attendanceCounts = useMemo(
-    () =>
-      filteredAttendance.reduce(
-        (counts, { entry }) => {
-          counts[entry.status] = (counts[entry.status] || 0) + 1;
-          return counts;
-        },
-        {} as Record<string, number>,
-      ),
-    [filteredAttendance],
-  );
+  const attendanceSummary = useMemo(() => summariseAttendance(filteredAttendance.map(({ entry }) => entry)), [filteredAttendance]);
   const experienceUsage = useMemo(
     () =>
       attendanceEntries.filter(
@@ -292,7 +283,7 @@ export function useStudentCard({
     attendanceYears,
     attendanceEntries,
     filteredAttendance,
-    attendanceCounts,
+    attendanceSummary,
     experienceUsage,
     semesterExperienceUsage,
     consultationYears,

@@ -3,7 +3,7 @@ import type { StudentCardView } from "./useStudentCard";
 
 /** StudentDetail.tsx에서 떼어 낸 화면 구역 */
 export function StudentAttendancePanel({ view }: { view: StudentCardView }) {
-  const { attendanceYear, setAttendanceYear, attendanceSemester, setAttendanceSemester, attendanceMonth, setAttendanceMonth, attendanceYears, filteredAttendance, attendanceCounts, experienceUsage, semesterExperienceUsage, value, student, config, requestNavigation } = view;
+  const { attendanceYear, setAttendanceYear, attendanceSemester, setAttendanceSemester, attendanceMonth, setAttendanceMonth, attendanceYears, filteredAttendance, attendanceSummary, experienceUsage, semesterExperienceUsage, value, student, config, requestNavigation } = view;
   return (
     <>
       <section className="student-card-grid future-links">
@@ -60,20 +60,19 @@ export function StudentAttendancePanel({ view }: { view: StudentCardView }) {
             </select>
           </div>
           <div className="student-attendance-summary">
-            <span>
-              결석 <b>{attendanceCounts.결석 || 0}일</b>
+            {attendanceSummary.tallies.map((tally) => (
+              <span key={tally.status}>
+                {tally.status} <b>{tally.total}{tally.unit}</b>
+                {tally.byReason.length > 0 && (
+                  <small>{tally.byReason.map((item) => `${item.label} ${item.count}`).join(" · ")}</small>
+                )}
+              </span>
+            ))}
+            <span title="학교생활기록부에서 출석으로 칩니다. 위 결석·지각·조퇴·결과에는 넣지 않았습니다.">
+              출석인정 <b>{attendanceSummary.recognised}회</b>
             </span>
             <span>
-              지각 <b>{attendanceCounts.지각 || 0}회</b>
-            </span>
-            <span>
-              조퇴 <b>{attendanceCounts.조퇴 || 0}회</b>
-            </span>
-            <span>
-              결과 <b>{attendanceCounts.결과 || 0}회</b>
-            </span>
-            <span>
-              교외체험 <b>{attendanceCounts.교외체험학습 || 0}일</b>
+              교외체험 <b>{attendanceSummary.experience}일</b>
             </span>
           </div>
           {config?.experienceLearningUnit === "학기" ? (

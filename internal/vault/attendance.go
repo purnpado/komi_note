@@ -196,7 +196,7 @@ func (s *VaultStore) SaveAttendance(day AttendanceDay) (AttendanceDay, error) {
 	for _, entry := range day.Entries {
 		entry.StudentID = strings.TrimSpace(entry.StudentID)
 		entry.Status = strings.TrimSpace(entry.Status)
-		entry.ReasonCategory = strings.TrimSpace(entry.ReasonCategory)
+		entry.ReasonCategory = attendance.NormaliseReasonCategory(entry.ReasonCategory)
 		entry.Reason = strings.TrimSpace(entry.Reason)
 		entry.Period = strings.TrimSpace(entry.Period)
 		if !allowed[entry.StudentID] || seen[entry.StudentID] {

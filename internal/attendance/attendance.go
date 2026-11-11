@@ -81,14 +81,39 @@ var AttendanceStatuses = map[string]bool{
 	"교외체험학습": true,
 }
 
-var AttendanceReasonCategories = map[string]bool{
-	"":      true,
-	"질병":    true,
-	"미인정":   true,
-	"기타":    true,
-	"인정":    true,
-	"출석인정":  true,
-	"직접 입력": true,
+// AttendanceReasonCategoryList는 화면에서 고르는 사유 구분입니다(학교생활기록부와 같음, 2026-11-10 정리).
+// 화면 목록 frontend/src/features/attendance/attendanceReasonState.ts의 REASON_CATEGORIES와 같아야 합니다.
+var AttendanceReasonCategoryList = []string{"질병", "미인정", "기타", "출석인정"}
+
+// LegacyCustomReasonCategory는 예전 화면에 있던 '직접 입력'입니다. 이미 저장된 기록은 그대로 두므로 다시 저장해도 받습니다.
+const LegacyCustomReasonCategory = "직접 입력"
+
+// AttendanceReasonCategories는 저장할 때 받는 사유 구분입니다(선택 안 함 + 목록 + 예전 '직접 입력').
+var AttendanceReasonCategories = func() map[string]bool {
+	result := map[string]bool{"": true, LegacyCustomReasonCategory: true}
+	for _, item := range AttendanceReasonCategoryList {
+		result[item] = true
+	}
+	return result
+}()
+
+// NormaliseReasonCategory는 앞뒤 빈칸을 지우고 예전 값 '인정'을 '출석인정'으로 바꿉니다.
+func NormaliseReasonCategory(value string) string {
+	value = strings.TrimSpace(value)
+	if value == "인정" {
+		return "출석인정"
+	}
+	return value
+}
+
+// UpgradeLegacyReasonCategories는 보관함을 열 때 저장된 '인정'을 '출석인정'으로 바꿉니다(같은 사유끼리 서류 기간이 이어지게).
+func UpgradeLegacyReasonCategories(days []AttendanceDay) {
+	for dayIndex := range days {
+		for entryIndex := range days[dayIndex].Entries {
+			entry := &days[dayIndex].Entries[entryIndex]
+			entry.ReasonCategory = NormaliseReasonCategory(entry.ReasonCategory)
+		}
+	}
 }
 
 // WeekdayCount는 시작일부터 종료일까지의 주말 제외 수업일 수를 반환합니다.
